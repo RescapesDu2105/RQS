@@ -101,6 +101,8 @@ DECLARE
           and column_name in ('ID', 'TITLE', 'STATUS','VOTE_AVERAGE','VOTE_COUNT','RUNTIME','CERTIFICATION'));
           
     Execute IMMEDIATE requeteBlock BULK COLLECT INTO resultats;
+    Procedure_Logs(CURRENT_TIMESTAMP, "Apres requête des colonnes simples", "AnalyseCI", 1);
+    Procedure_Logs(CURRENT_TIMESTAMP, DBMS_UTILITY.format_error_backtrace, DBMS_UTILITY.format_error_stack, 1);
     save_file(resultats);
     
     l_col:=Liste_Col('GENRES','DIRECTORS');
