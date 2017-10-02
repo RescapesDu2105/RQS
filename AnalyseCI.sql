@@ -57,6 +57,8 @@ DECLARE
             Procedure_Logs(CURRENT_TIMESTAMP, DBMS_UTILITY.format_error_backtrace, DBMS_UTILITY.format_error_stack, 2);
 	END save_file;
     
+    Procedure_Logs(CURRENT_TIMESTAMP, 'Apres requête sur les titres', 'AnalyseCI', 1);
+    
     BEGIN
         fichierStat := utl_file.fopen ('MYDIR', 'AnalyseCI.txt', 'W');
         utl_file.put_line (fichierStat, 'Statistiques colonnes');
@@ -101,9 +103,8 @@ DECLARE
           and column_name in ('ID', 'TITLE', 'STATUS','VOTE_AVERAGE','VOTE_COUNT','RUNTIME','CERTIFICATION'));
           
     Execute IMMEDIATE requeteBlock BULK COLLECT INTO resultats;
-    Procedure_Logs(CURRENT_TIMESTAMP, "Apres requête des colonnes simples", "AnalyseCI", 1);
-    Procedure_Logs(CURRENT_TIMESTAMP, DBMS_UTILITY.format_error_backtrace, DBMS_UTILITY.format_error_stack, 1);
     save_file(resultats);
+    Procedure_Logs(CURRENT_TIMESTAMP, 'Apres requête des colonnes simples', 'AnalyseCI', 1);
     
     l_col:=Liste_Col('GENRES','DIRECTORS');
 	FOR indx IN 1 .. l_col.count LOOP
@@ -165,4 +166,6 @@ DECLARE
 	END LOOP;
     utl_file.fclose(fichierStat);
     END ;
+    
+    Procedure_Logs(CURRENT_TIMESTAMP, 'Apres requête sur les genres et les directors', 'AnalyseCI', 1);
 END ;
