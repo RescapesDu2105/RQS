@@ -21,37 +21,40 @@ DECLARE
 	BEGIN
 	FOR indx IN 1 .. tab.COUNT LOOP
   /* Titre */
-     IF coalesce(prev, '-') != tab(indx).col THEN
-        IF  UPPER(tab(indx).col) LIKE '%ID%' THEN
-            utl_file.put_line(fichierStat, ' ');
-            utl_file.put_line(fichierStat, replace(tab(indx-1).col || '_ID', '_', ' '));
-            utl_file.put_line(fichierStat, RPAD('-', 35, '-'));
-        else 
-            utl_file.put_line(fichierStat, ' ');
-            utl_file.put_line(fichierStat, replace(tab(indx).col, '_', ' '));
-            utl_file.put_line(fichierStat, RPAD('-', 35, '-'));
-        end if ;
-	 END IF;
-	  utl_file.put_line(fichierStat,
+        IF coalesce(prev, '-') != tab(indx).col THEN
+            IF  UPPER(tab(indx).col) LIKE '%ID%' THEN
+                utl_file.put_line(fichierStat, ' ');
+                utl_file.put_line(fichierStat, replace(tab(indx-1).col || '_ID', '_', ' '));
+                utl_file.put_line(fichierStat, RPAD('-', 35, '-'));
+            else 
+                utl_file.put_line(fichierStat, ' ');
+                utl_file.put_line(fichierStat, replace(tab(indx).col, '_', ' '));
+                utl_file.put_line(fichierStat, RPAD('-', 35, '-'));
+            end if ;
+	    END IF;
+	    utl_file.put_line(fichierStat,
 	    LPAD(
-      CASE tab(indx).function 
-        WHEN 'MIN' THEN 'Minimum'
-        WHEN 'MAX' THEN 'Maximum'
-        WHEN 'AVG' THEN 'Moyenne'
-        WHEN 'STDDEV' THEN 'Ecart-type'
-        WHEN 'MEDIAN' THEN 'Médiane'
-        WHEN 'COUNT' THEN 'Nombre d''élements'
-        WHEN 'Q95' THEN '95ème 100ème quantile'
-        WHEN 'Q9995' THEN '9995ème 10000ème quantile'
-        WHEN 'NBNULL' THEN 'Valeurs NULL'
-        WHEN 'UNIQUE' THEN 'Valeur unique(s)'
-        ELSE tab(indx).function
-      END
-      , 23, ' ') || ' : ' ||
-	    RPAD(tab(indx).value, 15, ' '));
-	  prev := tab(indx).col;
+            CASE tab(indx).function 
+                WHEN 'MIN' THEN 'Minimum'
+                WHEN 'MAX' THEN 'Maximum'
+                WHEN 'AVG' THEN 'Moyenne'
+                WHEN 'STDDEV' THEN 'Ecart-type'
+                WHEN 'MEDIAN' THEN 'Médiane'
+                WHEN 'COUNT' THEN 'Nombre d''élements'
+                WHEN 'Q95' THEN '95ème 100ème quantile'
+                WHEN 'Q9995' THEN '9995ème 10000ème quantile'
+                WHEN 'NBNULL' THEN 'Valeurs NULL'
+                WHEN 'UNIQUE' THEN 'Valeur unique(s)'
+                ELSE tab(indx).function
+            END
+            , 23, ' ') || ' : ' ||
+                RPAD(tab(indx).value, 15, ' '));
+            prev := tab(indx).col;
 	END LOOP;
-
+    -- Ceci est un test, ne pas taper
+    EXCEPTION
+        WHEN OTHERS THEN
+            Procedure_Logs(CURRENT_TIMESTAMP, DBMS_UTILITY.format_error_backtrace, DBMS_UTILITY.format_error_stack, 2);
 	END save_file;
     
     BEGIN
