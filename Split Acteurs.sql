@@ -6,12 +6,13 @@ with split(champs, debut, fin) as
               from split
               where fin <> 0
             )
-select   *              
+select *              
 from(
         select distinct
         cast(REGEXP_SUBSTR(champs,'[^․]+') as number) id,
         SUBSTR(REGEXP_SUBSTR(champs,'[^‖]+'),cast((regexp_instr(champs,'․')+1)as number))as nom,
-        REGEXP_SUBSTR(actors,'[^․]+[‖$]') as role
-        from split)
-        where id is not null 
-        and nom is not null;
+        SUBSTR((REGEXP_SUBSTR(champs,'[^․]+[‖$]')),1,LENGTH(REGEXP_SUBSTR(champs,'[^․]+[‖$]'))-1) as role
+        from split
+    )
+where id is not null 
+and nom is not null;
