@@ -3,7 +3,7 @@ DROP TABLE Errors_Logs;
 DROP SEQUENCE Sequence_Informational_Logs;
 DROP SEQUENCE Sequence_Errors_Logs;
 
-CREATE SEQUENCE Sequence_Informational_Logs ;
+CREATE SEQUENCE Sequence_Informational_Logs;
 CREATE SEQUENCE Sequence_Errors_Logs;
 
 CREATE TABLE Informational_Logs
