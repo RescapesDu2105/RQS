@@ -184,7 +184,7 @@ DECLARE
           count(LENGTH(roles)) roles_count, 
           PERCENTILE_CONT(0.95) WITHIN GROUP(ORDER BY LENGTH(roles)) roles_q95, 
           PERCENTILE_CONT(0.995) WITHIN GROUP(ORDER BY LENGTH(roles)) roles_q995,
-		  COUNT(NVL2(roles, NULL, 1)) roles_nbnull		  
+		  COUNT(NVL2(roles, NULL, 1)) roles_actors_nbnull		  
           FROM (
 				with split(champs, debut, fin) as 
 				(
