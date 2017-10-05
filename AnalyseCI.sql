@@ -129,9 +129,9 @@ DECLARE
           FROM (
              with split(champs, debut, fin) as 
             (
-              Select '|| l_col(indx) ||' , 1 debut, regexp_instr('||l_col(indx)||',''‖'') fin from movies_ext
+              Select '|| l_col(indx) ||' , 1 debut, instr('||l_col(indx)||',''‖'') fin from movies_ext
               union all
-              select champs, fin + 1, regexp_instr(champs, ''‖'', fin+1)
+              select champs, fin + 1, instr(champs, ''‖'', fin+1)
               from split
               where fin <> 0
             )
@@ -139,7 +139,7 @@ DECLARE
                 from(
                     select distinct
                     cast(REGEXP_SUBSTR(champs,''[^․]+'') as number) ide,
-                    SUBSTR(REGEXP_SUBSTR(champs,''[^‖]+''),cast((regexp_instr(champs,''․'')+1)as number))as nom
+                    SUBSTR(REGEXP_SUBSTR(champs,''[^‖]+''),cast((instr(champs,''․'')+1)as number))as nom
                     from split)
                     where ide is not null 
                     and nom is not null

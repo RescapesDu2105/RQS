@@ -1,18 +1,20 @@
+-- ․ ‖
+
 with split(champs, debut, fin) as 
-            (
-              Select actors , 1 debut, regexp_instr(actors,'‖') fin from movies_ext
-              union all
-              select champs, fin + 1, regexp_instr(champs, '‖', fin+1)
-              from split
-              where fin <> 0
-            )
-select *              
+(
+    Select actors , 1 debut, instr(actors,'‖') fin 
+    from movies_ext
+    union all
+    select champs, fin + 1, instr(champs, '‖', fin+1)
+    from split
+    where fin <> 0
+)
+select distinct
+cast(substr(tuple, 1, instr(tuple, '․') -1) as number) id,
+SUBSTR(tuple, instr(tuple, '․')+1, instr(tuple, '․', 1, 2) - instr(tuple, '․')-1) actors,
+substr(tuple, instr(tuple, '․', 1, 2)+1, LENGTH(tuple) - instr(tuple, '․', 1, 2)) roles
 from(
-        select distinct
-        cast(REGEXP_SUBSTR(champs,'[^․]+') as number) id,
-        SUBSTR(REGEXP_SUBSTR(champs,'[^‖]+'),cast((regexp_instr(champs,'․')+1)as number))as nom,
-        SUBSTR((REGEXP_SUBSTR(champs,'[^․]+[‖$]')),1,LENGTH(REGEXP_SUBSTR(champs,'[^․]+[‖$]'))-1) as role
-        from split
-    )
-where id is not null 
-and nom is not null;
+    SELECT SUBSTR(champs, debut, coalesce(fin, length(champs)+1) - debut) tuple
+    FROM split -- 1.593.318
+    WHERE champs IS NOT NULL --1.456.115
+);
