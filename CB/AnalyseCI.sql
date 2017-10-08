@@ -51,9 +51,8 @@ DECLARE
 	    RPAD(tab(indx).value, 15, ' '));
 	  prev := tab(indx).col;
 	END LOOP;
-
 	END save_file;
-    
+
     BEGIN
         fichierStat := utl_file.fopen ('MYDIR', 'AnalyseCI.txt', 'W');
         utl_file.put_line (fichierStat, 'Statistiques colonnes');
@@ -99,6 +98,7 @@ DECLARE
           
     Execute IMMEDIATE requeteBlock BULK COLLECT INTO resultats;
     save_file(resultats);
+    Procedure_Logs(CURRENT_TIMESTAMP, 'Ligne 101 - ', 'Fin analyse des colonnes VARCHAR2 et NUMBER', 1);
     
     l_col:=Liste_Col('GENRES','DIRECTORS');
 	FOR indx IN 1 .. l_col.count LOOP
@@ -154,6 +154,7 @@ DECLARE
 	    EXECUTE IMMEDIATE requeteBlock BULK COLLECT INTO resultats;
 	    save_file(resultats);
 		END LOOP;
+        Ajout_Log_Info(CURRENT_TIMESTAMP, 'Ligne 157 - ', 'Fin analyse des genres et directors', 1);
 		
 		SELECT substr(aliases, 1, instr(aliases, '_') -1),substr(aliases, instr(aliases, '_')+1, length(aliases) - instr(aliases, '_')), value
         BULK COLLECT INTO resultats
@@ -211,5 +212,6 @@ DECLARE
 									roles_min,roles_max,roles_moy,roles_ecarttype,roles_medianne,roles_count,roles_q95,roles_q995,roles_actors_nbnull));
 	save_file(resultats);
     utl_file.fclose(fichierStat);
-    END ;
+    END ;    
+    Ajout_Log_Info(CURRENT_TIMESTAMP, 'Ligne 216 - ', 'Fin analyse des acteurs', 1);
 END ;
