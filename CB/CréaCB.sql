@@ -27,16 +27,17 @@ CREATE TABLE status (
 CREATE TABLE genres (
     IdGenre   	  NUMBER(5),-- MAX=5
     NomGenre 	  VARCHAR2(12),-- 95 quantile=11 et 995 quantile=15
-    CONSTRAINT genre_pk 		PRIMARY KEY (IdGenre),
-    CONSTRAINT genre_NomGenre_ck 	CHECK (NomGenre IS NOT NULL),
-    CONSTRAINT genre_NomGenre_un 	UNIQUE (NomGenre)
+    CONSTRAINT genres_pk 		PRIMARY KEY (IdGenre),
+    CONSTRAINT genres_NomGenre_ck 	CHECK (NomGenre IS NOT NULL),
+    CONSTRAINT genres_NomGenre_un 	UNIQUE (NomGenre)
 );
 
 CREATE TABLE posters (
 	IdPoster 	NUMBER 	GENERATED ALWAYS AS IDENTITY,
+	film		NUMBER ,
 	PathImage 	VARCHAR2(100),
 	Image 		BLOB,
-	CONSTRAINT poster_pk PRIMARY KEY (IdPoster)
+	CONSTRAINT posters_pk PRIMARY KEY (IdPoster)
 );
 
 -- Voir les valeurs d'analyse CI
@@ -53,14 +54,16 @@ CREATE TABLE Films (
     Duree       	NUMBER(6),
     Budget        	NUMBER(10,2) NOT NULL,
     poster        	NUMBER,
-    CONSTRAINT movie_pk 					PRIMARY KEY (IdFilm),
-    CONSTRAINT movie_status_fk  			FOREIGN KEY (status) REFERENCES status(IdStatus),
-	CONSTRAINT movie_vote_count_minVal_ck 	CHECK (vote_count IS NULL OR vote_count >= 0),
-	CONSTRAINT movie_certification_fk 		FOREIGN KEY (certification) REFERENCES certifications(IdCerti),
-	CONSTRAINT movie_Duree_minVal_ck 		CHECK (Duree IS NULL OR Duree >= 0),
-	CONSTRAINT movie_Budget_minVal_ck 		CHECK (Budget IS NULL OR Budget >= 0),
-	CONSTRAINT movie_poster$fk  			FOREIGN KEY (poster) REFERENCES posters(IdPoster)
+    CONSTRAINT films_pk 					PRIMARY KEY (IdFilm),
+    CONSTRAINT films_status_fk  			FOREIGN KEY (status) REFERENCES status(IdStatus),
+	CONSTRAINT films_vote_count_minVal_ck 	CHECK (vote_count IS NULL OR vote_count >= 0),
+	CONSTRAINT films_certification_fk 		FOREIGN KEY (certification) REFERENCES certifications(IdCerti),
+	CONSTRAINT films_Duree_minVal_ck 		CHECK (Duree IS NULL OR Duree >= 0),
+	CONSTRAINT films_Budget_minVal_ck 		CHECK (Budget IS NULL OR Budget >= 0),
+	CONSTRAINT films_poster_fk  			FOREIGN KEY (poster) REFERENCES posters(IdPoster)
 );
+
+ALTER TABLE posters ADD CONSTRAINT posters_films_fk FOREIGN KEY(film) REFERENCES Films(IdFilm);
 
 
 CREATE TABLE REALISER (
@@ -72,12 +75,12 @@ CREATE TABLE REALISER (
 CREATE TABLE Film_Genre (
     genre 	NUMBER(5) CONSTRAINT Film_Genre_genre_fk REFERENCES genres (IdGenre),
     Film 	NUMBER(6) CONSTRAINT Film_Genre_Film_fk REFERENCES Films (IdFilm),
-    CONSTRAINT Film_Genre_pk 	PRIMARY KEY (genre, Film)
+    CONSTRAINT Films_Genre_pk 	PRIMARY KEY (genre, Film)
 );
 CREATE TABLE JOUER (
     Film  		NUMBER(6) CONSTRAINT JOUER_movie_fk REFERENCES Films (IdFilm),
     Artist 		NUMBER(7) CONSTRAINT JOUER_artist_fk REFERENCES Artists (IdArt),
-    CONSTRAINT movie_actor_pk 	PRIMARY KEY (Film, Artist)
+    CONSTRAINT films_actor_pk 	PRIMARY KEY (Film, Artist)
 );
 
 CREATE TABLE Films_Copies (
