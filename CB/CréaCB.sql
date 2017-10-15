@@ -34,7 +34,7 @@ CREATE TABLE genres (
 
 CREATE TABLE posters (
 	IdPoster 	NUMBER 	GENERATED ALWAYS AS IDENTITY,
-	film		NUMBER ,
+	--film		NUMBER ,
 	PathImage 	VARCHAR2(100),
 	Image 		BLOB,
 	CONSTRAINT posters_pk PRIMARY KEY (IdPoster)

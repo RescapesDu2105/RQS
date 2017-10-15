@@ -35,14 +35,16 @@ AS
             NewTitle:=Delete_Spaces(l_movies(indx).Title);
             NewOriginalTitle:=Delete_Spaces(l_movies(indx).Original_Title);
             NewStatus:=Delete_Spaces(l_movies(indx).Status);
-            NewVoteAverage:=Delete_Spaces(l_movies(indx).Vote_Average);
-            NewVoteCount:=Delete_Spaces(l_movies(indx).Vote_Count);
-            NewRuntime:=Delete_Spaces(l_movies(indx).Runtime);
+            --NewVoteAverage:=Delete_Spaces(l_movies(indx).Vote_Average);
+            --NewVoteCount:=Delete_Spaces(l_movies(indx).Vote_Count);
+            --NewRuntime:=Delete_Spaces(l_movies(indx).Runtime);
             NewCertification:=Delete_Spaces(l_movies(indx).Certification);
-            NewPoster:=Delete_Spaces(l_movies(indx).Poster_PATH);
-            NewBudget:=Delete_Spaces(l_movies(indx).Budget);
-            NewTagline:=Delete_Spaces(l_movies(indx).Tagline);
+            --NewPoster:=Delete_Spaces(l_movies(indx).Poster_PATH);
+            --NewBudget:=Delete_Spaces(l_movies(indx).Budget);
+            --NewTagline:=Delete_Spaces(l_movies(indx).Tagline);
             
+            InsertData(NewID,NewTitle,NewOriginalTitle,NewStatus,l_movies(indx).release_date,l_movies(indx).Vote_Average,
+            l_movies(indx).Vote_Count,l_movies(indx).Runtime,NewCertification,l_movies(indx).Poster_PATH,l_movies(indx).Budget,l_movies(indx).Tagline);
             TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
                     
         END LOOP;
@@ -121,5 +123,26 @@ AS
      END LOOP;
         
     END TraiterActeur;
+    
+    PROCEDURE InsertData(Movie_Id IN movies_ext.id%TYPE , Movie_Title IN movies_ext.Title%TYPE , Movie_OriginalTitle IN
+    movies_ext.Original_Title%TYPE , Movie_statut IN movies_ext.Status%TYPE,Movie_date IN movies_ext.Release_Date%TYPE 
+    ,Movie_vote_avg IN movies_ext.Vote_Average%TYPE ,  Movie_vote_ct IN movies_ext.Vote_Count%TYPE , Movie_runtime IN 
+    movies_ext.Runtime%TYPE , Movie_certification IN movies_ext.Certification%TYPE , movie_poster IN movies_ext.Poster_PATH%TYPE,
+    movie_budget IN movies_ext.Budget%TYPE , Movie_Tagline IN movies_ext.Tagline%TYPE)
+    AS
+        Liens_Image varchar2(150);
+    BEGIN
+        --voir que le statut n'est present qu'une fois!
+        INSERT INTO Status(NomStatus) Values(Movie_statut);
+        Liens_Image:='http://image.tmdb.org/t/p/w185'||movie_poster;
+        INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob());
+        --Trier les certification ou déclencheur
+        INSERT INTO Certifications(Nomcerti) VALUES(Movie_certification);
+        --commit;
+        --Inserer les vrais ID Statut,Certi,Poster =>Select 
+        INSERT INTO Films VALUES(Movie_Id,Movie_Title,Movie_OriginalTitle,Movie_statut,Movie_Tagline,Movie_date,
+        Movie_vote_avg,Movie_vote_ct,Movie_certification,Movie_runtime,movie_budget,movie_poster);
+        --commit;
+    END InsertData;
 
 END packageAlimCB;
