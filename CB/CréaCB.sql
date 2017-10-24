@@ -63,7 +63,6 @@ CREATE TABLE Films (
 	CONSTRAINT films_poster_fk  			FOREIGN KEY (poster) REFERENCES posters(IdPoster)
 );
 
-ALTER TABLE posters ADD CONSTRAINT posters_films_fk FOREIGN KEY(film) REFERENCES Films(IdFilm);
 
 
 CREATE TABLE REALISER (
@@ -80,6 +79,7 @@ CREATE TABLE Film_Genre (
 CREATE TABLE JOUER (
     Film  		NUMBER(6) CONSTRAINT JOUER_movie_fk REFERENCES Films (IdFilm),
     Artist 		NUMBER(7) CONSTRAINT JOUER_artist_fk REFERENCES Artists (IdArt),
+	Role		VARCHAR2(24),
     CONSTRAINT films_actor_pk 	PRIMARY KEY (Film, Artist)
 );
 
