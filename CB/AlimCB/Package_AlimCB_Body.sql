@@ -7,8 +7,15 @@ AS
     
     PROCEDURE alimCB(l_movie_id IN Liste_Movie_Id)
     AS
+    l_movies Liste_Movies;
     BEGIN
-        dbms_output.put_line('cc');
+        --dbms_output.put_line('cc');
+        FOR indx IN l_movie_id.FIRST..l_movie_id.LAST LOOP
+        SELECT * INTO l_movies(indx)
+        FROM movies_ext
+        WHERE movies_ext.id=l_movie_id(indx);
+        END LOOP;
+        TraiterFilm(l_movies);
     END alimCB;
 
     PROCEDURE TraiterFilm(l_movies IN Liste_Movies)
@@ -45,9 +52,10 @@ AS
             
             InsertData(NewID,NewTitle,NewOriginalTitle,NewStatus,l_movies(indx).release_date,l_movies(indx).Vote_Average,
             l_movies(indx).Vote_Count,l_movies(indx).Runtime,NewCertification,l_movies(indx).Poster_PATH,l_movies(indx).Budget,l_movies(indx).Tagline);
-            TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
-            TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
-            TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
+            dbms_output.put_line('cc');
+            --TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
+            --TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
+            --TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
                     
         END LOOP;
     END TraiterFilm;
@@ -140,39 +148,60 @@ AS
     AS
         Liens_Image varchar2(150);
         StatusTemp status.NomStatus%TYPE;
-        CertiTemp Certifications.IdCerti%TYPE;
-        PosterTemp Posters.PathImage%TYPE;
+        StatusIdTemp status.IdStatus%TYPE;
+        CertiTemp Certifications.NomCerti%TYPE;
+        CertiIdTemp Certifications.IdCerti%TYPE;
+        PosterIdTemp Posters.IdPoster%TYPE;
     BEGIN
         --Verif des status :
-        SELECT status.NomStatus into StatusTemp
-        FROM status
-        WHERE status.NomStatus=Movie_statut;
-        IF StatusTemp IS NULL THEN 
-            INSERT INTO Status(NomStatus) Values(Movie_statut);
-        END IF ;
+        BEGIN
+            SELECT status.NomStatus into StatusTemp
+            FROM status
+            WHERE status.NomStatus=Movie_statut;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN INSERT INTO Status(NomStatus) Values(Movie_statut);
+            WHEN OTHERS THEN RAISE;
+        END ;
         
-        Liens_Image:='http://image.tmdb.org/t/p/w185'||movie_poster;
-        INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob());
+        --Le path peut-etre null :
+        IF movie_poster IS NOT NULL THEN
+            Liens_Image:='http://image.tmdb.org/t/p/w185'||movie_poster;
+            --a voir plus tard
+            --INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob());
+            INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,null);
+        ELSE
+            INSERT INTO POSTERS(PathImage,Image)VALUES(null,null);
+        END IF ;
         --Trier les certification ou déclencheur
-        INSERT INTO Certifications(Nomcerti) VALUES(Movie_certification);
+        BEGIN
+            SELECT IdCerti INTO CertiIdTemp
+            FROM Certifications
+            WHERE Nomcerti='G';
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN INSERT INTO Certifications(Nomcerti) VALUES('G');
+            WHEN OTHERS THEN RAISE;
+        END;
         --Afin de pouvoir aller rechercher les id "generer"
         commit;
         
         --Recuperation des id "generer"
-        SELECT NomStatus INTO StatusTemp
+        SELECT IdStatus INTO StatusIdTemp
         FROM Status
         WHERE NomStatus=Movie_statut;
         --/!\ valeur modifier par déclencheur
-        SELECT Nomcerti INTO CertiTemp
+        SELECT IdCerti INTO CertiIdTemp
         FROM Certifications
-        WHERE Nomcerti=Movie_certification;
-        SELECT IdPoster INTO PosterTemp
+        WHERE Nomcerti='G';
+        SELECT IdPoster INTO PosterIdTemp
         FROM Posters
         WHERE PathImage=movie_poster;
         
-        INSERT INTO Films VALUES(Movie_Id,Movie_Title,Movie_OriginalTitle,Movie_statut,Movie_Tagline,Movie_date,
-        Movie_vote_avg,Movie_vote_ct,Movie_certification,Movie_runtime,movie_budget,movie_poster);
+        INSERT INTO Films VALUES(Movie_Id,Movie_Title,Movie_OriginalTitle,StatusIdTemp,Movie_Tagline,Movie_date,
+        Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp);
         commit;
+        dbms_output.put_line('commit');
+    EXCEPTION
+        When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
     END InsertData;
 
 END packageAlimCB;

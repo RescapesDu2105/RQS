@@ -8,7 +8,7 @@ CREATE TABLE Artists (
 CREATE TABLE Certifications (
     IdCerti      	NUMBER GENERATED ALWAYS AS IDENTITY,
     NomCerti    	VARCHAR2(5), --95 QUantile = 5
-    description 	VARCHAR2(1000), -- ce champ est là pour expliqué la spécifité de la certication , expliqué ce qu'il represente 
+    --description 	VARCHAR2(1000), -- ce champ est là pour expliqué la spécifité de la certication , expliqué ce qu'il represente 
     CONSTRAINT certi_pk 			PRIMARY KEY (IdCerti),
     CONSTRAINT certi_NomCerti_NotNull 	CHECK (NomCerti IS NOT NULL),
 	--Il faut ajouter un déclencheur qui va update les champs de movie_ext pour qu'ils correspondent à la contrainte
