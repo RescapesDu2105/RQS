@@ -46,6 +46,8 @@ AS
             InsertData(NewID,NewTitle,NewOriginalTitle,NewStatus,l_movies(indx).release_date,l_movies(indx).Vote_Average,
             l_movies(indx).Vote_Count,l_movies(indx).Runtime,NewCertification,l_movies(indx).Poster_PATH,l_movies(indx).Budget,l_movies(indx).Tagline);
             TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
+            TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
+            TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
                     
         END LOOP;
     END TraiterFilm;
@@ -54,6 +56,7 @@ AS
     AS
         idGenre NUMBER;
         NomGenre varchar2(25);
+        GenTemp genres%ROWTYPE ;
     BEGIN
         select 
         cast(REGEXP_SUBSTR(genre,'[^․]+') as number) ide,
@@ -61,11 +64,16 @@ AS
         INTO idGenre,NomGenre
         from Movies_ext
         WHERE id=Movie_Id;
+        
+        select genres.IdGenre, genres.NomGenre into GenTemp
+        FROM genres 
+        Where genres.IdGenre=idGenre;
         --Traiter les champs pour mettre les bonnes valeurs
         
-        INSERT INTO Genres VALUES(idGenre,NomGenre);
-        commit;
-        --ne pas inserer si le genre existe
+        IF GenTemp.IdGenre IS NULL THEN
+            INSERT INTO Genres VALUES(idGenre,NomGenre);
+            commit;
+        END IF ;
     END TraiterGenre;
     
     PROCEDURE TraiterRealisateur(Movie_Id IN movies_ext.id%TYPE, direct IN movies_ext.directors%TYPE)
@@ -80,9 +88,9 @@ AS
         from Movies_ext
         WHERE id=Movie_Id;
         
+        INSERT INTO Realiser VALUES(Movie_Id,idReal);
         INSERT INTO Artists values(idReal,NomReal);
         commit;
-        --attention alimenter la table REALISER mais il faut d'abord inserer dans la table film
         
     END TraiterRealisateur;
     
@@ -118,10 +126,10 @@ AS
         Actor_Name:=Delete_Spaces(l_actors(i).NomAct);
         Actor_Role:=Delete_Spaces(l_actors(i).RoleAct);
         
+        INSERT INTO Jouer VALUES(Movie_Id,l_actors(i).idAct,Actor_Role);
         INSERT INTO Artists VALUES(l_actors(i).idAct,Actor_Name);
-        --inserer dans jouer avec l'iD du film
      END LOOP;
-        
+    commit;
     END TraiterActeur;
     
     PROCEDURE InsertData(Movie_Id IN movies_ext.id%TYPE , Movie_Title IN movies_ext.Title%TYPE , Movie_OriginalTitle IN
@@ -131,18 +139,40 @@ AS
     movie_budget IN movies_ext.Budget%TYPE , Movie_Tagline IN movies_ext.Tagline%TYPE)
     AS
         Liens_Image varchar2(150);
+        StatusTemp status.NomStatus%TYPE;
+        CertiTemp Certifications.IdCerti%TYPE;
+        PosterTemp Posters.PathImage%TYPE;
     BEGIN
-        --voir que le statut n'est present qu'une fois!
-        INSERT INTO Status(NomStatus) Values(Movie_statut);
+        --Verif des status :
+        SELECT status.NomStatus into StatusTemp
+        FROM status
+        WHERE status.NomStatus=Movie_statut;
+        IF StatusTemp IS NULL THEN 
+            INSERT INTO Status(NomStatus) Values(Movie_statut);
+        END IF ;
+        
         Liens_Image:='http://image.tmdb.org/t/p/w185'||movie_poster;
         INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob());
         --Trier les certification ou déclencheur
         INSERT INTO Certifications(Nomcerti) VALUES(Movie_certification);
-        --commit;
-        --Inserer les vrais ID Statut,Certi,Poster =>Select 
+        --Afin de pouvoir aller rechercher les id "generer"
+        commit;
+        
+        --Recuperation des id "generer"
+        SELECT NomStatus INTO StatusTemp
+        FROM Status
+        WHERE NomStatus=Movie_statut;
+        --/!\ valeur modifier par déclencheur
+        SELECT Nomcerti INTO CertiTemp
+        FROM Certifications
+        WHERE Nomcerti=Movie_certification;
+        SELECT IdPoster INTO PosterTemp
+        FROM Posters
+        WHERE PathImage=movie_poster;
+        
         INSERT INTO Films VALUES(Movie_Id,Movie_Title,Movie_OriginalTitle,Movie_statut,Movie_Tagline,Movie_date,
         Movie_vote_avg,Movie_vote_ct,Movie_certification,Movie_runtime,movie_budget,movie_poster);
-        --commit;
+        commit;
     END InsertData;
 
 END packageAlimCB;

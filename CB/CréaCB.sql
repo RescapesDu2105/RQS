@@ -16,7 +16,7 @@ CREATE TABLE Certifications (
     CONSTRAINT cert_NomCerti_un 	UNIQUE (NomCerti)
 );
 
-CREATE TABLE status (
+CREATE TABLE status ( --denormaliser
     IdStatus      	NUMBER GENERATED ALWAYS AS IDENTITY,
     NomStatus    	VARCHAR2(8),-- 95 quartile = 8
     CONSTRAINT status_pk 		PRIMARY KEY (IdStatus),
@@ -25,7 +25,7 @@ CREATE TABLE status (
 );
 
 CREATE TABLE genres (
-    IdGenre   	  NUMBER(5),-- MAX=5
+    IdGenre   	  NUMBER(5) ,-- MAX=5
     NomGenre 	  VARCHAR2(12),-- 95 quantile=11 et 995 quantile=15
     CONSTRAINT genres_pk 		PRIMARY KEY (IdGenre),
     CONSTRAINT genres_NomGenre_ck 	CHECK (NomGenre IS NOT NULL),
@@ -36,7 +36,7 @@ CREATE TABLE posters (
 	IdPoster 	NUMBER 	GENERATED ALWAYS AS IDENTITY,
 	--film		NUMBER ,
 	PathImage 	VARCHAR2(100),
-	Image 		BLOB,
+	Image 		BLOB DEFAULT EMPTY_BLOB,
 	CONSTRAINT posters_pk PRIMARY KEY (IdPoster)
 );
 
