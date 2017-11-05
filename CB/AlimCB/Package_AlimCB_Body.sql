@@ -52,8 +52,8 @@ AS
             
             InsertData(NewID,NewTitle,NewOriginalTitle,NewStatus,l_movies(indx).release_date,l_movies(indx).Vote_Average,
             l_movies(indx).Vote_Count,l_movies(indx).Runtime,NewCertification,l_movies(indx).Poster_PATH,l_movies(indx).Budget,l_movies(indx).Tagline);
-            dbms_output.put_line('cc');
-            --TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
+            TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
+            --dbms_output.put_line('ok : '|| indx );
             --TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
             --TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
                     
@@ -62,26 +62,27 @@ AS
     
     PROCEDURE TraiterGenre(Movie_Id IN movies_ext.id%TYPE, genre IN movies_ext.genres%TYPE)
     AS
-        idGenre NUMBER;
+        idGen NUMBER;
         NomGenre varchar2(25);
-        GenTemp genres%ROWTYPE ;
+        IdTemp NUMBER;
     BEGIN
-        select 
-        cast(REGEXP_SUBSTR(genre,'[^․]+') as number) ide,
-        SUBSTR(REGEXP_SUBSTR(genre,'[^‖]+'),cast((regexp_instr(genre,'․')+1)as number))as nom
-        INTO idGenre,NomGenre
-        from Movies_ext
-        WHERE id=Movie_Id;
+        idGen:=cast(REGEXP_SUBSTR(genre,'[^․]+') as number);
+        NomGenre:= SUBSTR(REGEXP_SUBSTR(genre,'[^‖]+'),cast((regexp_instr(genre,'․')+1)as number));
         
-        select genres.IdGenre, genres.NomGenre into GenTemp
-        FROM genres 
-        Where genres.IdGenre=idGenre;
-        --Traiter les champs pour mettre les bonnes valeurs
+        SELECT idGenre into IdTemp
+        FROM genres
+        Where genres.idGenre=idGen;
         
-        IF GenTemp.IdGenre IS NULL THEN
-            INSERT INTO Genres VALUES(idGenre,NomGenre);
+        --Genre deja present donc pas besoin de l'inserer
+        INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
+        commit;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            --Le genre n'est pas present donc on l'insere , cela evite d'avoir des doublons
+            INSERT INTO genres VALUES (idGen,NomGenre);
+            INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
             commit;
-        END IF ;
+        When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
     END TraiterGenre;
     
     PROCEDURE TraiterRealisateur(Movie_Id IN movies_ext.id%TYPE, direct IN movies_ext.directors%TYPE)
@@ -160,7 +161,7 @@ AS
             WHERE status.NomStatus=Movie_statut;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN INSERT INTO Status(NomStatus) Values(Movie_statut);
-            WHEN OTHERS THEN RAISE;
+            --When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
         END ;
         
         --Le path peut-etre null :
@@ -168,6 +169,7 @@ AS
             Liens_Image:='http://image.tmdb.org/t/p/w185'||movie_poster;
             --a voir plus tard
             --INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob());
+            --(lienPoster, httpuritype(lienPoster).getblob())
             INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,null);
         ELSE
             INSERT INTO POSTERS(PathImage,Image)VALUES(null,null);
@@ -179,7 +181,7 @@ AS
             WHERE Nomcerti='G';
         EXCEPTION
             WHEN NO_DATA_FOUND THEN INSERT INTO Certifications(Nomcerti) VALUES('G');
-            WHEN OTHERS THEN RAISE;
+            --When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
         END;
         --Afin de pouvoir aller rechercher les id "generer"
         commit;
@@ -199,7 +201,7 @@ AS
         INSERT INTO Films VALUES(Movie_Id,Movie_Title,Movie_OriginalTitle,StatusIdTemp,Movie_Tagline,Movie_date,
         Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp);
         commit;
-        dbms_output.put_line('commit');
+        --dbms_output.put_line('commit');
     EXCEPTION
         When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
     END InsertData;
