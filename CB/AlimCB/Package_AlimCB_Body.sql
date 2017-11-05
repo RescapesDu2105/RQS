@@ -62,26 +62,34 @@ AS
     
     PROCEDURE TraiterGenre(Movie_Id IN movies_ext.id%TYPE, genre IN movies_ext.genres%TYPE)
     AS
+        ChaineGen varchar2(25);
         idGen NUMBER;
         NomGenre varchar2(25);
         IdTemp NUMBER;
+        i number:=1;
     BEGIN
-        idGen:=cast(REGEXP_SUBSTR(genre,'[^․]+') as number);
-        NomGenre:= SUBSTR(REGEXP_SUBSTR(genre,'[^‖]+'),cast((regexp_instr(genre,'․')+1)as number));
-        
-        SELECT idGenre into IdTemp
-        FROM genres
-        Where genres.idGenre=idGen;
-        
-        --Genre deja present donc pas besoin de l'inserer
-        INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
-        commit;
+        LOOP
+            ChaineGen := REGEXP_SUBSTR(genre,'[^‖]+',1,i);
+            EXIT WHEN ChaineGen IS NULL;
+            idGen := cast(REGEXP_SUBSTR(ChaineGen,'[^․]+',1,1) as number);
+            NomGenre:=SUBSTR(REGEXP_SUBSTR(ChaineGen,'[^‖]+',1,1),cast((regexp_instr(ChaineGen,'․',1,1)+1)as number));    
+            
+            BEGIN
+                SELECT IdGenre into IdTemp
+                FROM GENRES
+                WHERE IdGenre=idGen ;
+                
+                INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
+                commit;
+            EXCEPTION
+                WHEN NO_DATA_FOUND THEN 
+                INSERT INTO Genres VALUES(idGen,NomGenre);
+                INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
+                commit;
+            END ;
+            i:=i+1;
+        END LOOP;
     EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            --Le genre n'est pas present donc on l'insere , cela evite d'avoir des doublons
-            INSERT INTO genres VALUES (idGen,NomGenre);
-            INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
-            commit;
         When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
     END TraiterGenre;
     
