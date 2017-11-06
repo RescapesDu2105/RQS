@@ -1,12 +1,5 @@
 create or replace PACKAGE packageAlimCB
 IS
-    
-    Type Actors_Record IS RECORD(
-    idAct NUMBER,
-    NomAct varchar2(50),
-    RoleAct varchar2(50));
-    Type Liste_Actors IS TABLE OF Actors_Record INDEX BY Binary_Integer;    
-    
     TYPE Liste_Movie_Id IS TABLE OF movies_ext.id%TYPE INDEX BY BINARY_INTEGER;
     TYPE Liste_Movies   IS TABLE OF movies_ext%ROWTYPE INDEX BY BINARY_INTEGER;
 
