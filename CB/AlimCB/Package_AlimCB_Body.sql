@@ -42,6 +42,7 @@ AS
             NewTitle:=Delete_Spaces(l_movies(indx).Title);
             NewOriginalTitle:=Delete_Spaces(l_movies(indx).Original_Title);
             NewStatus:=Delete_Spaces(l_movies(indx).Status);
+            NewTagline:=Delete_Spaces(l_movies(indx).Tagline);
             --NewVoteAverage:=Delete_Spaces(l_movies(indx).Vote_Average);
             --NewVoteCount:=Delete_Spaces(l_movies(indx).Vote_Count);
             --NewRuntime:=Delete_Spaces(l_movies(indx).Runtime);
@@ -51,11 +52,11 @@ AS
             --NewTagline:=Delete_Spaces(l_movies(indx).Tagline);
             
             InsertData(NewID,NewTitle,NewOriginalTitle,NewStatus,l_movies(indx).release_date,l_movies(indx).Vote_Average,
-            l_movies(indx).Vote_Count,l_movies(indx).Runtime,NewCertification,l_movies(indx).Poster_PATH,l_movies(indx).Budget,l_movies(indx).Tagline);
+            l_movies(indx).Vote_Count,l_movies(indx).Runtime,NewCertification,l_movies(indx).Poster_PATH,l_movies(indx).Budget,NewTagline);
             TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
             --dbms_output.put_line('ok : '|| indx );
-            --TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
-            --TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
+            TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
+            TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
                     
         END LOOP;
     END TraiterFilm;
@@ -95,57 +96,67 @@ AS
     
     PROCEDURE TraiterRealisateur(Movie_Id IN movies_ext.id%TYPE, direct IN movies_ext.directors%TYPE)
     as
+        ChainReal varchar2(25);
         idReal NUMBER;
-        NomReal varchar2(50);
+        NomReal varchar2(25);
+        IdTemp NUMBER;
+        i number:=1;
     BEGIN    
-        select 
-        cast(REGEXP_SUBSTR(direct,'[^․]+') as number) ide,
-        SUBSTR(REGEXP_SUBSTR(direct,'[^‖]+'),cast((regexp_instr(direct,'․')+1)as number))as nom
-        INTO idReal,NomReal
-        from Movies_ext
-        WHERE id=Movie_Id;
-        
-        INSERT INTO Realiser VALUES(Movie_Id,idReal);
-        INSERT INTO Artists values(idReal,NomReal);
-        commit;
-        
+        LOOP
+            ChainReal := REGEXP_SUBSTR(direct,'[^‖]+',1,i);
+            EXIT WHEN ChainReal IS NULL;
+            idReal := cast(REGEXP_SUBSTR(ChainReal,'[^․]+',1,1) as number);
+            NomReal:=SUBSTR(REGEXP_SUBSTR(ChainReal,'[^‖]+',1,1),cast((regexp_instr(ChainReal,'․',1,1)+1)as number));    
+            
+            BEGIN
+                SELECT IdArt into IdTemp
+                FROM ARTISTS
+                WHERE IdArt=idReal ;
+                
+                INSERT INTO REALISER VALUES(Movie_Id,idReal);
+                commit;
+            EXCEPTION
+                WHEN NO_DATA_FOUND THEN 
+                INSERT INTO ARTISTS VALUES(idReal,NomReal);
+                INSERT INTO REALISER VALUES(Movie_Id,idReal);
+                commit;
+            END ;
+            i:=i+1;
+        END loop;
     END TraiterRealisateur;
     
     PROCEDURE TraiterActeur(Movie_Id IN movies_ext.id%TYPE, act IN movies_ext.actors%TYPE)
     as
-        l_actors Liste_Actors;
-        Actor_Name varchar2(50);
-        Actor_Role varchar2(50);
-        
-    BEGIN    
-        with split(champs, debut, fin) as 
-        (
-            Select actors , 1 debut, instr(actors,'‖') fin 
-            from movies_ext
-            where id=Movie_Id
-            union all
-            select champs, fin + 1, instr(champs, '‖', fin+1)
-            from split
-            where fin <> 0
-        )
-        select distinct
-        cast(substr(tuple, 1, instr(tuple, '․') -1) as number) ide,
-        SUBSTR(tuple, instr(tuple, '․')+1, instr(tuple, '․', 1, 2) - instr(tuple, '․')-1) actors,
-        substr(tuple, instr(tuple, '․', 1, 2)+1, LENGTH(tuple) - instr(tuple, '․', 1, 2)) roles
-        BULK COLLECT INTO l_actors
-        from(
-            SELECT SUBSTR(champs, debut, coalesce(fin, length(champs)+1) - debut) tuple
-            FROM split -- 1.593.318
-            WHERE champs IS NOT NULL --1.456.115
-            );
+        ChainAct varchar2(255);
+        idAct NUMBER;
+        NomAct varchar2(25);
+        RoleAct varchar2(25);
+        IdTemp NUMBER;
+        i number:=1;
+    BEGIN
+        LOOP
+            ChainAct := REGEXP_SUBSTR(act,'[^‖]+',1,i);
+            EXIT WHEN ChainAct IS NULL;
+            idAct := cast(REGEXP_SUBSTR(ChainAct,'[^․]+',1,1) as number);
+            NomAct:=REGEXP_SUBSTR(ChainAct,'[^․]+',1,2);    
+            RoleAct:=SUBSTR(REGEXP_SUBSTR(ChainAct,'[^‖]+',1,1),cast((regexp_instr(ChainAct,'․',1,2)+1)as number));
             
-     FOR i IN l_actors.FIRST..l_actors.LAST LOOP
-        Actor_Name:=Delete_Spaces(l_actors(i).NomAct);
-        Actor_Role:=Delete_Spaces(l_actors(i).RoleAct);
-        
-        INSERT INTO Jouer VALUES(Movie_Id,l_actors(i).idAct,Actor_Role);
-        INSERT INTO Artists VALUES(l_actors(i).idAct,Actor_Name);
-     END LOOP;
+            BEGIN
+                SELECT IdArt into IdTemp
+                FROM ARTISTS
+                WHERE IdArt=idAct ;
+                
+                INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
+                commit;
+            EXCEPTION
+                WHEN NO_DATA_FOUND THEN 
+                INSERT INTO ARTISTS VALUES(idAct,NomAct);
+                INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
+                commit;
+                When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+            END ;
+            i:=i+1;
+        END loop;
     commit;
     END TraiterActeur;
     
@@ -175,10 +186,7 @@ AS
         --Le path peut-etre null :
         IF movie_poster IS NOT NULL THEN
             Liens_Image:='http://image.tmdb.org/t/p/w185'||movie_poster;
-            --a voir plus tard
-            --INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob());
-            --(lienPoster, httpuritype(lienPoster).getblob())
-            INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,null);
+            INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob());
         ELSE
             INSERT INTO POSTERS(PathImage,Image)VALUES(null,null);
         END IF ;
@@ -209,7 +217,6 @@ AS
         INSERT INTO Films VALUES(Movie_Id,Movie_Title,Movie_OriginalTitle,StatusIdTemp,Movie_Tagline,Movie_date,
         Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp);
         commit;
-        --dbms_output.put_line('commit');
     EXCEPTION
         When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
     END InsertData;
