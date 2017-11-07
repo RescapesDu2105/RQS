@@ -52,17 +52,12 @@ public class Bean_DB_MongoDB implements Serializable
         {
             System.out.println("Test 3");   
             try
-            {
-                if(json != null && !(JSON.parse(json) instanceof Object[]))
-                {
-                    System.out.println("Test 4");   
-                    doc = Document.parse(json);
-                    System.out.println("Test 5 = " + doc);     
-                    collection.insertOne(doc);
-                    System.out.println("Test 6");
-                }
-                else
-                    System.out.println("Prout");
+            {                
+                System.out.println("Test 4");   
+                doc = Document.parse(json);
+                System.out.println("Test 5 = " + doc);     
+                collection.insertOne(doc);
+                System.out.println("Test 6");
             }
             catch(Exception ex)
             {
@@ -70,7 +65,7 @@ public class Bean_DB_MongoDB implements Serializable
             }
         }
         
-        Iterator = collection.find(eq(json));
+        Iterator = collection.find(eq(doc));
         System.out.println("Test 7 = " + Iterator.first());
     }
     
