@@ -41,17 +41,22 @@
             </div>-->
             <aside style="float:left;">
                 <img class="rounded float-left" alt="No free image man (en)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/No_free_image_man_%28en%29.svg/256px-No_free_image_man_%28en%29.svg.png"/>
-                <h5>Photo de Tarzan la Banane</h5>
+                <h5>Photo de<% out.println(session.getAttribute("Nom") + " " + session.getAttribute("Prenom")); %></h5>
             </aside>
 
             <section>
                 <br><br><br>
                 <article>
-                    <h4>Je m'appelle Tarzan la Banane et je suis noir</h4>
-                    <h4>Je ne sais pas où je suis né</h4>  
-                    <h4>Je ne sais pas quand je suis né</h4>       
-                    <h4>Et je ne suis pas encore mort mais j'ai très peur des sorcières de mon pays</h4>
+                    <h4><% out.println(session.getAttribute("Nom") + " " + session.getAttribute("Prenom")); %></h4>
+                    <h4><% out.println("Né le " + session.getAttribute("DateNaissance") + " à " + session.getAttribute("LieuNaissance")); %></h4>    
+                    <%  if(session.getAttribute("DateDeces") != null)
+                        {
+                    %>
+                            <h4><% out.println("Mort le " + session.getAttribute("DateDeces")); %></h4>
+                    <%       
+                        }   %>
                 </article>
+                <br><br><br><br>
                 <article>
                     
                 </article>

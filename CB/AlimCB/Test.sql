@@ -10,7 +10,7 @@ BEGIN
         dbms_output.put_line(Liste(indx));
     END LOOP;*/
 END ;
-
+/
 select * from posters;
 select * from certifications;
 select * from status;

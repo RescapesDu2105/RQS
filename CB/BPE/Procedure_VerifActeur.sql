@@ -40,18 +40,19 @@ BEGIN
             ' "nom": '|| f_Acteur.nom ||','||
             ' "DataAnnif": '|| f_Acteur.DataAnnif ||','||
             ' "DaceDeces": '|| f_Acteur.DaceDeces ||','||
-            ' "LieuNaiss": "'|| f_Acteur.LieuNaiss ||','||
-            ' "Image": "",' || f_Acteur.Image ||'",'||
-            ' "_IdFilm": "",' || Biography.id ||'",'||
-            ' "Titre": "",' || Biography.Titre ||'",'||
-            ' "Année_Sortie": "",' || Biography.Année_Sortie ||'",'||
+            ' "LieuNaiss": '|| f_Acteur.LieuNaiss ||','||
+            ' "Image": ' || f_Acteur.Image ||','||
+            ' "_IdFilm": ' || Biography.id ||','||
+            ' "Titre": ' || Biography.Titre ||','||
+            ' "Année_Sortie": ' || Biography.Année_Sortie ||
             ' }';
     --                            ICI TU METS L'ADRESSE DE LA SERVLET EN TERMINANT PAR /INSERT
-    req := utl_http.begin_request('http://10.37.129.2:8084/VerifActeur_v1/people/people/insert', 'POST',' HTTP/1.1');
+    req := utl_http.begin_request('http://10.0.2.2:8084/VerifActeur_v1/VerifActeur_v1', 'POST',' HTTP/1.1');
     --utl_http.set_header(req, 'user-agent', 'mozilla/4.0');
     utl_http.set_header(req, 'content-type', 'application/json');
     utl_http.set_header(req, 'Content-Length', length(actJSON));
     utl_http.write_text(req, actJSON);
+    --Dbms_Output.Put_Line(actJSON);
     res := utl_http.get_response(req);
     UTL_HTTP.READ_TEXT(res, reponse);
     UTL_HTTP.END_RESPONSE(res);
@@ -59,3 +60,4 @@ BEGIN
     --Traiter la reponse du serveur
 
 END ;
+/

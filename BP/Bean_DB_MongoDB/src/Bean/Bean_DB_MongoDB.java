@@ -6,6 +6,7 @@ package Bean;
  * and open the template in the editor.
  */
 
+import com.mongodb.BasicDBObject;
 import java.io.Serializable;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
@@ -35,6 +36,27 @@ public class Bean_DB_MongoDB implements Serializable
         this.mongoClient = new MongoClient(LOCALHOST);
         this.mongoDatabase = this.mongoClient.getDatabase(DATABASE_ACTORS);        
     }      
+    
+    public void VerifierActeur(String json)
+    {
+        System.out.println("J'affiche quelque chose");
+        BasicDBObject obj = new BasicDBObject();
+        MongoCollection <Document> collection = getMongoDatabase().getCollection(DATABASE_ACTORS);
+        FindIterable<Document> Iterator;
+        Iterator = collection.find(eq(json));
+        System.out.println("Test 1 = " + Iterator.first());
+        Document doc = Iterator.first();
+        if (doc == null)
+        {
+            System.out.println("Test 2");
+            //doc = new Document();
+            doc = Document.parse(json);            
+            collection.insertOne(doc);
+        }
+        
+        Iterator = collection.find(eq(json));
+        System.out.println("Test 3 = " + Iterator.first());
+    }
     
     public Document ChercherActeur(int IdActeur)
     {        
