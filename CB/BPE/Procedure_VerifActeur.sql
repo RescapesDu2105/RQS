@@ -54,7 +54,7 @@ BEGIN
     utl_http.write_text(req, actJSON);
     --Dbms_Output.Put_Line(actJSON);
     res := utl_http.get_response(req);
-    UTL_HTTP.READ_TEXT(res, reponse);
+    --UTL_HTTP.READ_TEXT(res, reponse);
     UTL_HTTP.END_RESPONSE(res);
     
     --Traiter la reponse du serveur

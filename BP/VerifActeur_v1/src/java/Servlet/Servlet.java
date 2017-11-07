@@ -6,11 +6,13 @@
 package Servlet;
 
 import Bean.Bean_DB_MongoDB;
+import com.mongodb.util.JSON;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletConfig;
@@ -94,31 +96,22 @@ public class Servlet extends HttpServlet {
                 }
             }
         }
-
+        
         json = stringBuilder.toString();
         System.out.println("json = " + json);
 
         Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();
         BeanDB.VerifierActeur(json);
     
-        /*response.setContentType("text/html;charset=UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) 
         {
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet</title>");	    
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h3>Servlet repond :</h3>");
-            out.println("<p>ERREUR, pas assez de paramètres</p>");
-            out.println("</body>");
-            out.println("</html>");
+            out.println(JSON.serialize(false));
         }
         catch (IOException ex) 
         {
             Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+        }
         
     }
 
