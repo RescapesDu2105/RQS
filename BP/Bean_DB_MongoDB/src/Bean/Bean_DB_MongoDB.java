@@ -47,7 +47,6 @@ public class Bean_DB_MongoDB implements Serializable
         
         if (doc == null)
         {
-<<<<<<< HEAD
             {
                 System.out.println("null");
             }
@@ -64,10 +63,8 @@ public class Bean_DB_MongoDB implements Serializable
             {
                 Logger.getLogger(Bean_DB_MongoDB.class.getName()).log(Level.SEVERE, null, ex);
             }
-=======
             doc = Document.parse(json);
             collection.insertOne(doc);
->>>>>>> 23aea6ac5e8aeb2c058b83a883a792235e6673d6
         }
     }
     
