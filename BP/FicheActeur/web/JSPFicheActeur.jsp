@@ -4,6 +4,10 @@
     Author     : Philippe
 --%>
 
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.text.DateFormat"%>
+<%@page import="java.util.Locale"%>
+<%@page import="java.util.Locale"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -40,24 +44,23 @@
                 On affiche sa filmographie
             </div>-->
             <aside style="float:left;">
-                <img class="rounded float-left" alt="No free image man (en)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/No_free_image_man_%28en%29.svg/256px-No_free_image_man_%28en%29.svg.png"/>
-                <h5>Photo de<% out.println(session.getAttribute("Nom") + " " + session.getAttribute("Prenom")); %></h5>
+                <img class="rounded float-left" alt="No free image man (en)" src=<% out.println(session.getAttribute("Image") != null ? ("http://image.tmdb.org/t/p/w185" + session.getAttribute("Image")) : "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/No_free_image_man_%28en%29.svg/256px-No_free_image_man_%28en%29.svg.png"); %>/>
+                <h5>Photo de <% out.println(session.getAttribute("Nom")); %></h5>
             </aside>
 
             <section>
-                <br><br><br>
-                <article>
-                    <h4><% out.println(session.getAttribute("Nom") + " " + session.getAttribute("Prenom")); %></h4>
-                    <h4><% out.println("Né le " + session.getAttribute("DateNaissance") + " à " + session.getAttribute("LieuNaissance")); %></h4>    
-                    <%  if(session.getAttribute("DateDeces") != null)
-                        {
-                    %>
-                            <h4><% out.println("Mort le " + session.getAttribute("DateDeces")); %></h4>
-                    <%       
-                        }   %>
-                </article>
                 <br><br><br><br>
                 <article>
+                    <h4><% out.println(session.getAttribute("Nom")); %></h4>
+                    <h4><% SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); out.println("Né le " + DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.FRANCE).format(formatter.parse(session.getAttribute("DateNaissance").toString())) + " à " + session.getAttribute("LieuNaissance")); %></h4>    
+                    <%  if(session.getAttribute("DateDeces") != null)
+                        {
+                            out.println("<h4>Mort(e) le " + session.getAttribute("DateDeces") + "</h4>");                          
+                        }   %>
+                </article>
+                <br><br><br><br><br><br><br>
+                <article>
+                    <h4>Filmographie :</h4>
                     
                 </article>
             </section>

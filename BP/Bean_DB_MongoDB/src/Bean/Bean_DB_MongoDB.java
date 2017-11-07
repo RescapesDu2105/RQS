@@ -39,17 +39,15 @@ public class Bean_DB_MongoDB implements Serializable
     }      
     
     public void VerifierActeur(String json)
-    {
-        System.out.println("J'affiche quelque chose = " + json);
-        
+    {        
         MongoCollection <Document> collection = getMongoDatabase().getCollection(MOVIES);
         FindIterable<Document> Iterator;
         Iterator = collection.find(eq(json));
-        System.out.println("Test 1 = " + Iterator.first());
         Document doc = Iterator.first();
-        System.out.println("Test 2");   
+        
         if (doc == null)
         {
+<<<<<<< HEAD
             {
                 System.out.println("null");
             }
@@ -66,10 +64,11 @@ public class Bean_DB_MongoDB implements Serializable
             {
                 Logger.getLogger(Bean_DB_MongoDB.class.getName()).log(Level.SEVERE, null, ex);
             }
+=======
+            doc = Document.parse(json);
+            collection.insertOne(doc);
+>>>>>>> 23aea6ac5e8aeb2c058b83a883a792235e6673d6
         }
-        
-        Iterator = collection.find(eq(doc));
-        System.out.println("Test 7 = " + Iterator.first());
     }
     
     public boolean ChercherActeur(String IdActeur)

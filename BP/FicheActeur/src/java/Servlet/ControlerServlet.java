@@ -76,7 +76,20 @@ public class ControlerServlet extends HttpServlet {
             Document doc = BeanDB.ChercherActeur(Integer.parseInt(request.getParameter("inputIdActeur")));
             if (doc != null)
             {
-                Bean_DB_MongoDB.displayDocument(doc);
+                //Bean_DB_MongoDB.displayDocument(doc);
+                session.setAttribute("Nom", doc.getString("nom"));
+                session.setAttribute("DateNaissance", doc.getString("DateAnnif"));
+                System.out.println("DateDeces = " + doc.getString("DateDeces").isEmpty());
+                if (!doc.getString("DateDeces").isEmpty())
+                {
+                    System.out.println("Pas empty");
+                    session.setAttribute("DateDeces", doc.getString("DateDeces"));
+                
+                }
+                
+                session.setAttribute("LieuNaissance", doc.getString("LieuNaiss"));                
+                session.setAttribute("Image", doc.get("Image"));                
+                response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/FicheActeur/JSPFicheActeur.jsp");
             }
             else
             {                
