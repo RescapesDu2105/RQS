@@ -47,22 +47,6 @@ public class Bean_DB_MongoDB implements Serializable
         
         if (doc == null)
         {
-            {
-                System.out.println("null");
-            }
-            System.out.println("Test 3");   
-            try
-            {                
-                System.out.println("Test 4");   
-                doc = Document.parse(json);
-                System.out.println("Test 5 = " + doc);     
-                //collection.insertOne(doc);
-                System.out.println("Test 6");
-            }
-            catch(Exception ex)
-            {
-                Logger.getLogger(Bean_DB_MongoDB.class.getName()).log(Level.SEVERE, null, ex);
-            }
             doc = Document.parse(json);
             collection.insertOne(doc);
         }
@@ -74,7 +58,6 @@ public class Bean_DB_MongoDB implements Serializable
         FindIterable<Document> Iterator;
         boolean trouve;
         Iterator = collection.find(eq("_idAct", IdActeur));
-        System.out.println("ChercherActeur = " + Iterator.first());
         if (Iterator.first() == null)
             trouve=false;
         else
