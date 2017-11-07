@@ -71,7 +71,7 @@ public class Servlet extends HttpServlet {
         }
         catch (IOException ex) 
         {
-            Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
         }
         
     }

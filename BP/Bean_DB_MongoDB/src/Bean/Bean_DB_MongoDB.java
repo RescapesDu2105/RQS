@@ -51,20 +51,27 @@ public class Bean_DB_MongoDB implements Serializable
         if (doc == null)
         {
             System.out.println("Test 3");   
-            if(json != null && !(JSON.parse(json) instanceof Object[]))
+            try
             {
-                System.out.println("Test 4");   
-                doc = Document.parse(json);
-                System.out.println("Test 5");     
-                //collection.insertOne(doc);
-                System.out.println("Test 6");
+                if(json != null && !(JSON.parse(json) instanceof Object[]))
+                {
+                    System.out.println("Test 4");   
+                    doc = Document.parse(json);
+                    System.out.println("Test 5 = " + doc);     
+                    collection.insertOne(doc);
+                    System.out.println("Test 6");
+                }
+                else
+                    System.out.println("Prout");
             }
-            else
-                System.out.println("Prout");
+            catch(Exception ex)
+            {
+                Logger.getLogger(Bean_DB_MongoDB.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
         Iterator = collection.find(eq(json));
-        System.out.println("Test 4 = " + Iterator.first());
+        System.out.println("Test 7 = " + Iterator.first());
     }
     
     public Document ChercherActeur(int IdActeur)
