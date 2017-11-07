@@ -27,7 +27,35 @@
         </nav>
         <br><br><br><br>
         <div class="container" id="main">
-            
+<!--            <div class="col-12">
+                <div class="col-8">
+                    On affiche la photo
+                    <
+                </div>
+                <div class="col-4">
+                    On affiche les infos personnelles de l'acteur
+                </div>
+            </div>
+            <div class="col-12">
+                On affiche sa filmographie
+            </div>-->
+            <aside style="float:left;">
+                <img class="rounded float-left" alt="No free image man (en)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/No_free_image_man_%28en%29.svg/256px-No_free_image_man_%28en%29.svg.png"/>
+                <h5>Photo de Tarzan la Banane</h5>
+            </aside>
+
+            <section>
+                <br><br><br>
+                <article>
+                    <h4>Je m'appelle Tarzan la Banane et je suis noir</h4>
+                    <h4>Je ne sais pas où je suis né</h4>  
+                    <h4>Je ne sais pas quand je suis né</h4>       
+                    <h4>Et je ne suis pas encore mort mais j'ai très peur des sorcières de mon pays</h4>
+                </article>
+                <article>
+                    
+                </article>
+            </section>
         </div>
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
