@@ -73,9 +73,10 @@ public class ControlerServlet extends HttpServlet {
         }
         else
         {            
-            Document doc = BeanDB.ChercherActeur(Integer.parseInt(request.getParameter("inputIdActeur")));
+            Document doc = BeanDB.getActeur(Integer.parseInt(request.getParameter("inputIdActeur")));
             if (doc != null)
             {
+                Bean_DB_MongoDB.displayDocument(doc);
                 //Bean_DB_MongoDB.displayDocument(doc);
                 session.setAttribute("Nom", doc.getString("nom"));
                 session.setAttribute("DateNaissance", doc.getString("DateAnnif"));
@@ -88,7 +89,7 @@ public class ControlerServlet extends HttpServlet {
                 }
                 
                 session.setAttribute("LieuNaissance", doc.getString("LieuNaiss"));                
-                session.setAttribute("Image", doc.get("Image"));                
+                session.setAttribute("Image", doc.get("Image")); 
                 response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/FicheActeur/JSPFicheActeur.jsp");
             }
             else

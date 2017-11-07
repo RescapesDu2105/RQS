@@ -83,6 +83,16 @@ public class Bean_DB_MongoDB implements Serializable
         return trouve;
     }
     
+    public Document getActeur(int IdActeur)
+    {        
+        MongoCollection <Document> collection = getMongoDatabase().getCollection(MOVIES);
+        FindIterable<Document> Iterator;
+        Iterator = collection.find(eq("_idAct", IdActeur));
+        Document doc = Iterator.first();
+        
+        return doc;
+    }
+    
     public void FilmographieActeur(int IdActeur)
     {
         
