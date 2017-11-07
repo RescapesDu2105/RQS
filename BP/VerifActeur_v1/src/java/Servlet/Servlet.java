@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -54,50 +55,10 @@ public class Servlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
-        HttpSession session = request.getSession(true);
+        //HttpSession session = request.getSession(true);
         
-        String json;
-        StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader bufferedReader = null;
+        String json = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));       
         
-        try 
-        {
-            InputStream inputStream = request.getInputStream();
-            if (inputStream != null) 
-            {
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                char[] charBuffer = new char[1024];
-                int bytesRead = -1;
-                while ((bytesRead = bufferedReader.read(charBuffer)) > 0) 
-                {
-                    stringBuilder.append(charBuffer, 0, bytesRead);
-                }
-            } 
-            else 
-            {
-                stringBuilder.append("");
-            }
-        } 
-        catch (IOException ex) 
-        {
-            throw ex;
-        } 
-        finally 
-        {
-            if (bufferedReader != null) 
-            {
-                try 
-                {
-                    bufferedReader.close();
-                } 
-                catch (IOException ex) 
-                {
-                    throw ex;
-                }
-            }
-        }
-        
-        json = stringBuilder.toString();
         System.out.println("json = " + json);
 
         Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();

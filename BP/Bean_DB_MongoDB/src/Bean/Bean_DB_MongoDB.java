@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import org.bson.Document;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
+import com.mongodb.util.JSON;
 
 /**
  *
@@ -26,32 +27,40 @@ import static com.mongodb.client.model.Projections.*;
 public class Bean_DB_MongoDB implements Serializable 
 {    
     private static final String LOCALHOST = "localhost";
-    private static final String DATABASE_MOVIES = "movies";
-    private static final String DATABASE_ACTORS = "actors";    
+    private static final String MOVIES = "movies";
+    //private static final String DATABASE_ACTORS = "actors";    
     private final MongoClient mongoClient;
     private final MongoDatabase mongoDatabase;
 
     public Bean_DB_MongoDB()
     {
         this.mongoClient = new MongoClient(LOCALHOST);
-        this.mongoDatabase = this.mongoClient.getDatabase(DATABASE_ACTORS);        
+        this.mongoDatabase = this.mongoClient.getDatabase(MOVIES);        
     }      
     
     public void VerifierActeur(String json)
     {
         System.out.println("J'affiche quelque chose = " + json);
         
-        MongoCollection <Document> collection = getMongoDatabase().getCollection(DATABASE_ACTORS);
+        MongoCollection <Document> collection = getMongoDatabase().getCollection(MOVIES);
         FindIterable<Document> Iterator;
         Iterator = collection.find(eq(json));
         System.out.println("Test 1 = " + Iterator.first());
         Document doc = Iterator.first();
+        System.out.println("Test 2");   
         if (doc == null)
         {
-            doc = Document.parse(json);
-            System.out.println("Test 2");     
-            collection.insertOne(doc);
-            System.out.println("Test 3");
+            System.out.println("Test 3");   
+            if(json != null && !(JSON.parse(json) instanceof Object[]))
+            {
+                System.out.println("Test 4");   
+                doc = Document.parse(json);
+                System.out.println("Test 5");     
+                //collection.insertOne(doc);
+                System.out.println("Test 6");
+            }
+            else
+                System.out.println("Prout");
         }
         
         Iterator = collection.find(eq(json));
@@ -60,7 +69,7 @@ public class Bean_DB_MongoDB implements Serializable
     
     public Document ChercherActeur(int IdActeur)
     {        
-        MongoCollection <Document> collection = getMongoDatabase().getCollection(DATABASE_ACTORS);
+        MongoCollection <Document> collection = getMongoDatabase().getCollection(MOVIES);
         FindIterable<Document> Iterator;
         Iterator = collection.find(eq("_idAct", IdActeur));
         System.out.println("ChercherActeur = " + Iterator.first());
