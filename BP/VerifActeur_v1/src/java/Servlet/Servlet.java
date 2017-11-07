@@ -57,23 +57,21 @@ public class Servlet extends HttpServlet {
     {
         //HttpSession session = request.getSession(true);
         
-        String json = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));       
+        String json = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));    
         
-        System.out.println("json = " + json);
-
         Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();
+        boolean trouve = BeanDB.ChercherActeur(json);
+        if(trouve==false)
+        {
+        try (PrintWriter out = response.getWriter()) {
+             out.println("ko");
+         }
+         catch (IOException ex) {
+             Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
+         }
+        json = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
         BeanDB.VerifierActeur(json);
-    
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) 
-        {
-            out.println(JSON.serialize(false));
         }
-        catch (IOException ex) 
-        {
-            ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
