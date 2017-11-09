@@ -47,23 +47,43 @@ public class Bean_DB_MongoDB implements Serializable
         
         if (doc == null)
         {
+<<<<<<< HEAD
             doc = Document.parse(json);
             collection.insertOne(doc);
+=======
+            System.out.println("Test 3");   
+            try
+            {                
+                System.out.println("Test 4");   
+                doc = Document.parse(json);
+                System.out.println("Test 5 = " + doc);     
+                collection.insertOne(doc);
+                System.out.println("Test 6");
+            }
+            catch(Exception ex)
+            {
+                Logger.getLogger(Bean_DB_MongoDB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+>>>>>>> parent of ee46985... proute
         }
     }
     
-    public boolean ChercherActeur(String IdActeur)
+    public Document ChercherActeur(int IdActeur)
     {        
         MongoCollection <Document> collection = getMongoDatabase().getCollection(MOVIES);
         FindIterable<Document> Iterator;
-        boolean trouve;
         Iterator = collection.find(eq("_idAct", IdActeur));
+<<<<<<< HEAD
         if (Iterator.first() == null)
             trouve=false;
         else
             trouve=true;
+=======
+        System.out.println("ChercherActeur = " + Iterator.first());
+        Document doc = Iterator.first();
+>>>>>>> parent of ee46985... proute
         
-        return trouve;
+        return doc;
     }
     
     public Document getActeur(int IdActeur)
