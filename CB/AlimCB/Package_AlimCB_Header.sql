@@ -5,6 +5,8 @@ IS
 
     FUNCTION Delete_Spaces(chaine IN varchar2)
     RETURN varchar2;
+    FUNCTION TRUNC_Chaine(chaine in varchar2 , quantile IN number)
+    RETURN varchar2;
     PROCEDURE alimCB(l_movie_id IN Liste_Movie_Id);
     --PROCEDURE alimCB(NbAjout IN NUMBER);
     
