@@ -51,10 +51,10 @@ AS
             --NewBudget:=Delete_Spaces(l_movies(indx).Budget);
             --NewTagline:=Delete_Spaces(l_movies(indx).Tagline);
             
+            dbms_output.put_line('indx : '|| indx );
             InsertData(NewID,NewTitle,NewOriginalTitle,NewStatus,l_movies(indx).release_date,l_movies(indx).Vote_Average,
             l_movies(indx).Vote_Count,l_movies(indx).Runtime,NewCertification,l_movies(indx).Poster_PATH,l_movies(indx).Budget,NewTagline);
             TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
-            --dbms_output.put_line('ok : '|| indx );
             TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
             TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
                     
@@ -91,7 +91,7 @@ AS
             i:=i+1;
         END LOOP;
     EXCEPTION
-        When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+        When Others Then Dbms_Output.Put_Line('Genre : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
     END TraiterGenre;
     
     PROCEDURE TraiterRealisateur(Movie_Id IN movies_ext.id%TYPE, direct IN movies_ext.directors%TYPE)
@@ -108,18 +108,22 @@ AS
             idReal := cast(REGEXP_SUBSTR(ChainReal,'[^․]+',1,1) as number);
             NomReal:=SUBSTR(REGEXP_SUBSTR(ChainReal,'[^‖]+',1,1),cast((regexp_instr(ChainReal,'․',1,1)+1)as number));    
             
+            /*Dbms_Output.Put_Line(idReal);
+            Dbms_Output.Put_Line(NomReal);
+            Dbms_Output.Put_Line(Movie_Id);*/
+            
             BEGIN
                 SELECT IdArt into IdTemp
                 FROM ARTISTS
                 WHERE IdArt=idReal ;
-                
                 INSERT INTO REALISER VALUES(Movie_Id,idReal);
                 commit;
             EXCEPTION
-                WHEN NO_DATA_FOUND THEN 
+                WHEN NO_DATA_FOUND THEN
                 INSERT INTO ARTISTS VALUES(idReal,NomReal);
                 INSERT INTO REALISER VALUES(Movie_Id,idReal);
                 commit;
+                When Others Then Dbms_Output.Put_Line('Director : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
             END ;
             i:=i+1;
         END loop;
@@ -140,6 +144,9 @@ AS
             idAct := cast(REGEXP_SUBSTR(ChainAct,'[^․]+',1,1) as number);
             NomAct:=REGEXP_SUBSTR(ChainAct,'[^․]+',1,2);    
             RoleAct:=SUBSTR(REGEXP_SUBSTR(ChainAct,'[^‖]+',1,1),cast((regexp_instr(ChainAct,'․',1,2)+1)as number));
+            /*dbms_output.put_line('i : '|| i || ' idAct : ' || idAct);
+            dbms_output.put_line('i : '|| i || ' NomAct : ' || NomAct);
+            dbms_output.put_line('i : '|| i || ' RoleAct : ' || RoleAct);*/
             
             BEGIN
                 SELECT IdArt into IdTemp
@@ -153,7 +160,7 @@ AS
                 INSERT INTO ARTISTS VALUES(idAct,NomAct);
                 INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
                 commit;
-                When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+                When Others Then Dbms_Output.Put_Line('Actors : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
             END ;
             i:=i+1;
         END loop;
@@ -197,7 +204,7 @@ AS
             WHERE Nomcerti='G';
         EXCEPTION
             WHEN NO_DATA_FOUND THEN INSERT INTO Certifications(Nomcerti) VALUES('G');
-            --When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+            When Others Then Dbms_Output.Put_Line('Certification : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
         END;
         --Afin de pouvoir aller rechercher les id "generer"
         commit;
@@ -210,15 +217,22 @@ AS
         SELECT IdCerti INTO CertiIdTemp
         FROM Certifications
         WHERE Nomcerti='G';
-        SELECT IdPoster INTO PosterIdTemp
-        FROM Posters
-        WHERE PathImage=movie_poster;
+
+        IF movie_poster IS NOT NULL THEN
+            SELECT IdPoster INTO PosterIdTemp
+            FROM Posters
+            WHERE PathImage=movie_poster;
+        else
+            PosterIdTemp:=null;
+        end if;
+
         
+        --Dbms_Output.Put_Line(Movie_Id);
         INSERT INTO Films VALUES(Movie_Id,Movie_Title,Movie_OriginalTitle,StatusIdTemp,Movie_Tagline,Movie_date,
         Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp);
         commit;
     EXCEPTION
-        When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+        When Others Then Dbms_Output.Put_Line('Movies : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
     END InsertData;
 
 END packageAlimCB;

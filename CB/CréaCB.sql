@@ -1,6 +1,17 @@
+drop table REALISER;
+drop table Film_Genre;
+drop table JOUER;
+drop table Films_Copies;
+drop table Films;
+drop table posters;
+drop table genres;
+drop table status;
+drop table Certifications;
+drop table Artists;
+
 CREATE TABLE Artists (
-    IdArt     NUMBER(6),--MAX=6
-    NomArt	  VARCHAR2(40),
+    IdArt     NUMBER(7),
+    NomArt	  VARCHAR2(24 char),
     CONSTRAINT artist_pk 		PRIMARY KEY (IdArt),
     CONSTRAINT artist_name_ck 	CHECK (NomArt IS NOT NULL)
 );
@@ -26,7 +37,7 @@ CREATE TABLE status ( --denormaliser
 
 CREATE TABLE genres (
     IdGenre   	  NUMBER(5) ,-- MAX=5
-    NomGenre 	  VARCHAR2(12),-- 95 quantile=11 et 995 quantile=15
+    NomGenre 	  VARCHAR2(15),-- 95 quantile=11 et 995 quantile=15
     CONSTRAINT genres_pk 		PRIMARY KEY (IdGenre),
     CONSTRAINT genres_NomGenre_ck 	CHECK (NomGenre IS NOT NULL),
     CONSTRAINT genres_NomGenre_un 	UNIQUE (NomGenre)
@@ -35,7 +46,7 @@ CREATE TABLE genres (
 CREATE TABLE posters (
 	IdPoster 	NUMBER 	GENERATED ALWAYS AS IDENTITY,
 	--film		NUMBER ,
-	PathImage 	VARCHAR2(100),
+	PathImage 	VARCHAR2(32),
 	Image 		BLOB DEFAULT EMPTY_BLOB(),
 	CONSTRAINT posters_pk PRIMARY KEY (IdPoster)
 );
@@ -43,12 +54,12 @@ CREATE TABLE posters (
 -- Voir les valeurs d'analyse CI
 CREATE TABLE Films (
     IdFilm			NUMBER(6),
-    Titre			VARCHAR2(60) NOT NULL,
-	Titre_Original  VARCHAR2(60),
+    Titre			VARCHAR2(43 char) NOT NULL,
+	Titre_Original  VARCHAR2(43 char),
     status        	NUMBER, 
-    tagline  	  	VARCHAR2(175),
+    tagline  	  	VARCHAR2(107 char),
     Date_Real  		DATE,
-    Vote_Average  	NUMBER(2),
+    Vote_Average  	NUMBER(2,1),
     vote_count    	NUMBER(4) NOT NULL,
     certification 	NUMBER,
     Duree       	NUMBER(6),
@@ -79,7 +90,7 @@ CREATE TABLE Film_Genre (
 CREATE TABLE JOUER (
     Film  		NUMBER(6) CONSTRAINT JOUER_movie_fk REFERENCES Films (IdFilm),
     Artist 		NUMBER(7) CONSTRAINT JOUER_artist_fk REFERENCES Artists (IdArt),
-	Role		VARCHAR2(24),
+	Role		VARCHAR2(24 char),
     CONSTRAINT films_actor_pk 	PRIMARY KEY (Film, Artist)
 );
 
