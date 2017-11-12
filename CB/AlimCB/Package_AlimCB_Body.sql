@@ -2,7 +2,9 @@ create or replace PACKAGE BODY packageAlimCB
 AS
     FUNCTION Delete_Spaces(chaine IN varchar2)RETURN varchar2 IS 
     BEGIN 
-        RETURN REGEXP_REPLACE(chaine, '[[:space:]]', '' );
+        RETURN REGEXP_REPLACE(chaine, '[[:cntrl:]]|[[:space:]]{2,}', ' ' );
+	EXCEPTION
+		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
     END Delete_Spaces;
     
     FUNCTION TRUNC_Chaine(chaine in varchar2 , quantile IN number)RETURN varchar2 
@@ -15,19 +17,82 @@ AS
         ELSE
             return chaine;
         END IF ;
+	EXCEPTION
+		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
     END TRUNC_Chaine;
+    
+    FUNCTION Analyse_Certi(Certification IN varchar2) RETURN varchar2
+    IS
+        NewCerti varchar2(5);
+    BEGIN
+        IF CERTIFICATION IS NULL THEN NewCerti:='NR' ;
+        ELSE
+            NewCerti:=Certification;
+            IF Certification NOT IN ('G', 'PG', 'PG-13', 'R', 'NC-17') THEN
+                CASE 
+                    WHEN Certification = 'Y' THEN NewCerti := 'G';
+                    WHEN Certification = 'Young' THEN NewCerti := 'G';
+                    WHEN Certification = 'TV-G' THEN NewCerti := 'G';
+                    WHEN Certification = 'TV-PG' THEN NewCerti := 'PG';
+                    WHEN Certification = 'NR' THEN NewCerti := 'PG';
+                    WHEN Certification = 'TV-14' THEN NewCerti := 'PG-13';
+                    WHEN Certification = 'TVMA' THEN NewCerti := 'PG-13';
+                    WHEN Certification = 'TV-MA' THEN NewCerti := 'PG-13';
+                    WHEN Certification = 'TV-14 V' THEN NewCerti := 'PG-13';
+                    WHEN Certification = '15' THEN NewCerti := 'PG-13';
+                    WHEN Certification = '12' THEN NewCerti := 'PG-13';
+                    WHEN Certification = ' USA:R' THEN NewCerti := 'R';
+                    WHEN Certification = '16' THEN NewCerti := 'R';
+                    WHEN Certification = '18' THEN NewCerti := 'NC-17';
+                    WHEN Certification = 'R18' THEN NewCerti := 'NC-17';
+                    WHEN Certification = 'x' THEN NewCerti := 'NC-17';
+                    WHEN Certification = 'X' THEN NewCerti := 'NC-17';
+                    WHEN Certification = 'XXX' THEN NewCerti := 'NC-17';
+                    WHEN Certification = 'adult' THEN NewCerti := 'NC-17';
+                    ELSE NewCerti := 'NR';
+                END CASE;
+            END IF;
+        END IF;
+        Dbms_Output.Put_Line('Certification : ' || Certification);
+        Dbms_Output.Put_Line('NewCerti : ' || NewCerti);
+        RETURN NewCerti;
+	EXCEPTION
+		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+    END Analyse_Certi;
     
     PROCEDURE alimCB(l_movie_id IN Liste_Movie_Id)
     AS
     l_movies Liste_Movies;
     BEGIN
-        --dbms_output.put_line('cc');
         FOR indx IN l_movie_id.FIRST..l_movie_id.LAST LOOP
         SELECT * INTO l_movies(indx)
         FROM movies_ext
         WHERE movies_ext.id=l_movie_id(indx);
         END LOOP;
         TraiterFilm(l_movies);
+	EXCEPTION
+		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+    END alimCB;
+    
+    PROCEDURE alimCB(NbAjout IN NUMBER)
+    AS
+		l_movie_id Liste_Movie_Id;
+		Film movies_ext%ROWTYPE;
+		i NUMBER := 1;
+	BEGIN
+		IF (NbAjout <= 0) THEN
+			Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', '-25', 'Le nombre d''ajout dans AlimCB ne peut pas etre inferieur a 0'); 
+		ELSE
+			FOR Film IN (select * from movies_ext order by dbms_random.value)
+			LOOP
+				EXIT WHEN i > NbAjout;
+				l_movie_id(i) := Film.id;
+				i := i + 1;
+			END LOOP;
+			alimCB(l_movie_id);
+		END IF;
+	EXCEPTION
+		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
     END alimCB;
 
     PROCEDURE TraiterFilm(l_movies IN Liste_Movies)
@@ -53,15 +118,8 @@ AS
             NewOriginalTitle:=Delete_Spaces(l_movies(indx).Original_Title);
             NewStatus:=Delete_Spaces(l_movies(indx).Status);
             NewTagline:=Delete_Spaces(l_movies(indx).Tagline);
-            --NewVoteAverage:=Delete_Spaces(l_movies(indx).Vote_Average);
-            --NewVoteCount:=Delete_Spaces(l_movies(indx).Vote_Count);
-            --NewRuntime:=Delete_Spaces(l_movies(indx).Runtime);
             NewCertification:=Delete_Spaces(l_movies(indx).Certification);
-            --NewPoster:=Delete_Spaces(l_movies(indx).Poster_PATH);
-            --NewBudget:=Delete_Spaces(l_movies(indx).Budget);
-            --NewTagline:=Delete_Spaces(l_movies(indx).Tagline);
             
-            dbms_output.put_line('indx : '|| indx );
             InsertData(NewID,NewTitle,NewOriginalTitle,NewStatus,l_movies(indx).release_date,l_movies(indx).Vote_Average,
             l_movies(indx).Vote_Count,l_movies(indx).Runtime,NewCertification,l_movies(indx).Poster_PATH,l_movies(indx).Budget,NewTagline);
             TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
@@ -118,10 +176,6 @@ AS
             idReal := cast(REGEXP_SUBSTR(ChainReal,'[^․]+',1,1) as number);
             NomReal:=SUBSTR(REGEXP_SUBSTR(ChainReal,'[^‖]+',1,1),cast((regexp_instr(ChainReal,'․',1,1)+1)as number));    
             
-            /*Dbms_Output.Put_Line(idReal);
-            Dbms_Output.Put_Line(NomReal);
-            Dbms_Output.Put_Line(Movie_Id);*/
-            
             BEGIN
                 SELECT IdArt into IdTemp
                 FROM ARTISTS
@@ -155,9 +209,6 @@ AS
             idAct := cast(REGEXP_SUBSTR(ChainAct,'[^․]+',1,1) as number);
             NomAct:=REGEXP_SUBSTR(ChainAct,'[^․]+',1,2);    
             RoleAct:=SUBSTR(REGEXP_SUBSTR(ChainAct,'[^‖]+',1,1),cast((regexp_instr(ChainAct,'․',1,2)+1)as number));
-            /*dbms_output.put_line('i : '|| i || ' idAct : ' || idAct);
-            dbms_output.put_line('i : '|| i || ' NomAct : ' || NomAct);
-            dbms_output.put_line('i : '|| i || ' RoleAct : ' || RoleAct);*/
             RoleAct:=TRUNC_Chaine(RoleAct,24);
             BEGIN
                 SELECT IdArt into IdTemp
@@ -192,6 +243,7 @@ AS
         CertiIdTemp Certifications.IdCerti%TYPE;
         PosterIdTemp Posters.IdPoster%TYPE;
         
+        newCerti varchar2(5);
         newMovieTitle varchar2(43 char);
         newOriginalTitle varchar2(43 char);
         newTagLine varchar(107 char);
@@ -203,36 +255,46 @@ AS
             WHERE status.NomStatus=Movie_statut;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN INSERT INTO Status(NomStatus) Values(Movie_statut);
-            --When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+            When Others Then Dbms_Output.Put_Line('STATUS : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
         END ;
         
-        --Le path peut-etre null :
-        IF movie_poster IS NOT NULL THEN
-            Liens_Image:='http://image.tmdb.org/t/p/w185'||movie_poster;
-            INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob());
-        ELSE
-            INSERT INTO POSTERS(PathImage,Image)VALUES(null,null);
-        END IF ;
-        --Trier les certification ou déclencheur
+        BEGIN
+            --Le path peut-etre null :
+            IF movie_poster IS NOT NULL THEN
+                Liens_Image:='http://image.tmdb.org/t/p/w185'||movie_poster;
+                INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob());
+            ELSE
+                INSERT INTO POSTERS(PathImage,Image)VALUES(null,null);
+            END IF ;
+        EXCEPTION
+            When Others Then Dbms_Output.Put_Line('POSTERS : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+        END;
+
+        newCerti:=Analyse_Certi(Movie_certification);
+        Dbms_Output.Put_Line('newCerti : ' || newCerti);
         BEGIN
             SELECT IdCerti INTO CertiIdTemp
             FROM Certifications
-            WHERE Nomcerti='G';
+            WHERE Nomcerti=newCerti;
         EXCEPTION
-            WHEN NO_DATA_FOUND THEN INSERT INTO Certifications(Nomcerti) VALUES('G');
+            WHEN NO_DATA_FOUND THEN INSERT INTO certifications(Nomcerti) VALUES(newCerti);
             When Others Then Dbms_Output.Put_Line('Certification : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
         END;
-        --Afin de pouvoir aller rechercher les id "generer"
-        commit;
         
         --Recuperation des id "generer"
-        SELECT IdStatus INTO StatusIdTemp
-        FROM Status
-        WHERE NomStatus=Movie_statut;
-        --/!\ valeur modifier par déclencheur
-        SELECT IdCerti INTO CertiIdTemp
-        FROM Certifications
-        WHERE Nomcerti='G';
+            SELECT IdStatus INTO StatusIdTemp
+            FROM Status
+            WHERE NomStatus=Movie_statut;
+        IF newCerti IS NOT NULL THEN
+            SELECT IdCerti INTO CertiIdTemp
+            FROM Certifications
+            WHERE Nomcerti=newCerti;
+        else
+            SELECT IdCerti INTO CertiIdTemp
+            FROM Certifications
+            WHERE Nomcerti IS NULL;
+        END IF;
+
 
         IF movie_poster IS NOT NULL THEN
             SELECT IdPoster INTO PosterIdTemp
@@ -242,8 +304,7 @@ AS
             PosterIdTemp:=null;
         end if;
 
-        
-        --Dbms_Output.Put_Line(Movie_Id);
+        Dbms_Output.Put_Line('CertiIdTemp : '|| CertiIdTemp);
         newMovieTitle:=TRUNC_Chaine(Movie_Title,43);
         newOriginalTitle:=TRUNC_Chaine(Movie_OriginalTitle,43);
         newTagLine:=TRUNC_Chaine(Movie_Tagline,107);

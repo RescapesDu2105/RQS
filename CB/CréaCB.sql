@@ -23,13 +23,13 @@ CREATE TABLE Certifications (
     CONSTRAINT certi_pk 			PRIMARY KEY (IdCerti),
     CONSTRAINT certi_NomCerti_NotNull 	CHECK (NomCerti IS NOT NULL),
 	--Il faut ajouter un déclencheur qui va update les champs de movie_ext pour qu'ils correspondent à la contrainte
-	CONSTRAINT cert_NomCerti_ck 	CHECK (NomCerti IN ('G', 'PG', 'PG-13', 'R', 'NC-17')),
+	CONSTRAINT cert_NomCerti_ck 	CHECK (NomCerti IN ('NR','G', 'PG', 'PG-13', 'R', 'NC-17')),
     CONSTRAINT cert_NomCerti_un 	UNIQUE (NomCerti)
 );
 
 CREATE TABLE status ( --denormaliser
     IdStatus      	NUMBER GENERATED ALWAYS AS IDENTITY,
-    NomStatus    	VARCHAR2(8),-- 95 quartile = 8
+    NomStatus    	VARCHAR2(16),-- 95 quartile = 8
     CONSTRAINT status_pk 		PRIMARY KEY (IdStatus),
     CONSTRAINT status_NomStatus_ck 	CHECK (NomStatus IS NOT NULL),
     CONSTRAINT status_NomStatus_un 	UNIQUE (NomStatus)

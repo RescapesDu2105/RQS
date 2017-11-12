@@ -10,6 +10,20 @@ BEGIN
         dbms_output.put_line(Liste(indx));
     END LOOP;*/
 END ;
+
+DECLARE 
+    Liste packageAlimCB.Liste_Movie_Id;
+    Nb NUMBER :=6;
+BEGIN
+    /*SELECT MOVIES_EXT.ID BULK COLLECT INTO Liste
+    FROM MOVIES_EXT
+    WHERE ROWNUM<6;*/
+    packageAlimCB.alimCB(6);
+    
+    /*FOR indx IN Liste.FIRST..Liste.LAST LOOP
+        dbms_output.put_line(Liste(indx));
+    END LOOP;*/
+END ;
 /
 select * from posters;
 select * from certifications;

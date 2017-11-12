@@ -7,8 +7,10 @@ IS
     RETURN varchar2;
     FUNCTION TRUNC_Chaine(chaine in varchar2 , quantile IN number)
     RETURN varchar2;
+    FUNCTION Analyse_Certi(Certification IN varchar2)
+    RETURN varchar2;
     PROCEDURE alimCB(l_movie_id IN Liste_Movie_Id);
-    --PROCEDURE alimCB(NbAjout IN NUMBER);
+    PROCEDURE alimCB(NbAjout IN NUMBER);
     
     PROCEDURE TraiterFilm(l_movies IN Liste_Movies);
     PROCEDURE TraiterGenre(Movie_Id IN movies_ext.id%TYPE, genre IN movies_ext.genres%TYPE);
