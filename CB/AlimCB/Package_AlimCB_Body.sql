@@ -123,6 +123,7 @@ AS
             TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
             TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
             TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
+            TraiterCopies(l_movies(indx).id);
             commit;       
         END LOOP;
 	EXCEPTION
@@ -190,6 +191,16 @@ AS
             i:=i+1;
         END loop;
     END TraiterRealisateur;
+    
+    PROCEDURE TraiterCopies (Movie_Id IN movies_ext.id%TYPE)
+    AS
+        NbCopies NUMBER;
+    BEGIN
+        NbCopies :=ABS(DBMS_RANDOM.NORMAL *3 +6);
+        INSERT INTO Films_Copies(movie,nbCopie) VALUES(Movie_Id,NbCopies);
+    EXCEPTION
+        WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+    END TraiterCopies;
     
     PROCEDURE TraiterActeur(Movie_Id IN movies_ext.id%TYPE, act IN movies_ext.actors%TYPE)
     as
@@ -261,7 +272,7 @@ AS
                 INSERT INTO POSTERS(PathImage,Image)VALUES(null,null);
             END IF ;
         EXCEPTION
-            When Others Then Dbms_Output.Put_Line('POSTERS : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+            WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
         END;
 
         newCerti:=Analyse_Certi(Movie_certification);
