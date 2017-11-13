@@ -53,8 +53,6 @@ AS
                 END CASE;
             END IF;
         END IF;
-        Dbms_Output.Put_Line('Certification : ' || Certification);
-        Dbms_Output.Put_Line('NewCerti : ' || NewCerti);
         RETURN NewCerti;
 	EXCEPTION
 		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
@@ -125,8 +123,11 @@ AS
             TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
             TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
             TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
-                    
+            commit;       
         END LOOP;
+	EXCEPTION
+		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+        Rollback;
     END TraiterFilm;
     
     PROCEDURE TraiterGenre(Movie_Id IN movies_ext.id%TYPE, genre IN movies_ext.genres%TYPE)
@@ -149,17 +150,15 @@ AS
                 WHERE IdGenre=idGen ;
                 
                 INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
-                commit;
             EXCEPTION
                 WHEN NO_DATA_FOUND THEN 
                 INSERT INTO Genres VALUES(idGen,NomGenre);
                 INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
-                commit;
             END ;
             i:=i+1;
         END LOOP;
-    EXCEPTION
-        When Others Then Dbms_Output.Put_Line('Genre : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+	EXCEPTION
+		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
     END TraiterGenre;
     
     PROCEDURE TraiterRealisateur(Movie_Id IN movies_ext.id%TYPE, direct IN movies_ext.directors%TYPE)
@@ -181,14 +180,12 @@ AS
                 FROM ARTISTS
                 WHERE IdArt=idReal ;
                 INSERT INTO REALISER VALUES(Movie_Id,idReal);
-                commit;
             EXCEPTION
                 WHEN NO_DATA_FOUND THEN
                 NomReal:=TRUNC_Chaine(NomReal,24);
                 INSERT INTO ARTISTS VALUES(idReal,NomReal);
                 INSERT INTO REALISER VALUES(Movie_Id,idReal);
-                commit;
-                When Others Then Dbms_Output.Put_Line('Director : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+                WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
             END ;
             i:=i+1;
         END loop;
@@ -216,18 +213,15 @@ AS
                 WHERE IdArt=idAct ;
                 
                 INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
-                commit;
             EXCEPTION
                 WHEN NO_DATA_FOUND THEN 
                 NomAct:=TRUNC_Chaine(NomAct,24);
                 INSERT INTO ARTISTS VALUES(idAct,NomAct);
                 INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
-                commit;
-                When Others Then Dbms_Output.Put_Line('Actors : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+                WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
             END ;
             i:=i+1;
         END loop;
-    commit;
     END TraiterActeur;
     
     PROCEDURE InsertData(Movie_Id IN movies_ext.id%TYPE , Movie_Title IN movies_ext.Title%TYPE , Movie_OriginalTitle IN
@@ -255,7 +249,7 @@ AS
             WHERE status.NomStatus=Movie_statut;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN INSERT INTO Status(NomStatus) Values(Movie_statut);
-            When Others Then Dbms_Output.Put_Line('STATUS : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+            WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
         END ;
         
         BEGIN
@@ -278,7 +272,7 @@ AS
             WHERE Nomcerti=newCerti;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN INSERT INTO certifications(Nomcerti) VALUES(newCerti);
-            When Others Then Dbms_Output.Put_Line('Certification : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+            WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
         END;
         
         --Recuperation des id "generer"
@@ -310,9 +304,8 @@ AS
         newTagLine:=TRUNC_Chaine(Movie_Tagline,107);
         INSERT INTO Films VALUES(Movie_Id,newMovieTitle,newOriginalTitle,StatusIdTemp,newTagLine,Movie_date,
         Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp);
-        commit;
-    EXCEPTION
-        When Others Then Dbms_Output.Put_Line('Movies : INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+	EXCEPTION
+		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
     END InsertData;
 
 END packageAlimCB;
