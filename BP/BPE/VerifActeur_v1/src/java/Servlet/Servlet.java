@@ -62,10 +62,10 @@ public class Servlet extends HttpServlet {
         Req=json.split("#");
         System.out.println(Req[0]);
         Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();
-        
+         
         if(Req[0].equals("VERIFICATION"))
         {
-            boolean trouve = BeanDB.ChercherActeur(Req[1]);
+            boolean trouve = BeanDB.ChercherActeur(Integer.parseInt(Req[1]));
             if(!trouve)
             {
                 System.out.println("je Verifie");

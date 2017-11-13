@@ -64,7 +64,7 @@ public class Bean_DB_MongoDB implements Serializable
         }
     }
     
-    public boolean ChercherActeur(String IdActeur)
+    public boolean ChercherActeur(int IdActeur)
     {        
         MongoCollection <Document> collection = getMongoDatabase().getCollection(MOVIES);
         FindIterable<Document> Iterator;
