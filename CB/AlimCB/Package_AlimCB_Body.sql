@@ -5,18 +5,6 @@ AS
         RETURN REGEXP_REPLACE(chaine, '[[:space:]]', '' );
     END Delete_Spaces;
     
-    FUNCTION TRUNC_Chaine(chaine in varchar2 , quantile IN number)RETURN varchar2 
-    IS
-        resultat varchar2(1024 CHAR);
-    BEGIN
-        IF LENGTH(chaine)>quantile THEN
-            resultat:=substr(chaine,1,quantile-5) || '(...)';
-        return resultat;
-        ELSE
-            return chaine;
-        END IF ;
-    END TRUNC_Chaine;
-    
     PROCEDURE alimCB(l_movie_id IN Liste_Movie_Id)
     AS
     l_movies Liste_Movies;
@@ -43,7 +31,9 @@ AS
         NewPoster movies_ext.Poster_Path%TYPE;
         NewBudget movies_ext.Budget%TYPE;
         NewTagline movies_ext.Tagline%TYPE;
-        
+       -- NewGenres movies_ext.Genres%TYPE;
+       -- NewActors movies_ext.Actors%TYPE;
+       -- NewDirectors movies_ext.Directors%TYPE; vu que c'est des champs a split
     BEGIN
         FOR indx IN l_movies.FIRST..l_movies.LAST LOOP
             
@@ -106,9 +96,9 @@ AS
     
     PROCEDURE TraiterRealisateur(Movie_Id IN movies_ext.id%TYPE, direct IN movies_ext.directors%TYPE)
     as
-        ChainReal varchar2(4000);
+        ChainReal varchar2(25);
         idReal NUMBER;
-        NomReal varchar2(4000);
+        NomReal varchar2(25);
         IdTemp NUMBER;
         i number:=1;
     BEGIN    
@@ -130,7 +120,6 @@ AS
                 commit;
             EXCEPTION
                 WHEN NO_DATA_FOUND THEN
-                NomReal:=TRUNC_Chaine(NomReal,24);
                 INSERT INTO ARTISTS VALUES(idReal,NomReal);
                 INSERT INTO REALISER VALUES(Movie_Id,idReal);
                 commit;
@@ -142,10 +131,10 @@ AS
     
     PROCEDURE TraiterActeur(Movie_Id IN movies_ext.id%TYPE, act IN movies_ext.actors%TYPE)
     as
-        ChainAct varchar2(4000);
+        ChainAct varchar2(255);
         idAct NUMBER;
-        NomAct varchar2(4000);
-        RoleAct varchar2(4000);
+        NomAct varchar2(25);
+        RoleAct varchar2(25);
         IdTemp NUMBER;
         i number:=1;
     BEGIN
@@ -158,7 +147,7 @@ AS
             /*dbms_output.put_line('i : '|| i || ' idAct : ' || idAct);
             dbms_output.put_line('i : '|| i || ' NomAct : ' || NomAct);
             dbms_output.put_line('i : '|| i || ' RoleAct : ' || RoleAct);*/
-            RoleAct:=TRUNC_Chaine(RoleAct,24);
+            
             BEGIN
                 SELECT IdArt into IdTemp
                 FROM ARTISTS
@@ -168,7 +157,6 @@ AS
                 commit;
             EXCEPTION
                 WHEN NO_DATA_FOUND THEN 
-                NomAct:=TRUNC_Chaine(NomAct,24);
                 INSERT INTO ARTISTS VALUES(idAct,NomAct);
                 INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
                 commit;
@@ -191,10 +179,6 @@ AS
         CertiTemp Certifications.NomCerti%TYPE;
         CertiIdTemp Certifications.IdCerti%TYPE;
         PosterIdTemp Posters.IdPoster%TYPE;
-        
-        newMovieTitle varchar2(43 char);
-        newOriginalTitle varchar2(43 char);
-        newTagLine varchar(107 char);
     BEGIN
         --Verif des status :
         BEGIN
@@ -244,10 +228,7 @@ AS
 
         
         --Dbms_Output.Put_Line(Movie_Id);
-        newMovieTitle:=TRUNC_Chaine(Movie_Title,43);
-        newOriginalTitle:=TRUNC_Chaine(Movie_OriginalTitle,43);
-        newTagLine:=TRUNC_Chaine(Movie_Tagline,107);
-        INSERT INTO Films VALUES(Movie_Id,newMovieTitle,newOriginalTitle,StatusIdTemp,newTagLine,Movie_date,
+        INSERT INTO Films VALUES(Movie_Id,Movie_Title,Movie_OriginalTitle,StatusIdTemp,Movie_Tagline,Movie_date,
         Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp);
         commit;
     EXCEPTION
