@@ -17,8 +17,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bson.Document;
 import static com.mongodb.client.model.Filters.*;
+import com.mongodb.client.model.Projections;
 import static com.mongodb.client.model.Projections.*;
 import com.mongodb.util.JSON;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  *
@@ -47,11 +51,17 @@ public class Bean_DB_MongoDB implements Serializable
         
         if (doc == null)
         {
+<<<<<<< HEAD
             doc = Document.parse(json);
             
             try
             {                 
                 doc = Document.parse(json);    
+=======
+            try
+            {                 
+                doc = Document.parse(json);  
+>>>>>>> 5c8d724dca222c71df63878aebd79936dd95581e
                 collection.insertOne(doc);
             }
             catch(Exception ex)
@@ -64,32 +74,36 @@ public class Bean_DB_MongoDB implements Serializable
     public boolean ChercherActeur(int IdActeur)
     {        
         MongoCollection <Document> collection = getMongoDatabase().getCollection(MOVIES);
-        FindIterable<Document> Iterator;
-        Iterator = collection.find(eq("_idAct", IdActeur));
         System.out.println("ChercherActeur Req recu : "+IdActeur);
-        System.out.println("Res ChercheAct : "+Iterator.first());
-        if (Iterator.first() == null)
-            return false;
-        else
-            return true;
+        System.out.println("Res ChercheAct : "+collection.find(eq("_idAct", IdActeur)).first());
         
+        return collection.find(eq("_idAct", IdActeur)).first() != null;        
     }
-    
-    
-    
+        
     public Document getActeur(int IdActeur)
     {        
-        MongoCollection <Document> collection = getMongoDatabase().getCollection(MOVIES);
-        FindIterable<Document> Iterator;
-        Iterator = collection.find(eq("_idAct", IdActeur));
-        Document doc = Iterator.first();
-        
-        return doc;
+        MongoCollection <Document> collection = getMongoDatabase().getCollection(MOVIES);        
+        return collection.find(eq("_idAct", IdActeur)).first();
     }
     
-    public void FilmographieActeur(int IdActeur)
+    
+    public FindIterable<Document> FilmographieActeur(int IdActeur)
     {
+        MongoCollection <Document> collection = getMongoDatabase().getCollection(MOVIES);
+        FindIterable<Document> docs = collection
+                .find(eq("actors.id", IdActeur))
+                .projection(fields(include("title"), include("release_date"), include("actors.$"), include("original_title"), include("poster_path"), excludeId()));
+       // System.out.println("docs = " + docs.first());
+        //System.out.println("doc = " + doc);
         
+        /*String character = collection
+                .find(eq("actors.id", IdActeur))
+                .projection(fields(include("title"), include("release_date"), include("actors.$"), excludeId()))
+                .first()
+                .get("actors", ArrayList.class).get(0).toString().split("character=")[1].split(",", 0)[0];
+        System.out.println(character);*/
+        
+        return docs;
     }
     
     public static void main(String[] args) 
@@ -102,7 +116,7 @@ public class Bean_DB_MongoDB implements Serializable
         System.out.printf("Size of movies collection is %d\n", collection.count());
         
         FindIterable<Document> test;
-        test = collection.find(eq("_id", 100));
+        test = collection.find(eq("actors.id", 5999));
         System.out.println("test = " + test.first());
         Document doc;
         doc = test.first();
