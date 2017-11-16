@@ -31,18 +31,6 @@
         </nav>
         <br><br><br><br>
         <div class="container" id="main">
-<!--            <div class="col-12">
-                <div class="col-8">
-                    On affiche la photo
-                    <
-                </div>
-                <div class="col-4">
-                    On affiche les infos personnelles de l'acteur
-                </div>
-            </div>
-            <div class="col-12">
-                On affiche sa filmographie
-            </div>-->
             <aside style="float:left;">
                 <img class="rounded float-left" alt="No free image man (en)" src=<% out.println(session.getAttribute("Image") != null ? ("http://image.tmdb.org/t/p/w185" + session.getAttribute("Image")) : "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/No_free_image_man_%28en%29.svg/256px-No_free_image_man_%28en%29.svg.png"); %>/>
                 <h5>Photo de <% out.println(session.getAttribute("Nom")); %></h5>

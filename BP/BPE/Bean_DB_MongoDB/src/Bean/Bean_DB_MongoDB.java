@@ -48,14 +48,11 @@ public class Bean_DB_MongoDB implements Serializable
         if (doc == null)
         {
             doc = Document.parse(json);
-            System.out.println("Test 3");   
+            
             try
-            {                
-                System.out.println("Test 4");   
-                doc = Document.parse(json);
-                System.out.println("Test 5 = " + doc);     
+            {                 
+                doc = Document.parse(json);    
                 collection.insertOne(doc);
-                System.out.println("Test 6");
             }
             catch(Exception ex)
             {
