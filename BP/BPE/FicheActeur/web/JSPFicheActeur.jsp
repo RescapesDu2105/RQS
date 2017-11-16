@@ -33,6 +33,21 @@
                 <a class="navbar-brand" href="#"><i class="fa fa-cinema"></i><strong> Rennequinepolis</strong></a>
             </div>
         </nav>
+<<<<<<< HEAD
+        <br><br><br><br>
+        <div class="container" id="main">
+            <aside style="float:left;">
+                <img class="rounded float-left" alt="No free image man (en)" src=<% out.println(session.getAttribute("Image") != null ? ("http://image.tmdb.org/t/p/w185" + session.getAttribute("Image")) : "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/No_free_image_man_%28en%29.svg/256px-No_free_image_man_%28en%29.svg.png"); %>/>
+                <h5>Photo de <% out.println(session.getAttribute("Nom")); %></h5>
+            </aside>
+
+            <section>
+                <br><br><br><br>
+                <article>
+                    <h4><% out.println(session.getAttribute("Nom")); %></h4>
+                    <h4><% SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); out.println("Né le " + DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.FRANCE).format(formatter.parse(session.getAttribute("DateNaissance").toString())) + " à " + session.getAttribute("LieuNaissance")); %></h4>    
+                    <%  if(session.getAttribute("DateDeces") != null)
+=======
         <div class="container-fluid" id="main"> 
                        
             <div class="row">
@@ -84,6 +99,7 @@
                                
                     <%
                         if(Filmographie.size() > 0) 
+>>>>>>> 5c8d724dca222c71df63878aebd79936dd95581e
                         {
                             int i = 0;
                             for(int j = 1 ; i < Filmographie.size() ; j++)

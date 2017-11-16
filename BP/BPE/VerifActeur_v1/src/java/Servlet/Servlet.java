@@ -12,10 +12,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.json.Json;
+import javax.json.stream.JsonParser;
+import javax.json.stream.JsonParser.Event;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -58,8 +62,42 @@ public class Servlet extends HttpServlet {
         String [] Req ;
         //HttpSession session = request.getSession(true);
         
-        String json = request.getReader().lines().collect(Collectors.joining(System.lineSeparator())); 
-        Req=json.split("#");
+        String json = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        System.out.println(json);
+        JsonParser parser = Json.createParser(new StringReader(json));
+        Event event = null;
+        while (parser.hasNext()) 
+        {
+            event = parser.next();
+            System.out.print("event=" + event);
+            switch (event) 
+            {
+                case KEY_NAME:
+                    System.out.print(" cle=" + parser.getString());
+                    break;
+                
+                case VALUE_STRING:
+                    System.out.print(" valeur=" + parser.getString());
+                    break;
+                
+                case VALUE_NUMBER:
+                    if (parser.isIntegralNumber()) 
+                    {
+                        System.out.println(" valeur=" + parser.getInt());
+                    }
+                    else
+                    {
+                        System.out.println(" valeur=" + parser.getBigDecimal());
+                    }
+                    break;
+                    
+                case VALUE_NULL:
+                    System.out.print(" valeur=null");
+                    break;
+            }
+            System.out.println("");
+        }
+        /*Req=json.split("#");
         System.out.println(Req[0]);
         Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();
          
@@ -107,7 +145,7 @@ public class Servlet extends HttpServlet {
             {
                 ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
             }  
-        }
+        }*/
 
         //BeanDB.VerifierActeur(json);
           
