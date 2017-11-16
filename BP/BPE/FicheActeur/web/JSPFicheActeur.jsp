@@ -12,6 +12,7 @@
 <%@page import="java.util.Locale"%>
 <%@page import="java.util.Locale"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<jsp:useBean id="Acteur" scope="session" class="Beans.Acteur" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -37,7 +38,7 @@
             <div class="row">
                 <div class="col-md-10 mx-auto">
                     <div>
-                        <h1 class="display-3"><% out.println(session.getAttribute("Nom")); %></h1>
+                        <h1 class="display-3"><jsp:getProperty name="Acteur" property="Nom"/> <jsp:getProperty name="Acteur" property="Prenom"/></h1>
                     </div>
                     
                     <div class="jumbotron jumbotron-fluid">

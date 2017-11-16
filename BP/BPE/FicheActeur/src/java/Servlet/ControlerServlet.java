@@ -7,11 +7,12 @@ package Servlet;
  */
 
 import Bean.Bean_DB_MongoDB;
+import Beans.Acteur;
+import Beans.Film;
 import com.mongodb.client.FindIterable;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -79,7 +80,10 @@ public class ControlerServlet extends HttpServlet {
             Document doc = BeanDB.getActeur(Integer.parseInt(request.getParameter("inputIdActeur")));
             if (doc != null)
             {
-                session.setAttribute("Nom", doc.getString("nom"));
+                String[] CompleteName = doc.getString("nom").split(" ");
+                Acteur Acteur = new Acteur (CompleteName[0], CompleteName[1], doc.getString("DateAnnif"), doc.getString("LieuNaiss"), !doc.getString("DateDeces").isEmpty() ? (Timestamp)doc.get("DateDeces") : null, doc.getString("Image"));
+                
+                /*session.setAttribute("Nom", doc.getString("nom"));
                 session.setAttribute("DateNaissance", doc.getString("DateAnnif"));
                 if (!doc.getString("DateDeces").isEmpty())
                 {
@@ -88,7 +92,9 @@ public class ControlerServlet extends HttpServlet {
                 }
                 
                 session.setAttribute("LieuNaissance", doc.getString("LieuNaiss"));                
-                session.setAttribute("Image", doc.get("Image")); 
+                session.setAttribute("Image", doc.get("Image")); */
+                session.removeAttribute("Acteur");
+                session.setAttribute("Acteur", Acteur);
                 response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/FicheActeur/JSPFicheActeur.jsp");
             }
             else
@@ -98,22 +104,19 @@ public class ControlerServlet extends HttpServlet {
             }
             
             FindIterable<Document> docs = BeanDB.FilmographieActeur(Integer.parseInt(request.getParameter("inputIdActeur")));
-            ArrayList<HashMap<String, Object>> Filmographie = new ArrayList<>();
+            ArrayList<Film> Filmographie = new ArrayList<>();
             for(Document document : docs)
             {
-                HashMap<String, Object> Film = new HashMap<>();
+                Film Film = new Film(document.get("title").toString(), document.get("original_title").toString(), document.get("poster_path").toString(), document.getString("release_date"), document.get("actors", ArrayList.class).get(0).toString().split("character=")[1].split(",", 0)[0]);
+                /*HashMap<String, Object> Film = new HashMap<>();
                 Film.put("title", document.get("title"));
                 Film.put("original_title", document.get("original_title"));
                 Film.put("poster_path", document.get("poster_path"));
-                //System.out.println("Poster = " + document.get("poster_path"));
                 Film.put("release_date", document.get("release_date"));
-                Film.put("character", document.get("actors", ArrayList.class).get(0).toString().split("character=")[1].split(",", 0)[0]);
-                //System.out.println("Film = " + document.get("actors", ArrayList.class).get(0).toString().split("character=")[1].split(",", 0)[0]);
-                System.out.println("Film = " + Film);
+                Film.put("character", document.get("actors", ArrayList.class).get(0).toString().split("character=")[1].split(",", 0)[0]);*/
                 Filmographie.add(Film);
             }
             
-            //System.out.println("Test1 = " + "http://image.tmdb.org/t/p/w185" + Filmographie.get(10).get("poster_path").toString());
             session.removeAttribute("Filmographie");
             session.setAttribute("Filmographie", Filmographie);
         }        
