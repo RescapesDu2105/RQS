@@ -5,7 +5,6 @@ drop table Films_Copies;
 drop table Films;
 drop table posters;
 drop table genres;
-drop table status;
 drop table Certifications;
 drop table Artists;
 
@@ -23,17 +22,10 @@ CREATE TABLE Certifications (
     CONSTRAINT certi_pk 			PRIMARY KEY (IdCerti),
     CONSTRAINT certi_NomCerti_NotNull 	CHECK (NomCerti IS NOT NULL),
 	--Il faut ajouter un déclencheur qui va update les champs de movie_ext pour qu'ils correspondent à la contrainte
-	CONSTRAINT cert_NomCerti_ck 	CHECK (NomCerti IN ('NR','G', 'PG', 'PG-13', 'R', 'NC-17')),
+	CONSTRAINT cert_NomCerti_ck 	CHECK (NomCerti IN (null,'G', 'PG', 'PG-13', 'R', 'NC-17')),
     CONSTRAINT cert_NomCerti_un 	UNIQUE (NomCerti)
 );
 
-CREATE TABLE status ( --denormaliser
-    IdStatus      	NUMBER GENERATED ALWAYS AS IDENTITY,
-    NomStatus    	VARCHAR2(16),-- 95 quartile = 8
-    CONSTRAINT status_pk 		PRIMARY KEY (IdStatus),
-    CONSTRAINT status_NomStatus_ck 	CHECK (NomStatus IS NOT NULL),
-    CONSTRAINT status_NomStatus_un 	UNIQUE (NomStatus)
-);
 
 CREATE TABLE genres (
     IdGenre   	  NUMBER(5) ,-- MAX=5
@@ -56,7 +48,7 @@ CREATE TABLE Films (
     IdFilm			NUMBER(6),
     Titre			VARCHAR2(43 char) NOT NULL,
 	Titre_Original  VARCHAR2(43 char),
-    status        	NUMBER, 
+    status        	VARCHAR2 (15 CHAR), 
     tagline  	  	VARCHAR2(107 char),
     Date_Real  		DATE,
     Vote_Average  	NUMBER(2,1),
@@ -66,7 +58,6 @@ CREATE TABLE Films (
     Budget        	NUMBER(10,2) NOT NULL,
     poster        	NUMBER,
     CONSTRAINT films_pk 					PRIMARY KEY (IdFilm),
-    CONSTRAINT films_status_fk  			FOREIGN KEY (status) REFERENCES status(IdStatus),
 	CONSTRAINT films_vote_count_minVal_ck 	CHECK (vote_count IS NULL OR vote_count >= 0),
 	CONSTRAINT films_certification_fk 		FOREIGN KEY (certification) REFERENCES certifications(IdCerti),
 	CONSTRAINT films_Duree_minVal_ck 		CHECK (Duree IS NULL OR Duree >= 0),

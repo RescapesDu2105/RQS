@@ -12,6 +12,7 @@ AS
         resultat varchar2(1024 CHAR);
     BEGIN
         IF LENGTH(chaine)>quantile THEN
+            Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', '-20001', chaine || 'dépasse : '|| quantile);
             resultat:=substr(chaine,1,quantile-5) || '(...)';
         return resultat;
         ELSE
@@ -25,9 +26,7 @@ AS
     IS
         NewCerti varchar2(5);
     BEGIN
-        IF CERTIFICATION IS NULL THEN NewCerti:='NR' ;
-        ELSE
-            NewCerti:=Certification;
+        IF CERTIFICATION IS NOT NULL THEN
             IF Certification NOT IN ('G', 'PG', 'PG-13', 'R', 'NC-17') THEN
                 CASE 
                     WHEN Certification = 'Y' THEN NewCerti := 'G';
@@ -49,8 +48,10 @@ AS
                     WHEN Certification = 'X' THEN NewCerti := 'NC-17';
                     WHEN Certification = 'XXX' THEN NewCerti := 'NC-17';
                     WHEN Certification = 'adult' THEN NewCerti := 'NC-17';
-                    ELSE NewCerti := 'NR';
+                    ELSE NewCerti := null;
                 END CASE;
+            ELSE
+                NewCerti:=CERTIFICATION;
             END IF;
         END IF;
         RETURN NewCerti;
@@ -63,9 +64,9 @@ AS
     l_movies Liste_Movies;
     BEGIN
         FOR indx IN l_movie_id.FIRST..l_movie_id.LAST LOOP
-        SELECT * INTO l_movies(indx)
-        FROM movies_ext
-        WHERE movies_ext.id=l_movie_id(indx);
+            SELECT * INTO l_movies(indx)
+            FROM movies_ext
+            WHERE movies_ext.id=l_movie_id(indx);
         END LOOP;
         TraiterFilm(l_movies);
 	EXCEPTION
@@ -146,16 +147,15 @@ AS
             NomGenre:=SUBSTR(REGEXP_SUBSTR(ChaineGen,'[^‖]+',1,1),cast((regexp_instr(ChaineGen,'․',1,1)+1)as number));    
             
             BEGIN
-                SELECT IdGenre into IdTemp
-                FROM GENRES
-                WHERE IdGenre=idGen ;
-                
-                INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
-            EXCEPTION
-                WHEN NO_DATA_FOUND THEN 
                 INSERT INTO Genres VALUES(idGen,NomGenre);
                 INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
-            END ;
+            EXCEPTION
+                WHEN DUP_VAL_ON_INDEX THEN
+                    INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
+                    Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+                WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+            END;
+            
             i:=i+1;
         END LOOP;
 	EXCEPTION
@@ -177,17 +177,16 @@ AS
             NomReal:=SUBSTR(REGEXP_SUBSTR(ChainReal,'[^‖]+',1,1),cast((regexp_instr(ChainReal,'․',1,1)+1)as number));    
             
             BEGIN
-                SELECT IdArt into IdTemp
-                FROM ARTISTS
-                WHERE IdArt=idReal ;
-                INSERT INTO REALISER VALUES(Movie_Id,idReal);
-            EXCEPTION
-                WHEN NO_DATA_FOUND THEN
                 NomReal:=TRUNC_Chaine(NomReal,24);
                 INSERT INTO ARTISTS VALUES(idReal,NomReal);
                 INSERT INTO REALISER VALUES(Movie_Id,idReal);
+            EXCEPTION
+                WHEN DUP_VAL_ON_INDEX THEN
+                    INSERT INTO REALISER VALUES(Movie_Id,idReal);
+                    Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
                 WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-            END ;
+            END;
+            
             i:=i+1;
         END loop;
     END TraiterRealisateur;
@@ -218,19 +217,18 @@ AS
             NomAct:=REGEXP_SUBSTR(ChainAct,'[^․]+',1,2);    
             RoleAct:=SUBSTR(REGEXP_SUBSTR(ChainAct,'[^‖]+',1,1),cast((regexp_instr(ChainAct,'․',1,2)+1)as number));
             RoleAct:=TRUNC_Chaine(RoleAct,24);
+            
             BEGIN
-                SELECT IdArt into IdTemp
-                FROM ARTISTS
-                WHERE IdArt=idAct ;
-                
-                INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
-            EXCEPTION
-                WHEN NO_DATA_FOUND THEN 
                 NomAct:=TRUNC_Chaine(NomAct,24);
                 INSERT INTO ARTISTS VALUES(idAct,NomAct);
                 INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
+            EXCEPTION
+                WHEN DUP_VAL_ON_INDEX THEN
+                    INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
+                    Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
                 WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-            END ;
+            END;
+                    
             i:=i+1;
         END loop;
     END TraiterActeur;
@@ -242,8 +240,6 @@ AS
     movie_budget IN movies_ext.Budget%TYPE , Movie_Tagline IN movies_ext.Tagline%TYPE)
     AS
         Liens_Image varchar2(150);
-        StatusTemp status.NomStatus%TYPE;
-        StatusIdTemp status.IdStatus%TYPE;
         CertiTemp Certifications.NomCerti%TYPE;
         CertiIdTemp Certifications.IdCerti%TYPE;
         PosterIdTemp Posters.IdPoster%TYPE;
@@ -254,14 +250,6 @@ AS
         newTagLine varchar(107 char);
     BEGIN
         --Verif des status :
-        BEGIN
-            SELECT status.NomStatus into StatusTemp
-            FROM status
-            WHERE status.NomStatus=Movie_statut;
-        EXCEPTION
-            WHEN NO_DATA_FOUND THEN INSERT INTO Status(NomStatus) Values(Movie_statut);
-            WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-        END ;
         
         BEGIN
             --Le path peut-etre null :
@@ -276,25 +264,27 @@ AS
         END;
 
         newCerti:=Analyse_Certi(Movie_certification);
-        Dbms_Output.Put_Line('newCerti : ' || newCerti);
         BEGIN
-            SELECT IdCerti INTO CertiIdTemp
-            FROM Certifications
-            WHERE Nomcerti=newCerti;
+            IF newCerti IS NOT NULL THEN
+                SELECT IdCerti INTO CertiIdTemp
+                FROM Certifications
+                WHERE Nomcerti=newCerti;
+            ELSIF newCerti IS NULL THEN
+                SELECT IdCerti INTO CertiIdTemp
+                FROM Certifications
+                WHERE Nomcerti IS NULL;
+            END IF ;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN INSERT INTO certifications(Nomcerti) VALUES(newCerti);
             WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
         END;
         
         --Recuperation des id "generer"
-            SELECT IdStatus INTO StatusIdTemp
-            FROM Status
-            WHERE NomStatus=Movie_statut;
         IF newCerti IS NOT NULL THEN
             SELECT IdCerti INTO CertiIdTemp
             FROM Certifications
             WHERE Nomcerti=newCerti;
-        else
+        ELSIF newCerti IS NULL THEN
             SELECT IdCerti INTO CertiIdTemp
             FROM Certifications
             WHERE Nomcerti IS NULL;
@@ -309,11 +299,10 @@ AS
             PosterIdTemp:=null;
         end if;
 
-        Dbms_Output.Put_Line('CertiIdTemp : '|| CertiIdTemp);
         newMovieTitle:=TRUNC_Chaine(Movie_Title,43);
         newOriginalTitle:=TRUNC_Chaine(Movie_OriginalTitle,43);
         newTagLine:=TRUNC_Chaine(Movie_Tagline,107);
-        INSERT INTO Films VALUES(Movie_Id,newMovieTitle,newOriginalTitle,StatusIdTemp,newTagLine,Movie_date,
+        INSERT INTO Films VALUES(Movie_Id,newMovieTitle,newOriginalTitle,Movie_statut,newTagLine,Movie_date,
         Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp);
 	EXCEPTION
 		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);

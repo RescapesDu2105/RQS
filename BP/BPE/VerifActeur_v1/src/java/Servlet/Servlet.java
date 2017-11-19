@@ -18,8 +18,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonReader;
+import javax.json.JsonString;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParser.Event;
+import static javax.json.stream.JsonParser.Event.KEY_NAME;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -34,7 +41,8 @@ import javax.servlet.http.HttpSession;
  * @author Philippe
  */
 @WebServlet(name = "Servlet", urlPatterns = {"/VerifActeur_v1"})
-public class Servlet extends HttpServlet {
+public class Servlet extends HttpServlet 
+{
 
     @Override
     public void init(ServletConfig config) throws ServletException
@@ -64,11 +72,40 @@ public class Servlet extends HttpServlet {
         
         String json = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
         System.out.println(json);
-        JsonParser parser = Json.createParser(new StringReader(json));
-        Event event = null;
-        while (parser.hasNext()) 
+        JsonParser parser = Json.createParser(new StringReader(json));// Création d'un parser
+        JsonReader reader = Json.createReader(new StringReader(json));// Création d'un reader
+        JsonObject object = reader.readObject();// Création d'un objet
+        int idActeur = 0;
+        boolean trouve=false;
+        Event event = null; 
+        /*while(!trouve && parser.hasNext())
+        {   
+            event = parser.next();
+            if(event==KEY_NAME &&  parser.getString().equals("ID"))
+            {
+                event = parser.next();
+                idActeur =  parser.getInt();
+                trouve=true;
+            }
+        }
+        System.out.println("IdActeur : "+ idActeur);*/
+        
+        while(!trouve && parser.hasNext())
+        {   
+            event = parser.next();
+            if(event==KEY_NAME &&  parser.getString().equals("FILMS"))
+            {
+                //Array = object.getJsonArray("FILMS");
+                trouve=true;
+            }
+        }
+        
+        System.out.println("");
+        /*while (parser.hasNext()) 
         {
             event = parser.next();
+            if(event == KEY_NAME && parser.getString().equals("FILMS"))
+                System.out.println("trouve");
             System.out.print("event=" + event);
             switch (event) 
             {
