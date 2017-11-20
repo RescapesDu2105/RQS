@@ -6,7 +6,6 @@
 package Beans;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.Locale;
 
@@ -16,65 +15,68 @@ import java.util.Locale;
  */
 public class Film implements Serializable {
     
-    private String Title;
-    private String Original_Title;
-    private String Poster_Path;
-    private String Release_Date;
-    private String Character;
+    private String title;
+    private String originalTitle;
+    private String posterPath;
+    private String releaseDate;
+    private String character;
 
-        
-    public Film(String Title, String Original_Title, String Poster_Path, String Release_Date, String Character) 
+    public Film() 
     {
-        this.Title = Title;
-        this.Original_Title = Original_Title;
-        this.Poster_Path = Poster_Path;
-        this.Release_Date = Release_Date;
-        this.Character = Character;
+        
     }
+
+    public Film(String title, String originalTitle, String posterPath, String releaseDate, String character) {
+        this.title = title;
+        this.originalTitle = originalTitle;
+        this.posterPath = posterPath;
+        this.releaseDate = releaseDate;
+        this.character = character;
+    }
+
     
     public String getRelease_Date(Locale locale)
     {
-        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale).format(getRelease_Date());
+        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale).format(getReleaseDate());
     }
 
     public String getTitle() {
-        return Title;
+        return title;
     }
 
-    public void setTitle(String Title) {
-        this.Title = Title;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public String getOriginal_Title() {
-        return Original_Title;
+    public String getOriginalTitle() {
+        return originalTitle;
     }
 
-    public void setOriginal_Title(String Original_Title) {
-        this.Original_Title = Original_Title;
+    public void setOriginalTitle(String originalTitle) {
+        this.originalTitle = originalTitle;
     }
 
-    public String getPoster_Path() {
-        return Poster_Path;
+    public String getPosterPath() {
+        return posterPath;
     }
 
-    public void setPoster_Path(String Poster_Path) {
-        this.Poster_Path = Poster_Path;
+    public void setPosterPath(String posterPath) {
+        this.posterPath = posterPath;
     }
 
-    public String getRelease_Date() {
-        return Release_Date;
+    public String getReleaseDate() {
+        return releaseDate;
     }
 
-    public void setRelease_Date(String Release_Date) {
-        this.Release_Date = Release_Date;
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
     }
 
     public String getCharacter() {
-        return Character;
+        return character;
     }
 
-    public void setCharacter(String Character) {
-        this.Character = Character;
+    public void setCharacter(String character) {
+        this.character = character;
     }
-    
 }
