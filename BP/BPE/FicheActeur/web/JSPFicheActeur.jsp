@@ -4,8 +4,6 @@
     Author     : Philippe
 --%>
 
-<%@page import="Beans.Films"%>
-<%@page import="Beans.Film"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.ArrayList"%>
@@ -14,8 +12,7 @@
 <%@page import="java.util.Locale"%>
 <%@page import="java.util.Locale"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<jsp:useBean id="Acteur" scope="session" class="Beans.Acteur"/>
-<jsp:useBean id="Films" scope="session" class="Beans.Films"/>
+<jsp:useBean id="Acteur" scope="session" class="Beans.Acteur" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -36,22 +33,37 @@
                 <a class="navbar-brand" href="#"><i class="fa fa-cinema"></i><strong> Rennequinepolis</strong></a>
             </div>
         </nav>
+<<<<<<< HEAD
+        <br><br><br><br>
+        <div class="container" id="main">
+            <aside style="float:left;">
+                <img class="rounded float-left" alt="No free image man (en)" src=<% out.println(session.getAttribute("Image") != null ? ("http://image.tmdb.org/t/p/w185" + session.getAttribute("Image")) : "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/No_free_image_man_%28en%29.svg/256px-No_free_image_man_%28en%29.svg.png"); %>/>
+                <h5>Photo de <% out.println(session.getAttribute("Nom")); %></h5>
+            </aside>
+
+            <section>
+                <br><br><br><br>
+                <article>
+                    <h4><% out.println(session.getAttribute("Nom")); %></h4>
+                    <h4><% SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); out.println("Né le " + DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.FRANCE).format(formatter.parse(session.getAttribute("DateNaissance").toString())) + " à " + session.getAttribute("LieuNaissance")); %></h4>    
+                    <%  if(session.getAttribute("DateDeces") != null)
+=======
         <div class="container-fluid" id="main"> 
                        
             <div class="row">
                 <div class="col-md-10 mx-auto">
                     <div>
-                        <h1 class="display-3"><jsp:getProperty name="Acteur" property="nom"/> <jsp:getProperty name="Acteur" property="prenom"/></h1>
+                        <h1 class="display-3"><jsp:getProperty name="Acteur" property="Nom"/> <jsp:getProperty name="Acteur" property="Prenom"/></h1>
                     </div>
                     
                     <div class="jumbotron jumbotron-fluid">
                         <div class="container">
                             
-                            <img class="rounded float-left" alt="No free image man (en)" src=<jsp:getProperty name="Acteur" property="imageProfil"/>/>
+                            <img class="rounded float-left" alt="No free image man (en)" src=<% out.println(session.getAttribute("Image") != null ? ("http://image.tmdb.org/t/p/w185" + session.getAttribute("Image")) : "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/No_free_image_man_%28en%29.svg/256px-No_free_image_man_%28en%29.svg.png"); %>/>
                             
                             <h2 class="text-center">Date de naissance :</h2>
                             <p class="lead text-center">
-                                <jsp:getProperty name="Acteur" property="dateNaissance"/>
+                                <% SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); out.println(DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.FRANCE).format(formatter.parse(session.getAttribute("DateNaissance").toString()))); %>
                             </p>
                             <h2 class="text-center">Lieu de naissance :</h2>
                             <p class="lead text-center"><% out.println(session.getAttribute("LieuNaissance")); %></p>
@@ -82,17 +94,14 @@
                     <br>
                     <h2>Filmographie :</h2>
                     <% 
-                        //Films Filmographie = (Films)session.getAttribute("Filmographie");
-                        ArrayList<Film> Filmographie = (ArrayList<Film>)session.getAttribute("Filmographie");
-                        //System.out.println("Filmographie = " + Filmographie..isEmpty());
+                        ArrayList<HashMap<String, Object>> Filmographie = (ArrayList<HashMap<String, Object>>) session.getAttribute("Filmographie");   
                     %>
                                
                     <%
-                        //if(Filmographie.getFilmographie().size() > 0) 
-                        if(Filmographie != null && Filmographie.size() > 0)
+                        if(Filmographie.size() > 0) 
+>>>>>>> 5c8d724dca222c71df63878aebd79936dd95581e
                         {
                             int i = 0;
-                            //for(int j = 1 ; i < Filmographie.getFilmographie().size() ; j++)
                             for(int j = 1 ; i < Filmographie.size() ; j++)
                             {%>
                                 <div class="card-group">
@@ -104,11 +113,11 @@
                     %>                    
                                     <div class="card">
                                         <% if (i < Filmographie.size()) { %>
-                                        <img class="card-img-top" src=<% out.println(Filmographie.get(i).getPosterPath()); %>>
+                                        <img class="card-img-top" src=<% out.println(Filmographie.get(i).get("poster_path") != null ? ("http://image.tmdb.org/t/p/w185" + Filmographie.get(i).get("poster_path").toString()) : "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/No_free_image_man_%28en%29.svg/256px-No_free_image_man_%28en%29.svg.png"); %> alt=<% out.println(Filmographie.get(i).get("title").toString()); %>>
                                         <div class="card-body">
-                                            <h4 class="card-title"><% out.println(Filmographie.get(i).getTitle() + "(" + (!Filmographie.get(i).getReleaseDate().equals("") ? Filmographie.get(i).getReleaseDate().substring(0, 4) : "?") + ")"); %></h4>
-                                        <p class="card-text"><small class="text-muted"><% out.println("Titre original : " + Filmographie.get(i).getOriginalTitle()); %></small></p>
-                                        <p class="card-text"><% out.println(!Filmographie.get(i).getCharacter().equals("") ? "Rôle : " + Filmographie.get(i).getCharacter() : "Rôle : ?"); %></p>
+                                            <h4 class="card-title"><% out.println(Filmographie.get(i).get("title").toString() + "(" + (!Filmographie.get(i).get("release_date").equals("") ? Filmographie.get(i).get("release_date").toString().substring(0, 4) : "?") + ")"); %></h4>
+                                        <p class="card-text"><small class="text-muted"><% out.println("Titre original : " + Filmographie.get(i).get("original_title").toString()); %></small></p>
+                                        <p class="card-text"><% out.println(!Filmographie.get(i).get("character").equals("") ? "Rôle : " + Filmographie.get(i).get("character").toString() : "Rôle : ?"); %></p>
                                         </div>
                                         <% } %>
                                     </div>                                    

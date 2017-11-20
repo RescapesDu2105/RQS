@@ -7,6 +7,7 @@ package Beans;
  */
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.Locale;
 
@@ -16,26 +17,21 @@ import java.util.Locale;
  */
 public class Acteur implements Serializable {
     
-    private String nom;
-    private String prenom;
-    private String dateNaissance;
-    private String lieuNaissance;
-    private String dateDeces;
-    private String imageProfil;
+   private String Nom;
+    private String Prenom;
+    private String DateNaissance;
+    private String LieuNaissance;
+    private String DateDeces;
+    private String ImageProfil;
 
-    public Acteur()
-    {
-        
-    }
-    
     public Acteur(String Nom, String Prenom, String DateNaissance, String LieuNaissance, String DateDeces, String ImageProfil) 
     {
-        this.nom = Nom;
-        this.prenom = Prenom;
-        this.dateNaissance = DateNaissance;
-        this.lieuNaissance = LieuNaissance;
-        this.dateDeces = DateDeces;
-        this.imageProfil = ImageProfil;
+        this.Nom = Nom;
+        this.Prenom = Prenom;
+        this.DateNaissance = DateNaissance;
+        this.LieuNaissance = LieuNaissance;
+        this.DateDeces = DateDeces;
+        this.ImageProfil = ImageProfil;
     }
     
     public String getDateNaissance(Locale locale)
@@ -54,51 +50,51 @@ public class Acteur implements Serializable {
     }
 
     public String getNom() {
-        return nom;
+        return Nom;
     }
 
     public void setNom(String Nom) {
-        this.nom = Nom;
+        this.Nom = Nom;
     }
 
     public String getPrenom() {
-        return prenom;
+        return Prenom;
     }
 
     public void setPrenom(String Prenom) {
-        this.prenom = Prenom;
+        this.Prenom = Prenom;
     }
 
     public String getDateNaissance() {
-        return dateNaissance;
+        return DateNaissance;
     }
 
     public void setDateNaissance(String DateNaissance) {
-        this.dateNaissance = DateNaissance;
+        this.DateNaissance = DateNaissance;
     }
 
     public String getLieuNaissance() {
-        return lieuNaissance;
+        return LieuNaissance;
     }
 
     public void setLieuNaissance(String LieuNaissance) {
-        this.lieuNaissance = LieuNaissance;
+        this.LieuNaissance = LieuNaissance;
     }
 
     public String getDateDeces() {
-        return dateDeces;
+        return DateDeces;
     }
 
     public void setDateDeces(String DateDeces) {
-        this.dateDeces = DateDeces;
+        this.DateDeces = DateDeces;
     }
 
     public String getImageProfil() {
-        return imageProfil;
+        return ImageProfil;
     }
 
     public void setImageProfil(String ImageProfil) {
-        this.imageProfil = ImageProfil;
+        this.ImageProfil = ImageProfil;
     }
     
 }

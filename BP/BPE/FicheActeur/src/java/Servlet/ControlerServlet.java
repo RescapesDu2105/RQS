@@ -9,13 +9,18 @@ package Servlet;
 import Bean.Bean_DB_MongoDB;
 import Beans.Acteur;
 import Beans.Film;
-import Beans.Films;
 import com.mongodb.client.FindIterable;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import javax.servlet.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.bson.Document;
 
 /**
@@ -61,7 +66,7 @@ public class ControlerServlet extends HttpServlet {
         }
     }
     
-    public void Rechercher(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException, ServletException
+    public void Rechercher(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException
     {
         Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();
       
@@ -76,7 +81,7 @@ public class ControlerServlet extends HttpServlet {
             if (doc != null)
             {
                 String[] CompleteName = doc.getString("nom").split(" ");
-                Acteur Acteur = new Acteur(CompleteName[0], CompleteName[1], doc.getString("DateAnnif"), doc.getString("LieuNaiss"), !doc.getString("DateDeces").isEmpty() ? doc.getString("DateDeces") : null, doc.getString("Image"));
+                Acteur Acteur = new Acteur (CompleteName[0], CompleteName[1], doc.getString("DateAnnif"), doc.getString("LieuNaiss"), !doc.getString("DateDeces").isEmpty() ? (Timestamp)doc.get("DateDeces") : null, doc.getString("Image"));
                 
                 /*session.setAttribute("Nom", doc.getString("nom"));
                 session.setAttribute("DateNaissance", doc.getString("DateAnnif"));
@@ -90,9 +95,7 @@ public class ControlerServlet extends HttpServlet {
                 session.setAttribute("Image", doc.get("Image")); */
                 session.removeAttribute("Acteur");
                 session.setAttribute("Acteur", Acteur);
-                RequestDispatcher rd = getServletContext().getRequestDispatcher("/JSPFicheActeur.jsp");
-                rd.forward(request, response);
-                //response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/FicheActeur/JSPFicheActeur.jsp");
+                response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/FicheActeur/JSPFicheActeur.jsp");
             }
             else
             {                
@@ -101,38 +104,21 @@ public class ControlerServlet extends HttpServlet {
             }
             
             FindIterable<Document> docs = BeanDB.FilmographieActeur(Integer.parseInt(request.getParameter("inputIdActeur")));
-            //Films Filmographie = new Films();
             ArrayList<Film> Filmographie = new ArrayList<>();
             for(Document document : docs)
             {
-                String Title = document.get("title").toString();
-                System.out.println("Title = " + Title);
-                String Ori = document.get("original_title").toString();
-                System.out.println("Ori = " + Ori);
-                String Poster = document.get("poster_path") != null ? "http://image.tmdb.org/t/p/w185" + document.get("poster_path").toString() : "http://image.tmdb.org/t/p/w185" + "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/No_free_image_man_%28en%29.svg/256px-No_free_image_man_%28en%29.svg.png";
-                System.out.println("Poster = " + Poster);
-                String Date = document.getString("release_date");
-                System.out.println("Date = " + Date);
-                String Role = document.get("actors", ArrayList.class).get(0).toString().split("character=")[1].split(",", 0)[0];
-                System.out.println("Role = " + Role);
-                
-                
-                Film Film = new Film(Title, Ori, Poster, Date, Role);
+                Film Film = new Film(document.get("title").toString(), document.get("original_title").toString(), document.get("poster_path").toString(), document.getString("release_date"), document.get("actors", ArrayList.class).get(0).toString().split("character=")[1].split(",", 0)[0]);
                 /*HashMap<String, Object> Film = new HashMap<>();
                 Film.put("title", document.get("title"));
                 Film.put("original_title", document.get("original_title"));
                 Film.put("poster_path", document.get("poster_path"));
                 Film.put("release_date", document.get("release_date"));
                 Film.put("character", document.get("actors", ArrayList.class).get(0).toString().split("character=")[1].split(",", 0)[0]);*/
-                //Filmographie.getFilmographie().add(Film);
                 Filmographie.add(Film);
             }
             
             session.removeAttribute("Filmographie");
             session.setAttribute("Filmographie", Filmographie);
-            
-            RequestDispatcher rd = getServletContext().getRequestDispatcher("/JSPFicheActeur.jsp");
-            rd.forward(request, response);
         }        
     }
 
