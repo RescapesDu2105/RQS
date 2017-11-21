@@ -124,7 +124,7 @@ AS
             TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
             TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
             TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
-            TraiterCopies(l_movies(indx).id);
+            TraiterCopies(l_movies(indx).id);    
             commit;       
         END LOOP;
 	EXCEPTION
@@ -248,14 +248,12 @@ AS
         newMovieTitle varchar2(43 char);
         newOriginalTitle varchar2(43 char);
         newTagLine varchar(107 char);
-    BEGIN
-        --Verif des status :
-        
+    BEGIN      
         BEGIN
             --Le path peut-etre null :
             IF movie_poster IS NOT NULL THEN
                 Liens_Image:='http://image.tmdb.org/t/p/w185'||movie_poster;
-                INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob());
+                INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob()) Returning IdPoster into PosterIdTemp;
             ELSE
                 INSERT INTO POSTERS(PathImage,Image)VALUES(null,null);
             END IF ;
@@ -275,30 +273,10 @@ AS
                 WHERE Nomcerti IS NULL;
             END IF ;
         EXCEPTION
-            WHEN NO_DATA_FOUND THEN INSERT INTO certifications(Nomcerti) VALUES(newCerti);
+            WHEN NO_DATA_FOUND THEN INSERT INTO certifications(Nomcerti) VALUES(newCerti) returning IdCerti into CertiIdTemp;
             WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
         END;
         
-        --Recuperation des id "generer"
-        IF newCerti IS NOT NULL THEN
-            SELECT IdCerti INTO CertiIdTemp
-            FROM Certifications
-            WHERE Nomcerti=newCerti;
-        ELSIF newCerti IS NULL THEN
-            SELECT IdCerti INTO CertiIdTemp
-            FROM Certifications
-            WHERE Nomcerti IS NULL;
-        END IF;
-
-
-        IF movie_poster IS NOT NULL THEN
-            SELECT IdPoster INTO PosterIdTemp
-            FROM Posters
-            WHERE PathImage=movie_poster;
-        else
-            PosterIdTemp:=null;
-        end if;
-
         newMovieTitle:=TRUNC_Chaine(Movie_Title,43);
         newOriginalTitle:=TRUNC_Chaine(Movie_OriginalTitle,43);
         newTagLine:=TRUNC_Chaine(Movie_Tagline,107);
