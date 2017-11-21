@@ -5,25 +5,17 @@
  */
 package Servlet;
 
-import Bean.Bean_DB_MongoDB;
-import com.mongodb.util.JSON;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.json.JsonString;
+import javax.json.JsonValue;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParser.Event;
 import static javax.json.stream.JsonParser.Event.KEY_NAME;
@@ -34,7 +26,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -71,10 +62,19 @@ public class Servlet extends HttpServlet
         //HttpSession session = request.getSession(true);
         
         String json = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-        System.out.println(json);
+        //System.out.println(json);        
         JsonParser parser = Json.createParser(new StringReader(json));// Création d'un parser
         JsonReader reader = Json.createReader(new StringReader(json));// Création d'un reader
         JsonObject object = reader.readObject();// Création d'un objet
+        String acteurs = object.get("acteurs").toString();
+        reader = Json.createReader(new StringReader(acteurs));
+        JsonArray array = reader.readArray();
+        //parcourirModele(array, null, 0);
+        String Films = Test_getFilms(array);
+        
+        
+    
+        
         int idActeur = 0;
         boolean trouve=false;
         Event event = null; 
@@ -188,6 +188,61 @@ public class Servlet extends HttpServlet
         //BeanDB.VerifierActeur(json);
           
     }
+    
+    public static void parcourirModele(final JsonValue element, final String cle, final int niveau) 
+    {
+        String indentation = String.join("", Collections.nCopies(niveau, ".."));
+        int niveauSuivant = niveau+1;
+        if (cle != null) {
+            System.out.print(indentation+"Key " + cle + ": ");
+        }
+        
+        switch (element.getValueType()) 
+        {
+            case OBJECT:
+                System.out.println(indentation+"Objet");
+                JsonObject object = (JsonObject) element;
+                object.keySet().forEach((nom) -> {
+                    parcourirModele(object.get(nom), nom, niveauSuivant);
+        });
+                break;
+            case ARRAY:
+                System.out.println(indentation+"Tableau");
+                JsonArray array = (JsonArray) element;
+                array.forEach((val) -> {
+                    parcourirModele(val, null, niveauSuivant);
+        });
+                break;
+            case STRING:
+                JsonString st = (JsonString) element;
+                System.out.println(" String " + st.getString());
+                break;
+            case NUMBER:
+                JsonNumber num = (JsonNumber) element;
+                System.out.println(" Nombre " + num.toString());
+                break;
+            case TRUE:
+            case FALSE:
+            case NULL:
+            System.out.println(" " +element.getValueType().toString());
+            break;
+        }
+    }
+    
+    public String Test_getFilms(final JsonValue element)
+    {
+        String Json;
+        
+        JsonArray acteurs = (JsonArray) element;
+        JsonObject object = (JsonObject) acteurs.getJsonObject(0);
+        JsonArray array = (JsonArray) object.get("FILMS");
+        Json = "{\"FILMS\" : " + array.toString() + "}";
+        System.out.println("Json = " + Json);
+        //System.out.println("{\"FILMS\":[{\"TITRE\":\"Shadows in Paradise\",\"ANNEESORTIE\":1986,\"ROLE\":\"Ilona Rajamäki\"}]}");
+        
+        return Json;
+    }
+
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
