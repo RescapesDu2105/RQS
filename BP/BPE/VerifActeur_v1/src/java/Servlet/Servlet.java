@@ -78,6 +78,7 @@ public class Servlet extends HttpServlet
         int idActeur = 0;
         boolean trouve=false;
         Event event = null; 
+        
         /*while(!trouve && parser.hasNext())
         {   
             event = parser.next();

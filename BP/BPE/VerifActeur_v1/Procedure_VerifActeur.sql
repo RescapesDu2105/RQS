@@ -52,7 +52,7 @@ BEGIN
     APEX_JSON.write('acteurs', l_cursor);
     APEX_JSON.close_object;
     
-    --DBMS_OUTPUT.put_line(APEX_JSON.get_clob_output);
+    DBMS_OUTPUT.put_line(APEX_JSON.get_clob_output);
     
     actJSON :=APEX_JSON.get_clob_output;
     APEX_JSON.free_output;
@@ -62,6 +62,7 @@ BEGIN
     utl_http.set_header(req, 'Content-Length', length(actJSON));
     utl_http.write_text(req, actJSON);
     res := utl_http.get_response(req);
+    UTL_HTTP.END_RESPONSE(res);
     
     /*SELECT ID , Name, TO_CHAR(BIRTHDAY, 'YYYY-MM-DD'), TO_CHAR(DEATHDAY, 'YYYY-MM-DD'),PLACE_OF_BIRTH,PROFILE_PATH INTO f_Acteur
     FROM PEOPLE_EXT
