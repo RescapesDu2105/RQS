@@ -5,10 +5,12 @@
  */
 package Servlet;
 
+import Bean.Bean_DB_MongoDB;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.Collections;
-import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonNumber;
@@ -16,9 +18,6 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.json.JsonValue;
-import javax.json.stream.JsonParser;
-import javax.json.stream.JsonParser.Event;
-import static javax.json.stream.JsonParser.Event.KEY_NAME;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -26,12 +25,13 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.bson.Document;
 
 /**
  *
  * @author Philippe
  */
-@WebServlet(name = "Servlet", urlPatterns = {"/VerifActeur_v1"})
+@WebServlet(name = "Servlet", urlPatterns = {""})
 public class Servlet extends HttpServlet 
 {
 
@@ -58,135 +58,90 @@ public class Servlet extends HttpServlet
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
-        String [] Req ;
-        //HttpSession session = request.getSession(true);
+        StringBuilder jb = new StringBuilder();
+        String line;
+        try 
+        {
+            BufferedReader reader = request.getReader();
+            while ((line = reader.readLine()) != null)
+            {
+                jb.append(line);
+            }
+        } 
+        catch (IOException e) { /*report an error*/ }
         
-        String json = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-        //System.out.println(json);        
-        JsonParser parser = Json.createParser(new StringReader(json));// Création d'un parser
-        JsonReader reader = Json.createReader(new StringReader(json));// Création d'un reader
-        JsonObject object = reader.readObject();// Création d'un objet
-        String acteurs = object.get("acteurs").toString();
-        reader = Json.createReader(new StringReader(acteurs));
-        JsonArray array = reader.readArray();
+        String json = jb.toString();
+        System.out.println(json);        
+        
+        StringReader stringParser = new StringReader(json);
+        //JsonParser parser = Json.createParser(stringParser);// Création d'un parser
+        JsonReader reader = Json.createReader(stringParser);// Création d'un reader
+        JsonObject JsonActeur = reader.readObject();// Création d'un objet   
+        //System.out.println("JsonActeur = " + JsonActeur);
+        
+        JsonObject JsonFilm = JsonActeur.getJsonArray("films").getJsonObject(0);
+        //System.out.println("JsonFilm = " + JsonFilm);
+        Document Doc = Document.parse(json);        
+        System.out.println("Doc = " + Doc);
+        
+        int IdActeur = JsonActeur.getInt("_id");
+        System.out.println("IdActeur = " + IdActeur);
+        int IdFilm = JsonFilm.getInt("_id");
+        System.out.println("IdFilm = " + IdFilm);
+        
+        
         //parcourirModele(array, null, 0);
-        String Films = Test_getFilms(array);
         
+        Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();         
         
-    
+        Document DocActeur = BeanDB.getActeur(IdActeur);        
+        System.out.println("Acteur = " + DocActeur);
         
-        int idActeur = 0;
-        boolean trouve=false;
-        Event event = null; 
-        
-        /*while(!trouve && parser.hasNext())
-        {   
-            event = parser.next();
-            if(event==KEY_NAME &&  parser.getString().equals("ID"))
-            {
-                event = parser.next();
-                idActeur =  parser.getInt();
-                trouve=true;
-            }
-        }
-        System.out.println("IdActeur : "+ idActeur);*/
-        
-        while(!trouve && parser.hasNext())
-        {   
-            event = parser.next();
-            if(event==KEY_NAME &&  parser.getString().equals("FILMS"))
-            {
-                //Array = object.getJsonArray("FILMS");
-                trouve=true;
-            }
-        }
-        
-        System.out.println("");
-        /*while (parser.hasNext()) 
+        if(DocActeur != null)
         {
-            event = parser.next();
-            if(event == KEY_NAME && parser.getString().equals("FILMS"))
-                System.out.println("trouve");
-            System.out.print("event=" + event);
-            switch (event) 
-            {
-                case KEY_NAME:
-                    System.out.print(" cle=" + parser.getString());
-                    break;
-                
-                case VALUE_STRING:
-                    System.out.print(" valeur=" + parser.getString());
-                    break;
-                
-                case VALUE_NUMBER:
-                    if (parser.isIntegralNumber()) 
-                    {
-                        System.out.println(" valeur=" + parser.getInt());
-                    }
-                    else
-                    {
-                        System.out.println(" valeur=" + parser.getBigDecimal());
-                    }
-                    break;
-                    
-                case VALUE_NULL:
-                    System.out.print(" valeur=null");
-                    break;
-            }
-            System.out.println("");
-        }
-        /*Req=json.split("#");
-        System.out.println(Req[0]);
-        Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();
-         
-        if(Req[0].equals("VERIFICATION"))
-        {
-            boolean trouve = BeanDB.ChercherActeur(Integer.parseInt(Req[1]));
-            if(!trouve)
-            {
-                System.out.println("je Verifie");
-                response.setContentType("text/html;charset=UTF-8");
-                try (PrintWriter out = response.getWriter()) 
+            System.out.println("Je vérifie la filmo");
+            Document Trouve = BeanDB.ChercherFilmDansFilmographieActeur(IdActeur, IdFilm);
+            System.out.println("Trouve = " + Trouve);
+            if(Trouve == null)
+            {  
+                Document DocFilm = Document.parse(JsonFilm.toString());
+                System.out.println("DocFilm = " + DocFilm);
+                if (DocFilm != null)
                 {
-                    out.println("ko");
+                    BeanDB.InsererFilmDansFilmographie(IdActeur, DocFilm);
                 }
-                catch (IOException ex) 
-                {
-                    ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
-                }  
-            }
-            else
-            {
-                response.setContentType("text/html;charset=UTF-8");
-                try (PrintWriter out = response.getWriter()) 
-                {
-                    out.println("ok");
-                }
-                catch (IOException ex) 
-                {
-                    ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
-            }
-        }
-        else if(Req[0].equals("INSERTION"))
-        {
-            System.out.println("j'insere");
-            BeanDB.VerifierActeur(Req[1]);
+                else
+                    System.out.println("Problème de transformation en string pour le JsonObject Film !");
+            }        
+            
             response.setContentType("text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) 
             {
-                System.out.println("je Verifie");
                 out.println("ok");
             }
             catch (IOException ex) 
             {
                 ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
-            }  
-        }*/
+            }
+        }
+        else
+        {            
+            System.out.println("J'insere l'acteur");
+            DocActeur = Document.parse(JsonActeur.toString());
+            System.out.println("DocActeur = " + DocActeur);
+            BeanDB.InsererActeur(DocActeur);
+            
+            response.setContentType("text/html;charset=UTF-8");
+            try (PrintWriter out = response.getWriter()) 
+            {
+                out.println("ok");
+            }
+            catch (IOException ex) 
+            {
+                ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
-        //BeanDB.VerifierActeur(json);
-          
+        }
     }
     
     public static void parcourirModele(final JsonValue element, final String cle, final int niveau) 
@@ -227,22 +182,7 @@ public class Servlet extends HttpServlet
             System.out.println(" " +element.getValueType().toString());
             break;
         }
-    }
-    
-    public String Test_getFilms(final JsonValue element)
-    {
-        String Json;
-        
-        JsonArray acteurs = (JsonArray) element;
-        JsonObject object = (JsonObject) acteurs.getJsonObject(0);
-        JsonArray array = (JsonArray) object.get("FILMS");
-        Json = "{\"FILMS\" : " + array.toString() + "}";
-        System.out.println("Json = " + Json);
-        //System.out.println("{\"FILMS\":[{\"TITRE\":\"Shadows in Paradise\",\"ANNEESORTIE\":1986,\"ROLE\":\"Ilona Rajamäki\"}]}");
-        
-        return Json;
-    }
-
+    }  
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
