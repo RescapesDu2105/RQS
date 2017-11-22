@@ -37,7 +37,10 @@ IS
     vRole           Jouer.Role%TYPE;
 BEGIN
 
-    OPEN l_cursor FOR
+   /* 
+    APEX_JSON.initialize_clob_output;
+   
+   OPEN l_cursor FOR
     select  
             J.ARTIST as Id,
             Peop.Name as Nom, 
@@ -58,6 +61,12 @@ BEGIN
     from PEOPLE_EXT Peop JOIN Jouer J
     ON J.ARTIST = Peop.Id
     WHERE id=IdAct;
+    
+    
+    APEX_JSON.open_object;
+    APEX_JSON.write(l_cursor);
+    APEX_JSON.close_object;
+    */
     
 
     APEX_JSON.initialize_clob_output;
@@ -100,7 +109,7 @@ BEGIN
     APEX_JSON.close_object;
     APEX_JSON.close_array;
     
-    APEX_JSON.close_object;
+    APEX_JSON.close_object;   
     
     DBMS_OUTPUT.put_line(APEX_JSON.get_clob_output);
     

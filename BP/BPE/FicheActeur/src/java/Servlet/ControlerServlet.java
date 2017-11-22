@@ -81,7 +81,7 @@ public class ControlerServlet extends HttpServlet {
             if (doc != null)
             {
                 String[] CompleteName = doc.getString("nom").split(" ");
-                Acteur Acteur = new Acteur (CompleteName[0], CompleteName[1], doc.getString("DateAnnif"), doc.getString("LieuNaiss"), !doc.getString("DateDeces").isEmpty() ? (Timestamp)doc.get("DateDeces") : null, doc.getString("Image"));
+                Acteur Acteur = new Acteur (CompleteName[0], CompleteName[1], doc.getString("DateAnnif"), doc.getString("LieuNaiss"), !doc.getString("DateDeces").isEmpty() ? doc.getString("DateDeces") : null, doc.getString("Image"));
                 
                 /*session.setAttribute("Nom", doc.getString("nom"));
                 session.setAttribute("DateNaissance", doc.getString("DateAnnif"));
