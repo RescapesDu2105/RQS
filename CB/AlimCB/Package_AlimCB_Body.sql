@@ -112,24 +112,28 @@ AS
         FOR indx IN l_movies.FIRST..l_movies.LAST LOOP
             
             --controle des champs
-            NewID:=Delete_Spaces(l_movies(indx).id);
-            NewTitle:=Delete_Spaces(l_movies(indx).Title);
-            NewOriginalTitle:=Delete_Spaces(l_movies(indx).Original_Title);
-            NewStatus:=Delete_Spaces(l_movies(indx).Status);
-            NewTagline:=Delete_Spaces(l_movies(indx).Tagline);
-            NewCertification:=Delete_Spaces(l_movies(indx).Certification);
+            BEGIN
+                NewID:=Delete_Spaces(l_movies(indx).id);
+                NewTitle:=Delete_Spaces(l_movies(indx).Title);
+                NewOriginalTitle:=Delete_Spaces(l_movies(indx).Original_Title);
+                NewStatus:=Delete_Spaces(l_movies(indx).Status);
+                NewTagline:=Delete_Spaces(l_movies(indx).Tagline);
+                NewCertification:=Delete_Spaces(l_movies(indx).Certification);
+                
+                InsertData(NewID,NewTitle,NewOriginalTitle,NewStatus,l_movies(indx).release_date,l_movies(indx).Vote_Average,
+                l_movies(indx).Vote_Count,l_movies(indx).Runtime,NewCertification,l_movies(indx).Poster_PATH,l_movies(indx).Budget,NewTagline);
+                TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
+                TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
+                TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
+                TraiterCopies(l_movies(indx).id);    
+                commit;
+            EXCEPTION
+                WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+            END ;
             
-            InsertData(NewID,NewTitle,NewOriginalTitle,NewStatus,l_movies(indx).release_date,l_movies(indx).Vote_Average,
-            l_movies(indx).Vote_Count,l_movies(indx).Runtime,NewCertification,l_movies(indx).Poster_PATH,l_movies(indx).Budget,NewTagline);
-            TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
-            TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
-            TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
-            TraiterCopies(l_movies(indx).id);    
-            commit;       
         END LOOP;
 	EXCEPTION
 		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-        Rollback;
     END TraiterFilm;
     
     PROCEDURE TraiterGenre(Movie_Id IN movies_ext.id%TYPE, genre IN movies_ext.genres%TYPE)
@@ -196,7 +200,9 @@ AS
         NbCopies NUMBER;
     BEGIN
         NbCopies :=ABS(DBMS_RANDOM.NORMAL *3 +6);
-        INSERT INTO Films_Copies(movie,nbCopie) VALUES(Movie_Id,NbCopies);
+        FOR indx IN 1..NbCopies LOOP
+            INSERT INTO Films_Copies(movie) VALUES(Movie_Id);
+        END LOOP;
     EXCEPTION
         WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
     END TraiterCopies;
