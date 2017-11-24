@@ -22,7 +22,7 @@ CREATE TABLE Errors_Logs
     DateHeure TIMESTAMP,
     Endroit VARCHAR2(255),
     ErrorCode VARCHAR2(255),
-    Message VARCHAR2(255)
+    Message VARCHAR2(512)
 );
 /
 -- Création de la fonction qui va vérifier l'existance des séquences
