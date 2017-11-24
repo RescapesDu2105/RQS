@@ -264,7 +264,10 @@ AS
                 INSERT INTO POSTERS(PathImage,Image)VALUES(null,null);
             END IF ;
         EXCEPTION
-            WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+            WHEN OTHERS THEN 
+                Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+                RAISE;
+                
         END;
 
         newCerti:=Analyse_Certi(Movie_certification);
@@ -290,6 +293,7 @@ AS
         Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp);
 	EXCEPTION
 		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+            RAISE;
     END InsertData;
 
 END packageAlimCB;

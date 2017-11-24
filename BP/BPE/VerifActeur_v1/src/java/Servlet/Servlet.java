@@ -82,7 +82,7 @@ public class Servlet extends HttpServlet
         JsonObject JsonFilm = JsonActeur.getJsonArray("films").getJsonObject(0);
         //System.out.println("JsonFilm = " + JsonFilm);
         Document Doc = Document.parse(json);        
-        System.out.println("Doc = " + Doc);
+        //System.out.println("Doc = " + Doc);
         
         int IdActeur = JsonActeur.getInt("_id");
         System.out.println("IdActeur = " + IdActeur);
@@ -101,11 +101,11 @@ public class Servlet extends HttpServlet
         {
             System.out.println("Je vérifie la filmo");
             Document Trouve = BeanDB.ChercherFilmDansFilmographieActeur(IdActeur, IdFilm);
-            System.out.println("Trouve = " + Trouve);
+            System.out.println("Trouve = " + Trouve != null);
             if(Trouve == null)
             {  
                 Document DocFilm = Document.parse(JsonFilm.toString());
-                System.out.println("DocFilm = " + DocFilm);
+                //System.out.println("DocFilm = " + DocFilm);
                 if (DocFilm != null)
                 {
                     BeanDB.InsererFilmDansFilmographie(IdActeur, DocFilm);
@@ -128,7 +128,7 @@ public class Servlet extends HttpServlet
         {            
             System.out.println("J'insere l'acteur");
             DocActeur = Document.parse(JsonActeur.toString());
-            System.out.println("DocActeur = " + DocActeur);
+            //System.out.println("DocActeur = " + DocActeur);
             BeanDB.InsererActeur(DocActeur);
             
             response.setContentType("text/html;charset=UTF-8");
