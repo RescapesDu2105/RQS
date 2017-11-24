@@ -4,7 +4,7 @@ AS
     BEGIN 
         RETURN REGEXP_REPLACE(chaine, '[[:cntrl:]]|[[:space:]]{2,}', ' ' );
 	EXCEPTION
-		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+		WHEN OTHERS THEN RAISE;
     END Delete_Spaces;
     
     FUNCTION TRUNC_Chaine(chaine in varchar2 , quantile IN number)RETURN varchar2 
@@ -19,7 +19,7 @@ AS
             return chaine;
         END IF ;
 	EXCEPTION
-		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+		WHEN OTHERS THEN RAISE;
     END TRUNC_Chaine;
     
     FUNCTION Analyse_Certi(Certification IN varchar2) RETURN varchar2
@@ -56,7 +56,7 @@ AS
         END IF;
         RETURN NewCerti;
 	EXCEPTION
-		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+		WHEN OTHERS THEN RAISE;
     END Analyse_Certi;
     
     PROCEDURE alimCB(l_movie_id IN Liste_Movie_Id)
@@ -70,7 +70,7 @@ AS
         END LOOP;
         TraiterFilm(l_movies);
 	EXCEPTION
-		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+		WHEN OTHERS THEN RAISE;
     END alimCB;
     
     PROCEDURE alimCB(NbAjout IN NUMBER)
@@ -91,7 +91,7 @@ AS
 			alimCB(l_movie_id);
 		END IF;
 	EXCEPTION
-		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+		WHEN OTHERS THEN RAISE;
     END alimCB;
 
     PROCEDURE TraiterFilm(l_movies IN Liste_Movies)
@@ -111,6 +111,7 @@ AS
     BEGIN
         FOR indx IN l_movies.FIRST..l_movies.LAST LOOP
             
+            dbms_output.put_line(indx);
             --controle des champs
             BEGIN
                 NewID:=Delete_Spaces(l_movies(indx).id);
@@ -129,11 +130,13 @@ AS
                 commit;
             EXCEPTION
                 WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+                dbms_output.put_line('ROLLBACK');
+                ROLLBACK;
             END ;
             
         END LOOP;
 	EXCEPTION
-		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+		WHEN OTHERS THEN RAISE;
     END TraiterFilm;
     
     PROCEDURE TraiterGenre(Movie_Id IN movies_ext.id%TYPE, genre IN movies_ext.genres%TYPE)
@@ -157,7 +160,7 @@ AS
                 WHEN DUP_VAL_ON_INDEX THEN
                     INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
                     Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-                WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+                WHEN OTHERS THEN RAISE;
             END;
             
             i:=i+1;
@@ -188,7 +191,7 @@ AS
                 WHEN DUP_VAL_ON_INDEX THEN
                     INSERT INTO REALISER VALUES(Movie_Id,idReal);
                     Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-                WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+                WHEN OTHERS THEN RAISE;
             END;
             
             i:=i+1;
@@ -204,7 +207,7 @@ AS
             INSERT INTO Films_Copies(movie) VALUES(Movie_Id);
         END LOOP;
     EXCEPTION
-        WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+        WHEN OTHERS THEN RAISE;
     END TraiterCopies;
     
     PROCEDURE TraiterActeur(Movie_Id IN movies_ext.id%TYPE, act IN movies_ext.actors%TYPE)
@@ -232,7 +235,7 @@ AS
                 WHEN DUP_VAL_ON_INDEX THEN
                     INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
                     Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-                WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+                WHEN OTHERS THEN RAISE;
             END;
                     
             i:=i+1;
@@ -264,10 +267,14 @@ AS
                 INSERT INTO POSTERS(PathImage,Image)VALUES(null,null);
             END IF ;
         EXCEPTION
+<<<<<<< HEAD
+            WHEN OTHERS THEN RAISE;
+=======
             WHEN OTHERS THEN 
                 Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
                 RAISE;
                 
+>>>>>>> dd8c646ca86dde216e19b6db63b57cab44317c39
         END;
 
         newCerti:=Analyse_Certi(Movie_certification);
@@ -283,7 +290,9 @@ AS
             END IF ;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN INSERT INTO certifications(Nomcerti) VALUES(newCerti) returning IdCerti into CertiIdTemp;
-            WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+            WHEN OTHERS 
+                THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+                RAISE;
         END;
         
         newMovieTitle:=TRUNC_Chaine(Movie_Title,43);
@@ -292,8 +301,12 @@ AS
         INSERT INTO Films VALUES(Movie_Id,newMovieTitle,newOriginalTitle,Movie_statut,newTagLine,Movie_date,
         Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp);
 	EXCEPTION
+<<<<<<< HEAD
+		WHEN OTHERS THEN RAISE;
+=======
 		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
             RAISE;
+>>>>>>> dd8c646ca86dde216e19b6db63b57cab44317c39
     END InsertData;
-
+--dbms_output.put_line(Liste(indx));
 END packageAlimCB;
