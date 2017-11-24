@@ -1,0 +1,6 @@
+CREATE OR REPLACE PROCEDURE Rollback_Mongo(p_indx IN NUMBER)
+IS
+BEGIN
+    
+END;
+/

@@ -1,38 +1,10 @@
-create or replace PROCEDURE VerifActeur(Id_Film IN Jouer.Film%type)
+CREATE OR REPLACE PROCEDURE Rollback_Mongo(p_indx IN NUMBER)
 IS
-    req UTL_HTTP.REQ;
-    res UTL_HTTP.RESP;
-    reponse VARCHAR(4000);
-
-    actJSON CLOB ;
-    
-    l_cursor SYS_REFCURSOR;
-
-    vIdAct          Jouer.Artist%TYPE;
-    vNomAct         PEOPLE_EXT.Name%TYPE;
-    vDateNaiss      VARCHAR2(10);
-    vDateDeces      VARCHAR2(10);
-    vLieuNaiss      PEOPLE_EXT.PLACE_OF_BIRTH%TYPE;
-    vProfil         PEOPLE_EXT.PROFILE_PATH%TYPE;
-
-    TYPE FilmRec IS RECORD (
-        vIdFilm         Films.IdFilm%TYPE,
-        vTitreFilm      Films.Titre%TYPE,
-        vAnneeSortie    NUMBER(4),
-        vRole           Jouer.Role%TYPE);
-    vFilm FilmRec;
-    
-    TYPE Liste_Acteurs_Id IS TABLE OF Jouer.Artist%TYPE INDEX BY BINARY_INTEGER;
-    l_Act_Id Liste_Acteurs_Id;
 BEGIN
-    SELECT Artist BULK COLLECT INTO l_Act_Id
-    FROM JOUER
-    WHERE Film=Id_Film;
-    
-    FOR indx IN l_Act_Id.FIRST..l_Act_Id.LAST LOOP
+    FOR indx IN l_Act_Id.FIRST..p_indx.LAST LOOP
         APEX_JSON.initialize_clob_output;
         APEX_JSON.open_object;
-        APEX_JSON.write('requete', 'verification');
+        APEX_JSON.write('requete', 'rollback');
         
         APEX_JSON.open_object;
     
@@ -93,9 +65,6 @@ BEGIN
         
     END LOOP;
 EXCEPTION
-    WHEN UTL_HTTP.TOO_MANY_REQUESTS THEN
-        UTL_HTTP.END_RESPONSE(res);
-    WHEN OTHERS THEN
-        RollbackMongo(indx);
-        RAISE;
-END VerifActeur;
+    WHEN OTHERS THEN RAISE;
+END;
+/
