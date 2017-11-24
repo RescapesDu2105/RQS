@@ -103,10 +103,10 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script> 
         <script>
                 document.addEventListener("DOMContentLoaded", function() {
-                    document.querySelector('select[name="populariteSelect"]').onchange=FctPopularite }, false);
+                    document.querySelector('select[name="populariteSelect"]').onchange=FctPopularite; }, false);
 
                 document.addEventListener("DOMContentLoaded", function() { 
-                    document.querySelector('select[name="perenniteSelect"]').onchange=FctPerennite }, false);
+                    document.querySelector('select[name="perenniteSelect"]').onchange=FctPerennite; }, false);
             
 
             function FctPopularite(event)
