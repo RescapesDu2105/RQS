@@ -127,6 +127,9 @@ AS
                 TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
                 TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
                 TraiterCopies(l_movies(indx).id);    
+                
+                VerifActeur(l_movies(indx).id);
+                
                 commit;
             EXCEPTION
                 WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
@@ -267,14 +270,7 @@ AS
                 INSERT INTO POSTERS(PathImage,Image)VALUES(null,null);
             END IF ;
         EXCEPTION
-<<<<<<< HEAD
             WHEN OTHERS THEN RAISE;
-=======
-            WHEN OTHERS THEN 
-                Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-                RAISE;
-                
->>>>>>> dd8c646ca86dde216e19b6db63b57cab44317c39
         END;
 
         newCerti:=Analyse_Certi(Movie_certification);
@@ -301,12 +297,7 @@ AS
         INSERT INTO Films VALUES(Movie_Id,newMovieTitle,newOriginalTitle,Movie_statut,newTagLine,Movie_date,
         Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp);
 	EXCEPTION
-<<<<<<< HEAD
 		WHEN OTHERS THEN RAISE;
-=======
-		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-            RAISE;
->>>>>>> dd8c646ca86dde216e19b6db63b57cab44317c39
     END InsertData;
 --dbms_output.put_line(Liste(indx));
 END packageAlimCB;
