@@ -85,7 +85,6 @@ public class CSVUtils {
     {
         ArrayList<Programmation> programmes = new ArrayList<>();
         ArrayList<String> split ;
-        SimpleDateFormat formatterDate = new SimpleDateFormat("dd/mm/yyyy");
         DateFormat formatterTime = new SimpleDateFormat("HH:mm");
         
         try (BufferedReader br = new BufferedReader(new FileReader(getCsvFile()))) 
@@ -97,7 +96,7 @@ public class CSVUtils {
             }
             
             Pattern p = Pattern.compile(regex);
-             
+
             while ((line = br.readLine()) != null) 
             {
                 split = new ArrayList<>();
@@ -120,21 +119,11 @@ public class CSVUtils {
                 }
                 else
                 {
-                    pr = new Programmation(split.get(0), formatterDate.parse(split.get(1)), formatterDate.parse(split.get(2)), Integer.parseInt(split.get(3)), 
-                            Integer.parseInt(split.get(4)), Integer.parseInt(split.get(5)), formatterTime.parse(split.get(6)));
-                    programmes.add(pr);
+                    pr = new Programmation(split.get(0), split.get(1), split.get(2), Integer.parseInt(split.get(3)), 
+                            Integer.parseInt(split.get(4)), Integer.parseInt(split.get(5)), split.get(6));
                 }
             }
             br.close();
-            
-            /*while ((line = br.readLine()) != null) 
-            {
-                String[] test = line.split(getSeparator());
-                System.out.println("Complexe : "+ test[0] +" Debut : "+test[1]+" Fin : "+ test[2]);
-            }*/
-        } catch (ParseException ex)
-        {
-            Logger.getLogger(CSVUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return programmes;
         

@@ -8,6 +8,10 @@ package creaprog;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Time;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +31,7 @@ public class Programmation
     protected Date heure;
     protected String id  ;
 
-    public Programmation(String complexe ,Date debut, Date fin, Integer film, Integer copie, Integer salle, Date heure) 
+    public Programmation(String complexe ,String debut, String fin, Integer film, Integer copie, Integer salle, String heure) 
     {
         setComplexe(complexe);
         setDebut(debut);
@@ -43,8 +47,8 @@ public class Programmation
     {
         try 
         {
-            SecureRandom prng = SecureRandom.getInstance("SHA1PRNG"); //TO DO : static
-           setId(new Integer(prng.nextInt()).toString());
+            SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
+            setId(new Integer(Math.abs(prng.nextInt())).toString());
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(Programmation.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -68,16 +72,33 @@ public class Programmation
         System.out.println("id : "+ id);
     }
     
-    public void setDebut(Date debut) 
+    public void setDebut(String debut) 
     {
-        this.debut = debut;
-        System.out.println("debut : "+ debut);
+        try
+        {
+            SimpleDateFormat formatterDate = new SimpleDateFormat("dd/mm/yyyy");
+            this.debut=formatterDate.parse(debut);
+            
+            //String strDate = formatterDate.format(this.debut);
+            //System.out.println("debut : " + strDate);
+            //System.out.println(formatterDate.parse(debut));
+            
+        } catch (ParseException ex)
+        {
+            Logger.getLogger(Programmation.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    public void setFin(Date fin) 
+    public void setFin(String fin) 
     {
-        this.fin = fin;
-        System.out.println("fin : "+ fin);
+        try
+        {
+            SimpleDateFormat formatterDate = new SimpleDateFormat("dd/mm/yyyy");
+            this.fin=formatterDate.parse(fin);
+        } catch (ParseException ex)
+        {
+            Logger.getLogger(Programmation.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void setFilm(Integer film) 
@@ -92,10 +113,20 @@ public class Programmation
         System.out.println("copie : "+ copie);
     }
     
-    public void setHeure(Date heure) 
+    public void setHeure(String heure) 
     {
-        this.heure = heure;
-        System.out.println("heure : "+ heure);
+        
+        try
+        {
+            DateFormat formatterTime = new SimpleDateFormat("HH:mm");
+            this.heure=formatterTime.parse(heure);
+            
+            String strDate = formatterTime.format(this.heure);
+            System.out.println("heure : " + strDate);
+        } catch (ParseException ex)
+        {
+            Logger.getLogger(Programmation.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public Date getDebut() 
