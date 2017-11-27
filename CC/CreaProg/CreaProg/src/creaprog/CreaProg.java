@@ -26,9 +26,15 @@ public class CreaProg {
     public static void main(String[] args) {
         CSVUtils test = new CSVUtils(CSVfile,separator,regex,true);
         ArrayList<Programmation> programmes = new ArrayList<>();
+        CreateXML docXML ;
+        boolean schemaValide;
         try
         {
             programmes=test.Lire();
+            docXML=new CreateXML(programmes);
+            schemaValide=docXML.iSValidate();
+            System.out.println("Valide : "+schemaValide);
+            
         } catch (IOException ex)
         {
             Logger.getLogger(CreaProg.class.getName()).log(Level.SEVERE, null, ex);

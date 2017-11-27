@@ -63,13 +63,11 @@ public class Programmation
     public void setSalle(Integer salle) 
     {
         this.salle = salle;
-        System.out.println("Salle : "+ salle);
     }
 
     public void setId(String id) 
     {
         this.id = id;
-        System.out.println("id : "+ id);
     }
     
     public void setDebut(String debut) 
@@ -104,13 +102,11 @@ public class Programmation
     public void setFilm(Integer film) 
     {
         this.film = film;
-        System.out.println("film : "+ film);
     }
 
     public void setCopie(Integer copie) 
     {
         this.copie = copie;
-        System.out.println("copie : "+ copie);
     }
     
     public void setHeure(String heure) 
@@ -121,8 +117,8 @@ public class Programmation
             DateFormat formatterTime = new SimpleDateFormat("HH:mm");
             this.heure=formatterTime.parse(heure);
             
-            String strDate = formatterTime.format(this.heure);
-            System.out.println("heure : " + strDate);
+            //String strDate = formatterTime.format(this.heure);
+            //System.out.println("heure : " + strDate);
         } catch (ParseException ex)
         {
             Logger.getLogger(Programmation.class.getName()).log(Level.SEVERE, null, ex);

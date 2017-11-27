@@ -7,7 +7,7 @@
     
     <xsd:element name="programmation" type="programmationType" xdb:defaultTable="PROGRAMMATIONS"/>
     
-    <xsd:complexType name="programmationType" xdb:SQLType="PROJECTIONS_TYPE">
+    <xsd:complexType name="programmationType" xdb:SQLType="PROGRAMMATION_TYPE">
         <xsd:sequence>
             <xsd:element name="demande" type="demandeType" xdb:SQLName="DEMANDE" xdb:SQLCollType="DEMANDES_VRY" minOccurs="0" maxOccurs="unbounded" xdb:SQLType="DEMANDE_TYPE">
                 
@@ -19,6 +19,7 @@
         
         <xsd:sequence>
             <xsd:element name="idMovie" type="xsd:integer" xdb:SQLName="ID_MOVIE" xdb:SQLType="NUMBER"/>
+            <xsd:element name="complexe" type="xsd:integer" xdb:SQLName="COMPLEXE" xdb:SQLtype="NUMBER"/>
             <xsd:element name="numCopy" type="xsd:integer" xdb:SQLName="ID_COPY" xdb:SQLType="NUMBER"/>
             <xsd:element name="debut" type="xsd:date" xdb:SQLName="DEBUT" xdb:SQLType="DATE"/>
             <xsd:element name="fin" type="xsd:date" xdb:SQLName="FIN" xdb:SQLType="DATE"/>
