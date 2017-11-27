@@ -3,26 +3,12 @@ DECLARE
 BEGIN
     SELECT MOVIES_EXT.ID BULK COLLECT INTO Liste
     FROM MOVIES_EXT
-    WHERE ROWNUM<6;
+    WHERE ROWNUM<2;
     packageAlimCB.alimCB(Liste);
-    
-    /*FOR indx IN Liste.FIRST..Liste.LAST LOOP
-        dbms_output.put_line(Liste(indx));
-    END LOOP;*/
-END ;
-
-
-BEGIN
-    /*SELECT MOVIES_EXT.ID BULK COLLECT INTO Liste
-    FROM MOVIES_EXT
-    WHERE ROWNUM<6;*/
-    packageAlimCB.alimCB(6);
-    
-    /*FOR indx IN Liste.FIRST..Liste.LAST LOOP
-        dbms_output.put_line(Liste(indx));
-    END LOOP;*/
 END ;
 /
+
+SELECT * from jouer order by 2;
 
 select * from posters;
 select * from certifications;

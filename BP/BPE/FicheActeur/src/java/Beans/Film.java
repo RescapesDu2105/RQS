@@ -6,7 +6,6 @@
 package Beans;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.Locale;
 

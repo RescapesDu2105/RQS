@@ -21,6 +21,7 @@ import static com.mongodb.client.model.Projections.*;
 import com.mongodb.client.model.PushOptions;
 import com.mongodb.client.model.Updates;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -95,6 +96,26 @@ public class Bean_DB_MongoDB implements Serializable
         Documents.add(DocFilm);
         PushOptions Sort = new PushOptions();
         collection.updateOne(eq("_id", IdActeur), Updates.pushEach("films", Documents, Sort.sort(1)));
+    }  
+
+    public void RemoveFilm(int IdActeur, int IdFilm) 
+    {
+        Document DocCount = collection.aggregate(Arrays.asList(
+                new Document("$match", new Document("_id", IdActeur)),
+                new Document("$project", new Document(new Document("_id", 0).append("count", new Document("$size", "$films"))))
+        )).first();
+        
+        int count = DocCount.getInteger("count");
+        System.out.println("count = " + count);
+        
+        if(count > 1)
+        {
+            collection.updateOne(eq("_id", IdActeur), Updates.pullByFilter(eq("films._id", IdFilm)));
+        }
+        else
+        {
+            collection.deleteOne(eq("_id", IdActeur));
+        }
     }
     
     public FindIterable<Document> FilmographieActeur(int IdActeur)
@@ -102,15 +123,6 @@ public class Bean_DB_MongoDB implements Serializable
         FindIterable<Document> docs = collection
                 .find(eq("actors._id", IdActeur))
                 .projection(fields(include("title"), include("release_date"), include("actors.$"), include("original_title"), include("poster_path"), excludeId()));
-       // System.out.println("docs = " + docs.first());
-        //System.out.println("doc = " + doc);
-
-        /*String character = collection
-                .find(eq("actors.id", IdActeur))
-                .projection(fields(include("title"), include("release_date"), include("actors.$"), excludeId()))
-                .first()
-                .get("actors", ArrayList.class).get(0).toString().split("character=")[1].split(",", 0)[0];
-        System.out.println(character);*/
 
         return docs;
     }
@@ -153,5 +165,5 @@ public class Bean_DB_MongoDB implements Serializable
 
     public MongoCollection<Document> getCollection() {
         return collection;
-    }    
+    }  
 }

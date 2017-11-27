@@ -18,6 +18,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.json.JsonValue;
+import javax.json.stream.JsonParser;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -65,18 +66,21 @@ public class Servlet extends HttpServlet
             BufferedReader reader = request.getReader();
             while ((line = reader.readLine()) != null)
             {
+                //System.out.println("line = " + line);
                 jb.append(line);
             }
         } 
         catch (IOException e) { /*report an error*/ }
         
         String json = jb.toString();
-        System.out.println(json);        
-        
+        //System.out.println(json);        
         StringReader stringParser = new StringReader(json);
-        //JsonParser parser = Json.createParser(stringParser);// Création d'un parser
         JsonReader reader = Json.createReader(stringParser);// Création d'un reader
-        JsonObject JsonActeur = reader.readObject();// Création d'un objet   
+        String Requete = reader.readObject().getString("requete");
+        //System.out.println("Requete = " + Requete);
+        stringParser = new StringReader(json);
+        reader = Json.createReader(stringParser);// Création d'un reader
+        JsonObject JsonActeur = reader.readObject().getJsonObject("informations");// Création d'un objet   
         //System.out.println("JsonActeur = " + JsonActeur);
         
         JsonObject JsonFilm = JsonActeur.getJsonArray("films").getJsonObject(0);
@@ -95,52 +99,74 @@ public class Servlet extends HttpServlet
         Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();         
         
         Document DocActeur = BeanDB.getActeur(IdActeur);        
-        System.out.println("Acteur = " + DocActeur);
+        //System.out.println("Acteur = " + DocActeur);
         
-        if(DocActeur != null)
+        if(Requete.equals("verification"))
         {
-            System.out.println("Je vérifie la filmo");
-            Document Trouve = BeanDB.ChercherFilmDansFilmographieActeur(IdActeur, IdFilm);
-            System.out.println("Trouve = " + Trouve != null);
-            if(Trouve == null)
-            {  
-                Document DocFilm = Document.parse(JsonFilm.toString());
-                //System.out.println("DocFilm = " + DocFilm);
-                if (DocFilm != null)
+            if(DocActeur != null)
+            {
+                System.out.println("Je vérifie la filmo");
+                Document Trouve = BeanDB.ChercherFilmDansFilmographieActeur(IdActeur, IdFilm);
+                System.out.println("Trouve = " + Trouve != null);
+                if(Trouve == null)
+                {  
+                    Document DocFilm = Document.parse(JsonFilm.toString());
+                    //System.out.println("DocFilm = " + DocFilm);
+                    if (DocFilm != null)
+                    {
+                        System.out.println("J'insere dans la filmo");
+                        BeanDB.InsererFilmDansFilmographie(IdActeur, DocFilm);
+                    }
+                    else
+                        System.out.println("Problème de transformation en string pour le JsonObject Film !");
+                }        
+
+                response.setContentType("text/html;charset=UTF-8");
+                try (PrintWriter out = response.getWriter()) 
                 {
-                    BeanDB.InsererFilmDansFilmographie(IdActeur, DocFilm);
+                    out.println("ok");
                 }
-                else
-                    System.out.println("Problème de transformation en string pour le JsonObject Film !");
-            }        
-            
-            response.setContentType("text/html;charset=UTF-8");
-            try (PrintWriter out = response.getWriter()) 
-            {
-                out.println("ok");
+                catch (IOException ex) 
+                {
+                    ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-            catch (IOException ex) 
-            {
-                ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
+            else
+            {            
+                System.out.println("J'insere l'acteur");
+                DocActeur = Document.parse(JsonActeur.toString());
+                //System.out.println("DocActeur = " + DocActeur);
+                BeanDB.InsererActeur(DocActeur);
+
+                response.setContentType("text/html;charset=UTF-8");
+                try (PrintWriter out = response.getWriter()) 
+                {
+                    out.println("ok");
+                }
+                catch (IOException ex) 
+                {
+                    ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
-        else
-        {            
-            System.out.println("J'insere l'acteur");
-            DocActeur = Document.parse(JsonActeur.toString());
-            //System.out.println("DocActeur = " + DocActeur);
-            BeanDB.InsererActeur(DocActeur);
-            
-            response.setContentType("text/html;charset=UTF-8");
-            try (PrintWriter out = response.getWriter()) 
+        else // remove
+        {
+            if(DocActeur != null)
             {
-                out.println("ok");
-            }
-            catch (IOException ex) 
-            {
-                ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                System.out.println("Je retire le film de la filmo");          
+                //BeanDB.InsererFilmDansFilmographie(IdActeur, DocFilm);
+                BeanDB.RemoveFilm(IdActeur, IdFilm);
 
+                response.setContentType("text/html;charset=UTF-8");
+                try (PrintWriter out = response.getWriter()) 
+                {
+                    out.println("ok");
+                }
+                catch (IOException ex) 
+                {
+                    ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
     }
     

@@ -111,7 +111,7 @@ AS
     BEGIN
         FOR indx IN l_movies.FIRST..l_movies.LAST LOOP
             
-            dbms_output.put_line(indx);
+            --dbms_output.put_line(indx);
             --controle des champs
             BEGIN
                 NewID:=Delete_Spaces(l_movies(indx).id);
@@ -128,7 +128,7 @@ AS
                 TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
                 TraiterCopies(l_movies(indx).id);    
                 
-                VerifActeur(l_movies(indx).id);
+                Package_VerifActeur.VerifActeur(l_movies(indx).id);
                 
                 commit;
             EXCEPTION
