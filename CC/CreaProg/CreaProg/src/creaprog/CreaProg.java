@@ -32,16 +32,16 @@ public class CreaProg {
         {
             programmes=test.Lire();
             docXML=new CreateXML(programmes);
-            schemaValide=docXML.iSValidate();
-            System.out.println("Valide : "+schemaValide);
+            docXML.CreateDocument();
+            if(schemaValide=docXML.iSValidate())
+                docXML.WriteFile();
+            else
+                System.out.println("Schema n'est pas valide !!");
             
         } catch (IOException ex)
         {
             Logger.getLogger(CreaProg.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        for(Programmation p:programmes)
-            System.out.println(p);
-            
+        }      
     }
     
 }

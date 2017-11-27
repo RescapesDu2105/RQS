@@ -121,6 +121,7 @@ public class CSVUtils {
                 {
                     pr = new Programmation(split.get(0), split.get(1), split.get(2), Integer.parseInt(split.get(3)), 
                             Integer.parseInt(split.get(4)), Integer.parseInt(split.get(5)), split.get(6));
+                    programmes.add(pr);
                 }
             }
             br.close();
