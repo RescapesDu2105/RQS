@@ -102,7 +102,7 @@ AS
                 APEX_JSON.write('deathday', l_Acteurs(indx).DateDeces);
                 APEX_JSON.write_raw('place_of_birth', '"' || l_Acteurs(indx).LieuNaiss || '"');  
 
-                RAISE_APPLICATION_ERROR('-20002', 'Je teste');
+                --RAISE_APPLICATION_ERROR('-20002', 'Je teste');
 
                 APEX_JSON.open_array('films');    
                 APEX_JSON.open_object;
