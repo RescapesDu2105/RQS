@@ -18,7 +18,6 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.json.JsonValue;
-import javax.json.stream.JsonParser;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -66,40 +65,34 @@ public class Servlet extends HttpServlet
             BufferedReader reader = request.getReader();
             while ((line = reader.readLine()) != null)
             {
-                //System.out.println("line = " + line);
                 jb.append(line);
             }
         } 
-        catch (IOException e) { /*report an error*/ }
+        catch (IOException e) 
+        { 
+            System.exit(1);
+        }
         
         String json = jb.toString();
         //System.out.println(json);        
         StringReader stringParser = new StringReader(json);
         JsonReader reader = Json.createReader(stringParser);// Création d'un reader
         String Requete = reader.readObject().getString("requete");
-        //System.out.println("Requete = " + Requete);
         stringParser = new StringReader(json);
         reader = Json.createReader(stringParser);// Création d'un reader
-        JsonObject JsonActeur = reader.readObject().getJsonObject("informations");// Création d'un objet   
-        //System.out.println("JsonActeur = " + JsonActeur);
+        JsonObject JsonActeur = reader.readObject().getJsonObject("informations");// Création d'un objet
         
         JsonObject JsonFilm = JsonActeur.getJsonArray("films").getJsonObject(0);
-        //System.out.println("JsonFilm = " + JsonFilm);
-        Document Doc = Document.parse(json);        
-        //System.out.println("Doc = " + Doc);
+        Document Doc = Document.parse(json);   
         
         int IdActeur = JsonActeur.getInt("_id");
         System.out.println("IdActeur = " + IdActeur);
         int IdFilm = JsonFilm.getInt("_id");
         System.out.println("IdFilm = " + IdFilm);
         
-        
-        //parcourirModele(array, null, 0);
-        
         Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();         
         
-        Document DocActeur = BeanDB.getActeur(IdActeur);        
-        //System.out.println("Acteur = " + DocActeur);
+        Document DocActeur = BeanDB.getActeur(IdActeur);
         
         if(Requete.equals("verification"))
         {
@@ -107,11 +100,9 @@ public class Servlet extends HttpServlet
             {
                 System.out.println("Je vérifie la filmo");
                 Document Trouve = BeanDB.ChercherFilmDansFilmographieActeur(IdActeur, IdFilm);
-                System.out.println("Trouve = " + Trouve != null);
                 if(Trouve == null)
                 {  
                     Document DocFilm = Document.parse(JsonFilm.toString());
-                    //System.out.println("DocFilm = " + DocFilm);
                     if (DocFilm != null)
                     {
                         System.out.println("J'insere dans la filmo");
@@ -128,14 +119,13 @@ public class Servlet extends HttpServlet
                 }
                 catch (IOException ex) 
                 {
-                    ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
+                    ex.printStackTrace();
                 }
             }
             else
             {            
                 System.out.println("J'insere l'acteur");
                 DocActeur = Document.parse(JsonActeur.toString());
-                //System.out.println("DocActeur = " + DocActeur);
                 BeanDB.InsererActeur(DocActeur);
 
                 response.setContentType("text/html;charset=UTF-8");
@@ -145,7 +135,7 @@ public class Servlet extends HttpServlet
                 }
                 catch (IOException ex) 
                 {
-                    ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
+                    ex.printStackTrace();
                 }
             }
         }
@@ -153,8 +143,7 @@ public class Servlet extends HttpServlet
         {
             if(DocActeur != null)
             {
-                System.out.println("Je retire le film de la filmo");          
-                //BeanDB.InsererFilmDansFilmographie(IdActeur, DocFilm);
+                System.out.println("Je retire le film de la filmo");      
                 BeanDB.RemoveFilm(IdActeur, IdFilm);
 
                 response.setContentType("text/html;charset=UTF-8");
@@ -164,7 +153,7 @@ public class Servlet extends HttpServlet
                 }
                 catch (IOException ex) 
                 {
-                    ex.printStackTrace();//Logger.getLogger(Servlet.class.getName()).log(Level.SEVERE, null, ex);
+                    ex.printStackTrace();
                 }
             }
         }

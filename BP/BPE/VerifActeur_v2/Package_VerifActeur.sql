@@ -27,14 +27,14 @@ IS
     vFilm FilmRec;
     
     PROCEDURE VerifActeur(p_Id_Film IN Jouer.Film%type);
-    PROCEDURE Rollback_Mongo(l_Acteurs IN Liste_Acteurs, p_indx IN NUMBER);
+    PROCEDURE Rollback_Mongo(p_indx IN NUMBER);
     
 END Package_VerifActeur;
 /
 
 CREATE OR REPLACE PACKAGE BODY Package_VerifActeur
 AS    
-    PROCEDURE Rollback_Mongo(l_Acteurs IN Liste_Acteurs, p_indx IN NUMBER)
+    PROCEDURE Rollback_Mongo(p_indx IN NUMBER)
     IS        
     BEGIN
         FOR indx IN l_Acteurs.FIRST..p_indx LOOP
@@ -65,7 +65,7 @@ AS
             actJSON := APEX_JSON.get_clob_output;
             APEX_JSON.free_output;
             
-            req := utl_http.begin_request('http://10.0.2.2:8084/VerifActeur_v1', 'POST',' HTTP/1.1');
+            req := utl_http.begin_request('http://10.0.2.2:8084/VerifActeur_v2', 'POST',' HTTP/1.1');
             utl_http.set_header(req, 'content-type', 'application/json');
             utl_http.set_header(req, 'Content-Length', length(actJSON));
             utl_http.write_text(req, actJSON);
@@ -108,10 +108,10 @@ AS
             LOOP
                 APEX_JSON.initialize_clob_output;
                 APEX_JSON.open_object;
-                APEX_JSON.write('requete', 'verification');
+                /*APEX_JSON.write('requete', 'verification');
                 IF(indx = 3) THEN
                     RAISE_APPLICATION_ERROR('-20002', 'Je teste');
-                END IF;  
+                END IF;  */
 
                 APEX_JSON.open_object('informations');  
                 APEX_JSON.write('_id', l_Acteurs(indx).IdAct);
@@ -137,7 +137,7 @@ AS
                 actJSON := APEX_JSON.get_clob_output;
                 APEX_JSON.free_output;
 
-                req := utl_http.begin_request('http://10.0.2.2:8084/VerifActeur_v1', 'POST',' HTTP/1.1');
+                req := utl_http.begin_request('http://10.0.2.2:8084/VerifActeur_v2', 'POST',' HTTP/1.1');
                 utl_http.set_header(req, 'content-type', 'application/json');
                 utl_http.set_header(req, 'Content-Length', length(actJSON));
                 utl_http.write_text(req, actJSON);
@@ -150,7 +150,7 @@ AS
             END LOOP;
         EXCEPTION        
             WHEN OTHERS THEN
-                Rollback_Mongo(l_Acteurs, indx);
+                Rollback_Mongo(indx);
                 RAISE;
         END;
         
