@@ -4,7 +4,7 @@ IS
     res UTL_HTTP.RESP;
     reponse VARCHAR(4000);
 
-    actJSON CLOB ;
+    actJSON CLOB;
 
     TYPE ActeurRec IS RECORD (
         IdAct           Jouer.Artist%TYPE,
@@ -40,32 +40,19 @@ AS
         FOR indx IN l_Acteurs.FIRST..p_indx LOOP
             APEX_JSON.initialize_clob_output;
             APEX_JSON.open_object;
-            APEX_JSON.write('requete', 'remove');
-
-            APEX_JSON.open_object('informations');  
-            APEX_JSON.write('_id', l_Acteurs(indx).IdAct);
-            APEX_JSON.write_raw('name', '"' || l_Acteurs(indx).NomAct || '"');
-            APEX_JSON.write('birthday', l_Acteurs(indx).DateNaiss);
-            APEX_JSON.write_raw('place_of_birth', '"' || l_Acteurs(indx).LieuNaiss || '"');                 
-
-            APEX_JSON.open_array('films');    
-            APEX_JSON.open_object;
-            APEX_JSON.write('_id', vFilm.IdFilm);
-            APEX_JSON.write_raw('titre', '"' || vFilm.TitreFilm || '"');
-            APEX_JSON.write('release_date', vFilm.AnneeSortie);
-            APEX_JSON.write_raw('character', '"' || l_Acteurs(indx).RoleFilm || '"'); 
-            APEX_JSON.close_object;
-            APEX_JSON.close_array;
+            
+            APEX_JSON.write('_idAct', l_Acteurs(indx).IdAct);    
+            APEX_JSON.write('_idFilm', vFilm.IdFilm);
+            APEX_JSON.write_raw('character', '"' || l_Acteurs(indx).RoleFilm || '"');
 
             APEX_JSON.close_object;   
-            APEX_JSON.close_object; 
             
            -- DBMS_OUTPUT.put_line(APEX_JSON.get_clob_output);
             
             actJSON := APEX_JSON.get_clob_output;
             APEX_JSON.free_output;
             
-            req := utl_http.begin_request('http://10.0.2.2:8084/VerifActeur_v2', 'POST',' HTTP/1.1');
+            req := utl_http.begin_request('http://10.0.2.2:8084/VerifActeur_v2?action=rollback', 'POST',' HTTP/1.1');
             utl_http.set_header(req, 'content-type', 'application/json');
             utl_http.set_header(req, 'Content-Length', length(actJSON));
             utl_http.write_text(req, actJSON);
@@ -107,17 +94,15 @@ AS
         BEGIN
             LOOP
                 APEX_JSON.initialize_clob_output;
-                APEX_JSON.open_object;
-                /*APEX_JSON.write('requete', 'verification');
-                IF(indx = 3) THEN
-                    RAISE_APPLICATION_ERROR('-20002', 'Je teste');
-                END IF;  */
 
-                APEX_JSON.open_object('informations');  
+                APEX_JSON.open_object;  
                 APEX_JSON.write('_id', l_Acteurs(indx).IdAct);
                 APEX_JSON.write_raw('name', '"' || l_Acteurs(indx).NomAct || '"');
                 APEX_JSON.write('birthday', l_Acteurs(indx).DateNaiss);
-                APEX_JSON.write_raw('place_of_birth', '"' || l_Acteurs(indx).LieuNaiss || '"');                 
+                APEX_JSON.write('deathday', l_Acteurs(indx).DateDeces);
+                APEX_JSON.write_raw('place_of_birth', '"' || l_Acteurs(indx).LieuNaiss || '"');  
+
+                RAISE_APPLICATION_ERROR('-20002', 'Je teste');
 
                 APEX_JSON.open_array('films');    
                 APEX_JSON.open_object;
@@ -129,18 +114,18 @@ AS
                 APEX_JSON.close_array;
 
                 APEX_JSON.close_object;   
-                APEX_JSON.close_object;   
 
-                --DBMS_OUTPUT.put_line(APEX_JSON.get_clob_output);
+                DBMS_OUTPUT.put_line(APEX_JSON.get_clob_output);
                 DBMS_OUTPUT.put_line(l_Acteurs(indx).IdAct);
 
                 actJSON := APEX_JSON.get_clob_output;
                 APEX_JSON.free_output;
 
-                req := utl_http.begin_request('http://10.0.2.2:8084/VerifActeur_v2', 'POST',' HTTP/1.1');
+                req := utl_http.begin_request('http://10.0.2.2:8084/VerifActeur_v2?action=verification', 'POST',' HTTP/1.1');
                 utl_http.set_header(req, 'content-type', 'application/json');
                 utl_http.set_header(req, 'Content-Length', length(actJSON));
                 utl_http.write_text(req, actJSON);
+
                 res := utl_http.get_response(req);
                 UTL_HTTP.END_RESPONSE(res);
 
