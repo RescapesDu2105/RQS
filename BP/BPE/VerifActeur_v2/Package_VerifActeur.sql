@@ -68,19 +68,19 @@ AS
     IS
         Exc_Test EXCEPTION;
     BEGIN
-        SELECT IdFilm, Titre, EXTRACT(YEAR FROM DATE_REAL) INTO vFilm.IdFilm, vFilm.TitreFilm, vFilm.AnneeSortie
+        SELECT IdFilm, COALESCE(Titre, ''), EXTRACT(YEAR FROM DATE_REAL) INTO vFilm.IdFilm, vFilm.TitreFilm, vFilm.AnneeSortie
         FROM Films
         WHERE IdFilm = p_Id_Film;
 
         SELECT  
             Peop.Id,
-            Peop.Name, 
+            COALESCE(Peop.Name, ''), 
             COALESCE(TO_CHAR(Peop.BIRTHDAY, 'YYYY-MM-DD'), ''), 
             COALESCE(TO_CHAR(Peop.DEATHDAY, 'YYYY-MM-DD'), ''),
-            Peop.PLACE_OF_BIRTH,
-            Peop.PROFILE_PATH,
+            COALESCE(Peop.PLACE_OF_BIRTH, ''),
+            COALESCE(Peop.PROFILE_PATH, ''),
             --Peop.Biography,
-            J.role as Role
+            COALESCE(J.role, '') as Role
             BULK COLLECT INTO l_Acteurs
         FROM PEOPLE_EXT Peop 
         INNER JOIN Jouer J
@@ -97,19 +97,19 @@ AS
 
                 APEX_JSON.open_object;  
                 APEX_JSON.write('_id', l_Acteurs(indx).IdAct);
-                APEX_JSON.write_raw('name', '"' || l_Acteurs(indx).NomAct || '"');
+                APEX_JSON.write('name', l_Acteurs(indx).NomAct);
                 APEX_JSON.write('birthday', l_Acteurs(indx).DateNaiss);
                 APEX_JSON.write('deathday', l_Acteurs(indx).DateDeces);
-                APEX_JSON.write_raw('place_of_birth', '"' || l_Acteurs(indx).LieuNaiss || '"');  
+                APEX_JSON.write('place_of_birth', l_Acteurs(indx).LieuNaiss);  
 
                 --RAISE_APPLICATION_ERROR('-20002', 'Je teste');
 
                 APEX_JSON.open_array('films');    
                 APEX_JSON.open_object;
                 APEX_JSON.write('_id', vFilm.IdFilm);
-                APEX_JSON.write_raw('titre', '"' || vFilm.TitreFilm || '"');
+                APEX_JSON.write('titre', vFilm.TitreFilm);
                 APEX_JSON.write('release_date', vFilm.AnneeSortie);
-                APEX_JSON.write_raw('character', '"' || l_Acteurs(indx).RoleFilm || '"'); 
+                APEX_JSON.write('character', l_Acteurs(indx).RoleFilm); 
                 APEX_JSON.close_object;
                 APEX_JSON.close_array;
 
