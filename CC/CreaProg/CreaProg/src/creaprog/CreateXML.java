@@ -31,6 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import creaprog.Programmation;
+import javax.xml.transform.OutputKeys;
 
 /**
  *
@@ -94,11 +95,11 @@ public class CreateXML
                 fin.appendChild(doc.createTextNode(strDate));
                 System.out.println("strDate : "+strDate);
                 
-                Element film = doc.createElement("idMovie"); 
+                Element film = doc.createElement("movie"); 
                 film.appendChild(doc.createTextNode(pr.getFilm().toString()));
                 System.out.println("film : "+pr.getFilm().toString());
 
-                Element copie = doc.createElement("numCopy");
+                Element copie = doc.createElement("copy");
                 copie.appendChild(doc.createTextNode(pr.getCopie().toString()));
                 System.out.println("copie : "+pr.getCopie().toString());
                 
@@ -164,6 +165,8 @@ public class CreateXML
         {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT,"yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
             DOMSource source = new DOMSource(doc);        
             StreamResult result = new StreamResult(new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\programmations.xml"));
             transformer.transform(source, result);

@@ -1,48 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:xdb="http://xmlns.oracle.com/xd"
-    xdb:storeVarrayAsTable="true"
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema"  
+    xmlns:xdb="http://xmlns.oracle.com/xdb"
+    xdb:storeVarrayAsTable="true" 
     version="1.0">
     
-    <xsd:element name="programmation" type="programmationType" xdb:defaultTable="PROGRAMMATIONS"/>
-     
-    <xsd:complexType name="programmationType" xdb:SQLType="PROGRAMMATION_TYPE">
-        <xsd:sequence>
-            <xsd:element name="demande" type="demandeType" xdb:SQLName="DEMANDE" xdb:SQLCollType="DEMANDES_VRY" minOccurs="0" maxOccurs="unbounded" xdb:SQLType="DEMANDE_TYPE">
-                
-            </xsd:element>
-        </xsd:sequence>
-    </xsd:complexType>
+    <xs:element name="programmation" type="programmationType" xdb:SQLName="PROGRAMMATIONS"/>
     
-    <xsd:complexType name="demandeType" xdb:SQLType="DEMANDE_TYPE">
-        
-        <xsd:sequence>
-            <xsd:element name="complexe" type="xsd:integer" xdb:SQLName="COMPLEXE" xdb:SQLtype="NUMBER"/>
-            <xsd:element name="debut" type="DatePattern" xdb:SQLName="DEBUT" xdb:SQLType="DATE"/>
-            <xsd:element name="fin" type="DatePattern" xdb:SQLName="FIN" xdb:SQLType="DATE"/>
-            <xsd:element name="idMovie" type="xsd:integer" xdb:SQLName="ID_MOVIE" xdb:SQLType="NUMBER"/>
-            <xsd:element name="numCopy" type="xsd:integer" xdb:SQLName="ID_COPY" xdb:SQLType="NUMBER"/>
-            <xsd:element name="salle" type="xsd:integer" xdb:SQLName="SALLE" xdb:SQLType="NUMBER"/>
-            <xsd:element name="heure" type="TimePattern" xdb:SQLName="HEURE" xdb:SQlType="TIMESTAMP"/>
-        </xsd:sequence>
-        <xsd:attribute name="idDemande" type="xsd:integer"/>
-        
-    </xsd:complexType>
+    <xs:complexType name="programmationType" xdb:SQLType="PROJECTION_TYPE">
+        <xs:sequence>
+            <xs:element name="demande" maxOccurs="unbounded" type="demandeType" xdb:SQLName="PROGRAMMATION_TYPE" xdb:SQLCollType="PROGRAMMATIONS_VRY"/>
+        </xs:sequence>
+    </xs:complexType>    
     
-    <xsd:simpleType  name="DatePattern">
-        <xsd:restriction base="xsd:string">
-            <xsd:pattern value="\d{2}[/]\d{2}[/]\d{4}"></xsd:pattern>
-            <xsd:length value="10"/>
-        </xsd:restriction>
-    </xsd:simpleType>
+    <xs:complexType name="demandeType" xdb:SQLType="DEMANDE_TYPE">
+        <xs:sequence>
+            <xs:element name="complexe" type="xs:integer" minOccurs="1" xdb:SQLName="COMPLEXE" xdb:SQLType="VARCHAR2"/>
+            <xs:element name="debut" type="dateType" minOccurs="1" xdb:SQLName="DEBUT" xdb:SQLType="VARCHAR2"/>
+            <xs:element name="fin" type="dateType" xdb:SQLName="FIN" xdb:SQLType="VARCHAR2"/>            
+            <xs:element name="movie" type="intType" minOccurs="1" xdb:SQLName="MOVIE" xdb:SQLType="NUMBER"/>
+            <xs:element name="copy" type="intType" minOccurs="1" xdb:SQLName="COPY" xdb:SQLType="NUMBER"/>            
+            <xs:element name="salle" type="intType" xdb:SQLName="SALLE" xdb:SQLType="NUMBER"/>
+            <xs:element name="heure" type="timeType" xdb:SQLName="HEURE" xdb:SQLType="VARCHAR2"/>
+        </xs:sequence>
+        <xs:attribute name="idDemande" type="xs:string"/>
+    </xs:complexType>
     
-    <xsd:simpleType  name="TimePattern">
-        <xsd:restriction base="xsd:string">
-            <xsd:pattern value="[0-2][0-9]:[0-5][0-9]"></xsd:pattern>
-        </xsd:restriction>
-    </xsd:simpleType>
     
-</xsd:schema>
-
-
+    <xs:simpleType name="intType">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="dateType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\d{2}[/]\d{2}[/]\d{4}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="timeType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-2][0-9]:[0-5][0-9]"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
