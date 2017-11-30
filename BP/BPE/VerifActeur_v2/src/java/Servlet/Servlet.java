@@ -97,7 +97,7 @@ public class Servlet extends HttpServlet
                 System.out.println("Je vérifie la filmo");
                 Document Trouve = BeanDB.ChercherFilmDansFilmographieActeur(IdActeur, IdFilm);
                     
-                System.out.println("Trouve = " + Trouve);
+                //System.out.println("Trouve = " + Trouve);
                 
                 if(Trouve == null)
                 {  
