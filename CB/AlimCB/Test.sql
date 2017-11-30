@@ -14,7 +14,29 @@ BEGIN
 
     SELECT MOVIES_EXT.ID BULK COLLECT INTO Liste
     FROM MOVIES_EXT
-    WHERE ROWNUM<2;
+    WHERE ROWNUM<11;
+    packageAlimCB.alimCB(Liste);
+END ;
+/
+
+DECLARE 
+    Liste packageAlimCB.Liste_Movie_Id;
+BEGIN
+    delete from ERRORS_LOGS;
+    delete from FILMS_COPIES;
+    DELETE FROM JOUER;
+    DELETE FROM realiser;
+    DELETE FROM ARTISTS;
+    DELETE FROM Film_Genre;
+    DELETE FROM GENRES;
+    DELETE FROM films;
+    DELETE FROM certifications;
+    DELETE FROM posters;
+    commit;
+
+    SELECT MOVIES_EXT.ID BULK COLLECT INTO Liste
+    FROM MOVIES_EXT
+    WHERE ID IN(11,1891,1892,1893,1894);
     packageAlimCB.alimCB(Liste);
 END ;
 /

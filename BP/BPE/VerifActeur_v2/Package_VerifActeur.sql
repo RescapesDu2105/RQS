@@ -97,26 +97,26 @@ AS
 
                 APEX_JSON.open_object;  
                 APEX_JSON.write('_id', l_Acteurs(indx).IdAct);
-                APEX_JSON.write('name', l_Acteurs(indx).NomAct);
+                APEX_JSON.write_raw('name', l_Acteurs(indx).NomAct);
                 APEX_JSON.write('birthday', l_Acteurs(indx).DateNaiss);
                 APEX_JSON.write('deathday', l_Acteurs(indx).DateDeces);
-                APEX_JSON.write('place_of_birth', l_Acteurs(indx).LieuNaiss);  
+                APEX_JSON.write_raw('place_of_birth', l_Acteurs(indx).LieuNaiss);  
 
                 --RAISE_APPLICATION_ERROR('-20002', 'Je teste');
 
                 APEX_JSON.open_array('films');    
                 APEX_JSON.open_object;
                 APEX_JSON.write('_id', vFilm.IdFilm);
-                APEX_JSON.write('titre', vFilm.TitreFilm);
+                APEX_JSON.write_raw('titre', vFilm.TitreFilm);
                 APEX_JSON.write('release_date', vFilm.AnneeSortie);
-                APEX_JSON.write('character', l_Acteurs(indx).RoleFilm); 
+                APEX_JSON.write_raw('character', l_Acteurs(indx).RoleFilm); 
                 APEX_JSON.close_object;
                 APEX_JSON.close_array;
 
                 APEX_JSON.close_object;   
 
                 DBMS_OUTPUT.put_line(APEX_JSON.get_clob_output);
-                DBMS_OUTPUT.put_line(l_Acteurs(indx).IdAct);
+                --DBMS_OUTPUT.put_line(l_Acteurs(indx).IdAct);
 
                 actJSON := APEX_JSON.get_clob_output;
                 APEX_JSON.free_output;

@@ -83,11 +83,8 @@ public class Bean_DB_MongoDB implements Serializable
     }
     
     public Document ChercherFilmDansFilmographieActeur(int IdActeur, int IdFilm)
-    {       
-        return collection
-                .find(eq("_id", IdActeur))
-                .filter(eq("films._id", IdFilm))
-                .projection(fields(include("films.$"), excludeId())).first();
+    {               
+        return collection.find(and(eq("_id", IdActeur), eq("films._id", IdFilm))).first();
     }
     
     public void InsererFilmDansFilmographie(int IdActeur, Document DocFilm)
@@ -137,7 +134,7 @@ public class Bean_DB_MongoDB implements Serializable
         System.out.printf("Size of movies collection is %d\n", collection.count());
 
         FindIterable<Document> test;
-        test = collection.find(eq("_id", 5999));
+        test = collection.find(eq("_id", 4));
         System.out.println("test = " + test.first());
         Document doc;
         doc = test.first();
