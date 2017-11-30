@@ -71,6 +71,7 @@ public class Servlet extends HttpServlet
         }
         
         String json = jb.toString();
+        //String json = getBody(request, response);
         System.out.println(json);   
         
         //System.out.println("getBody() = " + getBody(request, response));      
@@ -85,21 +86,25 @@ public class Servlet extends HttpServlet
         {
             JsonObject JsonFilm = JsonObject.getJsonArray("films").getJsonObject(0);        
             int IdActeur = JsonObject.getInt("_id");
-            System.out.println("IdActeur = " + IdActeur);
             int IdFilm = JsonFilm.getInt("_id");
-            System.out.println("IdFilm = " + IdFilm);
+            
+                System.out.println("IdActeur = " + IdActeur);
+                System.out.println("IdFilm = " + IdFilm);
             
             Document DocActeur = BeanDB.getActeur(IdActeur);
             if(DocActeur != null)
             {
                 System.out.println("Je vérifie la filmo");
                 Document Trouve = BeanDB.ChercherFilmDansFilmographieActeur(IdActeur, IdFilm);
+                    
+                System.out.println("Trouve = " + Trouve);
+                
                 if(Trouve == null)
                 {  
                     Document DocFilm = Document.parse(JsonFilm.toString());
                     if (DocFilm != null)
                     {
-                        System.out.println("J'insere dans la filmo");
+                        System.out.println("J'insere dans la filmo : " + IdActeur + "/" + IdFilm);
                         BeanDB.InsererFilmDansFilmographie(IdActeur, DocFilm);
                     }
                     else
@@ -118,7 +123,7 @@ public class Servlet extends HttpServlet
             }
             else
             {            
-                System.out.println("J'insere l'acteur");
+                System.out.println("J'insere l'acteur : " + IdActeur);
                 DocActeur = Document.parse(JsonObject.toString());
                 BeanDB.InsererActeur(DocActeur);
 
@@ -136,9 +141,9 @@ public class Servlet extends HttpServlet
         else // rollback
         {
             int IdActeur = JsonObject.getInt("_idAct");
-            System.out.println("IdActeur = " + IdActeur);
+            //System.out.println("IdActeur = " + IdActeur);
             int IdFilm = JsonObject.getInt("_idFilm");
-            System.out.println("IdFilm = " + IdFilm);
+            //System.out.println("IdFilm = " + IdFilm);
             
             Document DocActeur = BeanDB.getActeur(IdActeur);
             
