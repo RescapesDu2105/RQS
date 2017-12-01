@@ -71,10 +71,7 @@ public class Servlet extends HttpServlet
         }
         
         String json = jb.toString();
-        //String json = getBody(request, response);
-        System.out.println(json);   
-        
-        //System.out.println("getBody() = " + getBody(request, response));      
+        System.out.println(json);  
                 
         StringReader stringParser = new StringReader(json);
         JsonReader reader = Json.createReader(stringParser);// Création d'un reader
@@ -95,8 +92,7 @@ public class Servlet extends HttpServlet
             if(DocActeur != null)
             {
                 System.out.println("Je vérifie la filmo");
-                Document Trouve = BeanDB.ChercherFilmDansFilmographieActeur(IdActeur, IdFilm);
-                    
+                Document Trouve = BeanDB.ChercherFilmDansFilmographieActeur(IdActeur, IdFilm);                   
                 //System.out.println("Trouve = " + Trouve);
                 
                 if(Trouve == null)
@@ -165,52 +161,6 @@ public class Servlet extends HttpServlet
         }
     }
     
-    public String getBody(HttpServletRequest request, HttpServletResponse response) throws IOException 
-    {
-        InputStream is = request.getInputStream();
-        String body = null;
-
-        response.setContentType("text/html;charset=UTF-8");
-        try 
-        {
-           if (is != null) 
-           {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                byte[] buffer = new byte[32767];
-                int read = 0;
-                while ((read = is.read(buffer, 0, buffer.length)) != -1) {
-                        baos.write(buffer, 0, read);
-                }		
-                baos.flush();		
-                body = new String(baos.toByteArray());
-           }
-           else
-           {
-               System.err.println("Impossible de récupérer le flux de la requête");
-               return null;
-           }
-       } 
-       catch (IOException ex) 
-       { 
-           System.err.println("Erreur lors de la lecture : " + ex);
-       } 
-       finally 
-       {
-           if (is != null) 
-           {
-               try 
-               {
-                   is.close();
-               } 
-               catch (IOException ex)
-               {
-                    System.err.println("Erreur lors de la fermeture du flux : " + ex);
-               }
-           }
-        }
-
-        return body;
-    }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

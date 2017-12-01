@@ -43,7 +43,7 @@ AS
             
             APEX_JSON.write('_idAct', l_Acteurs(indx).IdAct);    
             APEX_JSON.write('_idFilm', vFilm.IdFilm);
-            APEX_JSON.write_raw('character', '"' || l_Acteurs(indx).RoleFilm || '"');
+            --APEX_JSON.write_raw('character', '"' || l_Acteurs(indx).RoleFilm || '"');
 
             APEX_JSON.close_object;   
             
