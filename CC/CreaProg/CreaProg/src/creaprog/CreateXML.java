@@ -79,38 +79,38 @@ public class CreateXML
 
                 //Element id = doc.createElement("idDemande");
                 proj.setAttribute("idDemande", pr.getId());
-                System.out.println("id : "+pr.getId());
+                //System.out.println("id : "+pr.getId());
 
                 Element complexe = doc.createElement("complexe");
                 complexe.appendChild(doc.createTextNode(pr.getComplexe()));
-                System.out.println("complexe : "+pr.getComplexe());
+                //System.out.println("complexe : "+pr.getComplexe());
                 
                 strDate=formatterDate.format(pr.getDebut());
                 Element debut = doc.createElement("debut");
                 debut.appendChild(doc.createTextNode(strDate));
-                System.out.println("strDate : "+strDate);
+                //System.out.println("strDate : "+strDate);
 
                 strDate=formatterDate.format(pr.getFin());
                 Element fin = doc.createElement("fin");
                 fin.appendChild(doc.createTextNode(strDate));
-                System.out.println("strDate : "+strDate);
+                //System.out.println("strDate : "+strDate);
                 
                 Element film = doc.createElement("movie"); 
                 film.appendChild(doc.createTextNode(pr.getFilm().toString()));
-                System.out.println("film : "+pr.getFilm().toString());
+                //System.out.println("film : "+pr.getFilm().toString());
 
                 Element copie = doc.createElement("copy");
                 copie.appendChild(doc.createTextNode(pr.getCopie().toString()));
-                System.out.println("copie : "+pr.getCopie().toString());
+                //System.out.println("copie : "+pr.getCopie().toString());
                 
                 Element salle = doc.createElement("salle");
                 salle.appendChild(doc.createTextNode(pr.getSalle().toString()));
-                System.out.println("salle : "+pr.getSalle().toString());
+                //System.out.println("salle : "+pr.getSalle().toString());
                 
                 strTime=formatterTime.format(pr.getHeure());
                 Element heure = doc.createElement("heure");
                 heure.appendChild(doc.createTextNode(strTime));
-                System.out.println("strTime : "+strTime);
+                //System.out.println("strTime : "+strTime);
 
                 //proj.appendChild(id);
                 proj.appendChild(complexe);
@@ -136,8 +136,8 @@ public class CreateXML
             File xsd = new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\programmation.xsd");
             if(!xsd.exists())
             {
-                System.out.println("Je sort ");
-                System.exit(0);
+                System.out.println("Fichier XSD non trouvé !");
+                System.exit(1);
             }
             Source schemaFile = new StreamSource(xsd);
             Schema schema = factory.newSchema(schemaFile);
@@ -146,17 +146,25 @@ public class CreateXML
 
 
             validator.validate(new DOMSource(doc));
+            System.out.println("Fichier XML validé");
+            
             return true;
             
-        } catch (SAXException ex)
+        } 
+        catch (SAXException ex)
         {
-            Logger.getLogger(CreateXML.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex)
-        {
+            System.out.println("Problème pour parser !");
             Logger.getLogger(CreateXML.class.getName()).log(Level.SEVERE, null, ex);
         }
+        catch (IOException ex)
+        {
+            System.out.println("Problème avec le fichier XSD !");
+            Logger.getLogger(CreateXML.class.getName()).log(Level.SEVERE, null, ex);            
+        }
 
-            return false;
+        System.out.println("Fichier XML non validé !");
+        
+        return false;
     }
     
     public void WriteFile()
@@ -173,12 +181,11 @@ public class CreateXML
             
             StreamResult consoleResult = new StreamResult(System.out);
             transformer.transform(source, consoleResult);
-        } catch (TransformerConfigurationException ex)
+        } 
+        catch (TransformerException ex)
         {
+            System.out.println("Problème transformer le CSV en XML !");            
             Logger.getLogger(CreateXML.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (TransformerException ex)
-        {
-            Logger.getLogger(CreateXML.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
 }

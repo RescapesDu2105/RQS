@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
  *
  * @author Philippe
  */
-public class RServlet extends HttpServlet {
+public class Servlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
