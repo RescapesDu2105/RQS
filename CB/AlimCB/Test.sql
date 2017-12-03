@@ -24,12 +24,12 @@ BEGIN
 
     SELECT MOVIES_EXT.ID BULK COLLECT INTO Liste
     FROM MOVIES_EXT
-    WHERE ID IN(11,1891,1892,1893,1894);
+    WHERE ID IN(11,1891,1892,1893,1894,1895);
     packageAlimCB.alimCB(Liste);
 END ;
 /
 
-SELECT * from jouer WHERE Film NOT IN(11,1891,1892,1893,1894) order by 2;
+SELECT * from jouer WHERE Film NOT IN(11,1891,1892,1893,1894,1895) order by 2;
 
 select * from posters;
 select * from certifications;
