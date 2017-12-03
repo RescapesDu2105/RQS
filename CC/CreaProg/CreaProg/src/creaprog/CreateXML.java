@@ -133,7 +133,7 @@ public class CreateXML
         try 
         {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            File xsd = new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\programmation.xsd");
+            File xsd = new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\listeprogrammation.xsd");
             if(!xsd.exists())
             {
                 System.out.println("Fichier XSD non trouvé !");
