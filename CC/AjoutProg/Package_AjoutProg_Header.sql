@@ -1,7 +1,7 @@
 create or replace PACKAGE PACKAGE_AJOUTPROG AS 
     
   TYPE DemandeRec IS RECORD (
-        IdDemande VARCHAR2(10),
+        IdDemande NUMBER,
         complexe NUMBER(2),
         debut VARCHAR2(10 CHAR),
         fin VARCHAR2(10 CHAR),

@@ -4,16 +4,11 @@
     xdb:storeVarrayAsTable="true" 
     version="1.0">
     
-    <xs:element name="programmation"  type="programmationType" xdb:SQLName="PROGRAMMATIONS"/>
-    
-    <xs:complexType name="programmationType" xdb:SQLType="PROGRAMMATION_TYPE">
-        <xs:sequence>
-            <xs:element name="demande" type="demandeType"/>
-        </xs:sequence>
-    </xs:complexType>    
+    <xs:element name="programmation"  type="demandeType" xdb:SQLName="PROGRAMMATION"/>
     
     <xs:complexType name="demandeType" xdb:SQLType="DEMANDE_TYPE">
         <xs:sequence>
+            <xs:element name="idDemdande"  type="xs:integer" minOccurs="1" xdb:SQLName="IDDEMANDE" xdb:SQLType="VARCHAR2"/>
             <xs:element name="complexe" type="xs:integer" minOccurs="1" xdb:SQLName="COMPLEXE" xdb:SQLType="VARCHAR2"/>
             <xs:element name="debut" type="dateType" minOccurs="1" xdb:SQLName="DEBUT" xdb:SQLType="VARCHAR2"/>
             <xs:element name="fin" type="dateType" xdb:SQLName="FIN" xdb:SQLType="VARCHAR2"/>            
