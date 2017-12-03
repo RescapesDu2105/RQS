@@ -19,15 +19,19 @@ public class CreaProg {
     /**
      * @param args the command line arguments
      */
-    private static String CSVfile="D:\\GitHub\\RQS\\CC\\CreaProg\\Programmation.csv";
-    private static String separator=";";
-    private static String regex="(?<=;|^)([^;]*)(?=;|$)";
+    private static final String CSVfile="D:\\GitHub\\RQS\\CC\\CreaProg\\Programmation.csv";
+    private static final String separator=";";
+    private static final String regex="(?<=;|^)([^;]*)(?=;|$)";
     
-    public static void main(String[] args) {
-        CSVUtils test = new CSVUtils(CSVfile,separator,regex,true);
+    public static void main(String[] args) 
+    {        
+        //CSVUtils test = new CSVUtils(CSVfile,separator,regex,true);
+        System.out.println("args = " + args[0]);
+        CSVUtils test = new CSVUtils(args[0],separator,regex,true);
         ArrayList<Programmation> programmes = new ArrayList<>();
         CreateXML docXML ;
         boolean schemaValide;
+        
         try
         {
             programmes=test.Lire();
