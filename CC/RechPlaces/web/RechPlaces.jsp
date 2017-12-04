@@ -5,13 +5,13 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<jsp:useBean id="Panier" scope="session" class="Beans.Panier"/>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
         <meta name="description" content="">
         <meta name="author" content="">
         <title>RQS - Recherche de places libres</title>
@@ -20,18 +20,31 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/RechPlaces.css">
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <a class="navbar-brand" href="#"><i class="fa fa-film"></i><strong> Rennequinepolis</strong></a>
-            </div>
+        <nav class="navbar sticky-top navbar-dark bg-dark justify-content-between">
+            <a class="navbar-brand" href="RechPlaces.jsp"><i class="fa fa-film"></i><strong> Rennequinepolis</strong></a>
+            <%  if(session.getAttribute("isConnected") != null) { %>
+                <button type="button" class ="btn btn-success ml-1"> 
+                    <a id="redirection" href="Servlet?action=AfficherPanier">0
+                        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                        Panier
+                    </a>
+                </button>
+            <% } else { %>
+                <button type="button" class ="btn btn-success ml-1" data-toggle="modal" data-target="#ModalConnexion"> 
+                    <i class="fa fa-power-off" aria-hidden="true"></i>
+                    Se connecter pour voir le panier
+                </button>
+            <% } %>
         </nav>
+        
         <div class="container" id="main"> 
             <div class="col-md-12 mt-5"></div>
+            
                 <h2 class="display-4 text-center">Recherche de places disponibles</h2>
                 <div class="card">
                     <div class="card-body">
                         <h2 class="card-title text-center">Critères de recherche</h2>
-                        <form class="form-inline" id="searchForm" action="ControlerServlet" method="GET">
+                        <form class="form-inline" id="searchForm" action="Servlet" method="GET">
                             <div class="row mx-auto">
                                 <div class="col">
                                     <label for="complexeInput">Complexe</label>
@@ -98,13 +111,14 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title text-center">Résultats de la recherche</h5>
-                    <table class ="table table-hover table-bordered">
+                    <table class ="table table-hover">
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col" class="text-center">Poster du film</th>
                                 <th scope="col" class="text-center">Titre du film</th>
                                 <th scope="col" class="text-center">Popularité</th>
                                 <th scope="col" class="text-center">Pérennité</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -113,16 +127,27 @@
                                     <img class="rounded float-left" alt="No free image man (en)" src="https://image.tmdb.org/t/p/w45/kqjL17yufvn9OVLyXYpvtyrFfak.jpg"/>
                                 </th>
                                 <td class="align-middle text-center">
-                                    <a href="Servlet?action=FicheFilm&film=1">Mad Max Fury Road</a>
+                                    <a href="Servlet?action=FicheFilm&IdFilm=1">Mad Max Fury Road</a>
                                 </td>
                                 <td class="align-middle text-center">145</td>
                                 <td class="align-middle text-center">14</td>
+                                <td class="align-middle text-center">
+                                    <button type="button" class="btn btn-danger ml-1">
+                                        <a id="redirection" href="Servlet?action=AfficherSeancesFilm&IdFilm=1001">
+                                            <i class="fa fa-ticket" aria-hidden="true"></i>
+                                            Afficher les séances pour ce film 
+                                        </a>
+                                    </button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+            
+        <jsp:include page="ModalConnexion.jsp"></jsp:include>    
+            
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>    

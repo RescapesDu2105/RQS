@@ -5,9 +5,7 @@
  */
 package Servlet;
 
-import Beans.Films;
 import java.io.IOException;
-import java.util.Arrays;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +16,8 @@ import javax.servlet.http.HttpSession;
  *
  * @author Philippe
  */
-public class Servlet extends HttpServlet {
+public class Servlet extends HttpServlet
+{
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -29,52 +28,24 @@ public class Servlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        HttpSession session = request.getSession(true);  
-                
-        System.out.println("[RechPlaces]session = " + request.getParameter("action"));
+        HttpSession session = request.getSession(true);
+        session.setAttribute("isConnected", false);
+        
+        System.out.println("[CmdPlaces]session = " + request.getParameter("action"));
         
         switch(request.getParameter("action"))
         {
-            case "Authentification":
+            case "CommanderPlaces":
+                
+                //response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/CmdPlaces/AfficheSeanceFilm.jsp");
                 break;
-            case "Recherche":
-                break;            
-            case "FicheFilm":
-                RecupererFilm(Integer.parseInt(request.getParameter("IdFilm")), session);
-                response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/FicheFilm.jsp");
-                break;            
-            case "FicheActeur":
-                RecupererActeur(Integer.parseInt(request.getParameter("IdActeur")));
-                response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/FicheActeur.jsp");
-                break;
-            case "AfficherSeancesFilm":
-                RecupererSeancesFilm(Integer.parseInt(request.getParameter("IdFilm")));
-                response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/AfficheSeancesFilm.jsp");
-                break;
-               
+                
             default: break;
         }
     }
-    
-    public void RecupererFilm(int idFilm, HttpSession session) 
-    {
-        Films Films = (Films) getServletContext().getAttribute("Films");
-        //Film Film = Films.getFilm(idFilm);
-        //session.setAttribute("Film", Film);
-    }
 
-    public void RecupererActeur(int IdActeur)
-    {
-        
-    }
-    
-    public void RecupererSeancesFilm(int IdFilm)
-    {
-        
-    }
-    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -86,7 +57,8 @@ public class Servlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         processRequest(request, response);
     }
 
@@ -100,7 +72,8 @@ public class Servlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         processRequest(request, response);
     }
 
@@ -110,7 +83,9 @@ public class Servlet extends HttpServlet {
      * @return a String containing servlet description
      */
     @Override
-    public String getServletInfo() {
+    public String getServletInfo()
+    {
         return "Short description";
     }// </editor-fold>
+
 }
