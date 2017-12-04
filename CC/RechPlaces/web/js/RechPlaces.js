@@ -77,3 +77,54 @@ function FctPerennite(event)
             break;
     }
 }
+
+function InscriptionAddInfos(CheckBox)
+{
+    if(CheckBox.checked)
+    {                                        
+        var inputNom = document.createElement("input");                   
+        inputNom.type = "text";
+        inputNom.id = "inputNom";
+        inputNom.name = "inputNom";
+        inputNom.setAttribute('class', "form-control");
+        inputNom.placeholder = "Entrer le nom de famille";
+
+        var inputPrenom = document.createElement("input");                   
+        inputPrenom.type = "text";
+        inputPrenom.id = "inputPrenom";
+        inputPrenom.name = "inputPrenom";
+        inputPrenom.setAttribute('class', "form-control");
+        inputPrenom.placeholder = "Entrer le prénom";
+
+
+        var div1 = document.createElement("div");
+        div1.setAttribute('class', "form-group");
+        div1.id = "div_inputNom";
+
+        var div2 = document.createElement("div");
+        div2.setAttribute('class', "form-group");
+        div2.id = "div_inputPrenom";
+
+        var labelNom = document.createElement("label");
+        labelNom.for = "name";
+        labelNom.innerHTML = "Nom de famille";
+
+        var labelPrenom = document.createElement("label");
+        labelPrenom.for = "surname";
+        labelPrenom.innerHTML = "Prénom";
+
+        div1.appendChild(labelNom);
+        div1.appendChild(inputNom);
+
+        div2.appendChild(labelPrenom);
+        div2.appendChild(inputPrenom);
+
+        document.getElementById("loginform").append(div1);
+        document.getElementById("loginform").append(div2);
+    }
+    else
+    {
+        document.getElementById("loginform").removeChild(document.getElementById("div_inputNom"));
+        document.getElementById("loginform").removeChild(document.getElementById("div_inputPrenom"));
+    }
+}

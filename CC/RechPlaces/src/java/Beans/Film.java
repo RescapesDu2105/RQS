@@ -26,6 +26,7 @@ public class Film implements Tailles_Posters, Serializable
     private String resume;
     private ArrayList<Genre> genres;
     private String publicCible;
+    //private ArrayList<Seance> Seances;
 
     public Film() 
     {

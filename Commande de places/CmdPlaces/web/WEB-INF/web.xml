@@ -3,10 +3,6 @@
     <servlet>
         <servlet-name>Servlet</servlet-name>
         <servlet-class>Servlet.Servlet</servlet-class>
-        <init-param>
-            <param-name>isConnected</param-name>
-            <param-value>true</param-value>
-        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>Servlet</servlet-name>
