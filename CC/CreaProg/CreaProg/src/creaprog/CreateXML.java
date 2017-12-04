@@ -154,15 +154,16 @@ public class CreateXML
         catch (SAXException ex)
         {
             System.out.println("Problème pour parser !");
-            Logger.getLogger(CreateXML.class.getName()).log(Level.SEVERE, null, ex);
+            System.exit(1);
         }
         catch (IOException ex)
         {
-            System.out.println("Problème avec le fichier XSD !");
-            Logger.getLogger(CreateXML.class.getName()).log(Level.SEVERE, null, ex);            
+            System.out.println("Problème avec le fichier XSD !");   
+            System.exit(1);
         }
 
         System.out.println("Fichier XML non validé !");
+        System.exit(1);
         
         return false;
     }
@@ -174,18 +175,18 @@ public class CreateXML
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT,"yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","4");
             DOMSource source = new DOMSource(doc);        
             StreamResult result = new StreamResult(new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\programmations.xml"));
             transformer.transform(source, result);
             
-            StreamResult consoleResult = new StreamResult(System.out);
-            transformer.transform(source, consoleResult);
+            //StreamResult consoleResult = new StreamResult(System.out);
+            //transformer.transform(source, consoleResult);
         } 
         catch (TransformerException ex)
         {
             System.out.println("Problème transformer le CSV en XML !");            
-            Logger.getLogger(CreateXML.class.getName()).log(Level.SEVERE, null, ex);
+            System.exit(1);
         } 
     }
 }

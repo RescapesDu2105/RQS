@@ -75,15 +75,11 @@ public class Programmation
         try
         {
             SimpleDateFormat formatterDate = new SimpleDateFormat("dd/mm/yyyy");
-            this.debut=formatterDate.parse(debut);
-            
-            //String strDate = formatterDate.format(this.debut);
-            //System.out.println("debut : " + strDate);
-            //System.out.println(formatterDate.parse(debut));
-            
+            this.debut=formatterDate.parse(debut);            
         } catch (ParseException ex)
         {
-            Logger.getLogger(Programmation.class.getName()).log(Level.SEVERE, null, ex);
+           System.out.print("Format de date non respcté pour  le debut : " +debut+" Nous attendons un : dd/mm/yyyy\n" );
+           System.exit(0);
         }
     }
 
@@ -95,7 +91,8 @@ public class Programmation
             this.fin=formatterDate.parse(fin);
         } catch (ParseException ex)
         {
-            Logger.getLogger(Programmation.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.print("Format de date non respcté pour la fin : " +fin+" Nous attendons un : dd/mm/yyyy\n" );
+            System.exit(0);
         }
     }
 
@@ -121,7 +118,8 @@ public class Programmation
             //System.out.println("heure : " + strDate);
         } catch (ParseException ex)
         {
-            Logger.getLogger(Programmation.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.print("Format de l'heure non respcté pour l'heure : " +heure+" Nous attendons un : HH:mm\n" );
+            System.exit(0);
         }
     }
     

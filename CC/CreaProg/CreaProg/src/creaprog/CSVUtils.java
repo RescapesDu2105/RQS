@@ -9,14 +9,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Time;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,7 +80,6 @@ public class CSVUtils {
     {
         ArrayList<Programmation> programmes = new ArrayList<>();
         ArrayList<String> split ;
-        DateFormat formatterTime = new SimpleDateFormat("HH:mm");
         
         try (BufferedReader br = new BufferedReader(new FileReader(getCsvFile()))) 
         {
@@ -114,8 +108,9 @@ public class CSVUtils {
                 
                 if(split.size() != 7)
                 {
-                    System.out.println("Trop de champ");
-                    //System.exit(0);
+                    System.out.println(split.size());
+                    System.out.println("Nombre de champ incorrecte");
+                    System.exit(0);
                 }
                 else
                 {

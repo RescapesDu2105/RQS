@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+			xmlns:xdb="http://xmlns.oracle.com/xdb"
+			xdb:storeVarrayAsTable="true"
+			version="1.0">
+
+			
+	<xs:simpleType name="movieT">
+        <xs:restriction base="xs:integer">
+			<xs:totalDigits value="6"/>
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>		
+			
+	<xs:simpleType name="genreT">
+        <xs:restriction base="xs:integer">
+			<xs:totalDigits value="6"/>
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>	
+
+	<xs:complexType name="movie_genreT">
+		<xs:sequence>
+			<xs:element name="movie" type="movieT" xdb:SQLName="movie" xdb:SQLType="NUMBER"/>
+			<xs:element name="genre" type="genreT" xdb:SQLName="genre" xdb:SQLType="NUMBER"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:element name="movie_genre" type="movie_genreT" xdb:defaultTable="movie_genre_xml"/>
+</xs:schema>

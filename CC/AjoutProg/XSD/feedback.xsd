@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+			xmlns:xdb="http://xmlns.oracle.com/xdb"
+			xdb:storeVarrayAsTable="true"
+			version="1.0">		
+			
+	<xs:simpleType name="idprogrammationT">
+        <xs:restriction base="xs:integer">
+			<xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>	
+
+	<xs:complexType name="feedbackT">
+		<xs:sequence>
+			<xs:element name="idprogrammation" type="idprogrammationT" xdb:SQLName="idprogrammation" xdb:SQLType="NUMBER"/>
+			<xs:element name="isok" type="xs:boolean" xdb:SQLName="isok" xdb:SQLType="NUMBER"/>
+			<xs:element name="error" type="xs:string" xdb:SQLName="idprogrammation" xdb:SQLType="VARCHAR2"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:element name="feedback" type="feedbackT" xdb:defaultTable="feedback_xml"/>
+	
+</xs:schema>
