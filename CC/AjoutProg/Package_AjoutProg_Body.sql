@@ -59,13 +59,15 @@ BEGIN
             date_valid:=TRUE;
             valid:=TRUE;
             
-            IF l_Demande(indx).idDemande IS NULL THEN RAISE EXC_ID_NULL; END IF;
+            Check_Hours(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).heure);
+            /*IF l_Demande(indx).idDemande IS NULL THEN RAISE EXC_ID_NULL; END IF;
             IF l_Demande(indx).complexe IS NULL THEN RAISE EXC_COMPLEXE_NULL; END IF;
             IF l_Demande(indx).debut IS NULL THEN RAISE EXC_debut_NULL ; END IF;
             IF l_Demande(indx).fin IS NULL THEN RAISE EXC_fin_NULL ; END IF;
             Check_Movie(l_Demande(indx).idDemande,l_Demande(indx).movie);
+            Check_Copy(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).copy);
             ADD_FEEDBACKRAW(l_Demande(indx).idDemande,1,'Programmation valide');
-            
+            */
         EXCEPTION
             WHEN EXC_ID_NULL THEN ADD_FEEDBACKRAW(-1,0,'Le champ id esdt vide ');
             WHEN EXC_COMPLEXE_NULL THEN ADD_FEEDBACKRAW(l_Demande(indx).idDemande,0,'Le champ complexe esdt vide ');
@@ -87,8 +89,8 @@ BEGIN
     FROM films
     WHERE idFilm=p_idmovie;
 EXCEPTION
-    WHEN EXC_FILM_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ film est vide '); RAISE;
-    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucun film trouvé pour le film : '|| p_idmovie); RAISE;
+    WHEN EXC_FILM_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ film est vide ');
+    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucun film trouvé pour le film : '|| p_idmovie);
     WHEN OTHERS THEN RAISE;
 END Check_Movie;
 
@@ -104,16 +106,34 @@ BEGIN
     WHERE movie=p_idmovie
     AND id=p_copyid;
 EXCEPTION
-    WHEN EXC_copy_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ copy est vide '); RAISE;
-    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune copie correspond a : '|| p_copyid); RAISE;
+    WHEN EXC_copy_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ copy est vide ');
+    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune copie correspond a : '|| p_copyid);
     WHEN OTHERS THEN RAISE;
 END Check_Copy;
 
-PROCEDURE Create_FEEDBACKRAW(p_idprogrammation IN NUMBER) as
+PROCEDURE Check_Hours(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER, p_heure IN VARCHAR2) as
+    EXC_heure_NULL EXCEPTION;
+    EXC_Heure_FIN EXCEPTION;
+    
+    DureeTemp INTERVAL DAY TO SECOND;
+    HeureCal TIMESTAMP;
 BEGIN
-    SELECT INSERTCHILDXML(feedback, '/feedback', 'programmation', XMLTYPE('<programmation><id>' || p_idprogrammation || '</id><infos></infos></programmation>')) 
-    INTO feedback FROM DUAL;
-END Create_FEEDBACKRAW;
+    IF p_heure IS NULL THEN RAISE EXC_heure_NULL; END IF;
+    
+    SELECT NUMTODSINTERVAL(duree,'MINUTE') INTO DureeTemp 
+    FROM FILMS
+    WHERE idFilm=p_idmovie;
+    
+    --HeureCal:=TO_TIMESTAMP(TO_CHAR(DureeTemp), 'HH24:MI:SS')+TO_TIMESTAMP(p_heure, 'HH24:MI:SS');
+    HeureCal:=TO_TIMESTAMP(p_heure, 'HH24:MI:SS')+DureeTemp;
+    IF(HeureCal>closing_time)
+        THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le film se terminera apres la fermeture'); END IF;
+    
+EXCEPTION
+    WHEN EXC_heure_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ heure est vide ');
+    WHEN EXC_Heure_FIN THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le film se terminera apres la fermeture');
+    WHEN OTHERS THEN RAISE;
+END Check_Hours;
 
 PROCEDURE ADD_FEEDBACKRAW(p_idprogrammation IN NUMBER , p_isok IN NUMBER , p_info IN VARCHAR2) as
 BEGIN
