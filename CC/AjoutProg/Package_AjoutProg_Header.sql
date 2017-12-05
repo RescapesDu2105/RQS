@@ -15,12 +15,16 @@ create or replace PACKAGE PACKAGE_AJOUTPROG AS
     
     feedback XMLTYPE;
     
-  closing_time TIMESTAMP := TO_TIMESTAMP('23:00:00', 'HH24:MI:SS');
-  opening_time TIMESTAMP := TO_TIMESTAMP('10:00:00', 'HH24:MI:SS');
+    closing_time TIMESTAMP := TO_TIMESTAMP('23:00:00', 'HH24:MI:SS');
+    opening_time TIMESTAMP := TO_TIMESTAMP('10:00:00', 'HH24:MI:SS');
 
-  PROCEDURE AjoutProg(p_directory IN VARCHAR2, p_file IN VARCHAR2);
-  PROCEDURE LOAD_FILE(p_directory IN VARCHAR2, p_file IN VARCHAR2);
-  PROCEDURE Verif_Prog;
-  PROCEDURE ADD_FEEDBACKRAW(p_idprogrammation IN NUMBER , p_isok IN NUMBER ,p_info IN VARCHAR2);
+    PROCEDURE AjoutProg(p_directory IN VARCHAR2, p_file IN VARCHAR2);
+    PROCEDURE LOAD_FILE(p_directory IN VARCHAR2, p_file IN VARCHAR2);
+    PROCEDURE Verif_Prog;
+    PROCEDURE Check_Movie(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER);
+    PROCEDURE Check_Copy(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER , p_copyid IN NUMBER);
+    PROCEDURE Write_XML(p_file IN VARCHAR2);
+    
+    PROCEDURE ADD_FEEDBACKRAW(p_idprogrammation IN NUMBER , p_isok IN NUMBER ,p_info IN VARCHAR2);
 
 END PACKAGE_AJOUTPROG;
