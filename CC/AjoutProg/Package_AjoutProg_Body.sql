@@ -5,6 +5,7 @@ BEGIN
     LOAD_FILE(p_directory,p_file);
     Verif_Prog;
     Write_XML(p_file);
+    COMMIT;
 END AjoutProg;
 
     PROCEDURE LOAD_FILE(p_directory IN VARCHAR2 , p_file IN VARCHAR2) as
@@ -35,9 +36,6 @@ END AjoutProg;
     END LOAD_FILE;
     
 PROCEDURE Verif_Prog as
-    movie_valid boolean;
-    date_valid boolean;
-    valid boolean;
     
     EXC_ID_NULL EXCEPTION;
     EXC_COMPLEXE_NULL EXCEPTION;
@@ -50,12 +48,8 @@ BEGIN
     
     FOR indx IN l_Demande.first..l_Demande.last
     LOOP
-        BEGIN
-            
-            movie_valid:=TRUE;
-            date_valid:=TRUE;
-            valid:=TRUE;
-            
+        BEGIn
+        
             Check_Hours(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).heure);
             IF l_Demande(indx).idDemande IS NULL THEN RAISE EXC_ID_NULL; END IF;
             IF l_Demande(indx).complexe IS NULL THEN RAISE EXC_COMPLEXE_NULL; END IF;
@@ -63,6 +57,8 @@ BEGIN
             Check_Copy(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).copy);
             Check_Date(l_Demande(indx).idDemande,l_Demande(indx).debut,l_Demande(indx).fin);
             Check_Hours(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).heure);
+            
+            Insert_Prog(l_Demande(indx));
             
              ADD_FEEDBACKRAW(l_Demande(indx).idDemande,1,'Programmation valide');
         EXCEPTION
@@ -85,7 +81,7 @@ BEGIN
     WHERE idFilm=p_idmovie;
 EXCEPTION
     WHEN EXC_FILM_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ film est vide'); RAISE;
-    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucun film trouvé pour le film : '|| p_idmovie); RAISE;
+    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune copie correspond au film'); RAISE;
     WHEN OTHERS THEN RAISE;
 END Check_Movie;
 
@@ -100,6 +96,7 @@ BEGIN
     FROM Films_copies
     WHERE movie=p_idmovie
     AND id=p_copyid;
+    
 EXCEPTION
     WHEN EXC_copy_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ copy est vide'); RAISE;
     WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune copie correspond a : '|| p_copyid); RAISE;
@@ -120,7 +117,6 @@ BEGIN
     FROM FILMS
     WHERE idFilm=p_idmovie;
     
-    --HeureCal:=TO_TIMESTAMP(TO_CHAR(DureeTemp), 'HH24:MI:SS')+TO_TIMESTAMP(p_heure, 'HH24:MI:SS');
     HeureCal:=TO_TIMESTAMP(p_heure, 'HH24:MI:SS')+DureeTemp;
     IF(HeureCal>closing_time)THEN RAISE EXC_Heure_FIN; END IF;
     IF HeureCal<opening_time THEN RAISE EXC_heure_DEBUT; END IF;
@@ -150,8 +146,26 @@ EXCEPTION
 END Check_Date;
 
 PROCEDURE Insert_Prog(p_demande IN DemandeRec)AS
+    programmation XMLTYPE;
 BEGIN
-    null;
+    SELECT XMLElement("programmation",
+      XMLForest(
+        p_demande.idDemande AS "idDemande",
+        p_demande.complexe AS "complexe",
+        p_demande.debut AS "debut",
+        p_demande.fin AS "fin",
+        p_demande.movie AS "movie",
+        p_demande.copy AS "copy",
+        p_demande.salle AS "salle",
+        p_demande.heure AS "heure"
+      )
+    ) into programmation
+    FROM DUAL;
+    
+    INSERT INTO programmations VALUES programmation;
+        
+EXCEPTION
+    WHEN OTHERS THEN RAISE ;
 END;
 
 PROCEDURE ADD_FEEDBACKRAW(p_idprogrammation IN NUMBER , p_isok IN NUMBER , p_info IN VARCHAR2) as

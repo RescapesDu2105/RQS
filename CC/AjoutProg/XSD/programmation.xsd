@@ -1,48 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-			xmlns:xdb="http://xmlns.oracle.com/xdb"
-			xdb:storeVarrayAsTable="true"
-			version="1.0">
-
-			
-	<xs:simpleType name="idT">
-        <xs:restriction base="xs:integer">
-            <xs:minInclusive value="0"/>
-        </xs:restriction>
-    </xs:simpleType>		
-			
-	<xs:simpleType name="movieT">
-        <xs:restriction base="xs:integer">
-			<xs:totalDigits value="6"/>
-            <xs:minInclusive value="0"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-	<xs:simpleType name="copieT">
-        <xs:restriction base="xs:integer">
-			<xs:totalDigits value="5"/>
-            <xs:minInclusive value="0"/>
-        </xs:restriction>
-    </xs:simpleType>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"  
+	xmlns:xdb="http://xmlns.oracle.com/xdb"
+	xdb:storeVarrayAsTable="true" 
+	version="1.0">
 	
-	<xs:simpleType name="salleT">
-        <xs:restriction base="xs:integer">
-            <xs:minInclusive value="0"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-	<xs:complexType name="programmationT">
+	<xs:element name="programmation" type="demande" xdb:SQLName="PROGRAMMATION"/>
+	
+	<xs:complexType name="demande" xdb:SQLType="DEMANDE_TYPE">
 		<xs:sequence>
-			<xs:element name="id" type="idT" xdb:SQLName="id" xdb:SQLType="NUMBER"/>
-			<xs:element name="debut" type="xs:date" xdb:SQLName="debut" xdb:SQLType="DATE"/>
-			<xs:element name="fin" type="xs:date" xdb:SQLName="fin" xdb:SQLType="DATE"/>
-			<xs:element name="movie" type="movieT" xdb:SQLName="movie" xdb:SQLType="NUMBER"/>
-			<xs:element name="copie" type="copieT" xdb:SQLName="copie" xdb:SQLType="NUMBER"/>
-			<xs:element name="salle" type="salleT" xdb:SQLName="salle" xdb:SQLType="NUMBER"/>
-			<xs:element name="heure" type="xs:time" xdb:SQLName="heure" xdb:SQLType="TIMESTAMP"/>
+			<xs:element name="idDemande" type="xs:integer" minOccurs="1" xdb:SQLName="IDDEMANDE" xdb:SQLType="NUMBER"/>
+			<xs:element name="complexe" type="xs:integer" minOccurs="1" xdb:SQLName="COMPLEXE" xdb:SQLType="VARCHAR2"/>
+			<xs:element name="debut" type="dateType" minOccurs="1" xdb:SQLName="DEBUT" xdb:SQLType="VARCHAR2"/>
+			<xs:element name="fin" type="dateType" xdb:SQLName="FIN" xdb:SQLType="VARCHAR2"/>            
+			<xs:element name="movie" type="intType" minOccurs="1" xdb:SQLName="MOVIE" xdb:SQLType="NUMBER"/>
+			<xs:element name="copy" type="intType" minOccurs="1" xdb:SQLName="COPY" xdb:SQLType="NUMBER"/>            
+			<xs:element name="salle" type="intType" xdb:SQLName="SALLE" xdb:SQLType="NUMBER"/>
+			<xs:element name="heure" type="timeType" xdb:SQLName="HEURE" xdb:SQLType="VARCHAR2"/>
 		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:element name="programmation" type="programmationT" xdb:defaultTable="programmation_xml"/>
 	
+	<xs:simpleType name="intType">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="dateType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\d{2}[/]\d{2}[/]\d{4}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="timeType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-2][0-9]:[0-5][0-9]"/>
+		</xs:restriction>
+	</xs:simpleType>
 </xs:schema>
