@@ -30,7 +30,7 @@ END AjoutProg;
     EXCEPTION
         WHEN EXC_FILE_EMPTY THEN 
             RAISE_APPLICATION_ERROR('-20001', 'Erreur lors de la lecture du fichier'); 
-           Ajout_Log_Error(CURRENT_TIMESTAMP, 'AjoutProg', '-20001', 'Erreur lors de la lecture du fichier'); 
+            Ajout_Log_Error(CURRENT_TIMESTAMP, 'AjoutProg', '-20001', 'Erreur lors de la lecture du fichier'); 
         When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
     END LOAD_FILE;
     
@@ -41,9 +41,6 @@ PROCEDURE Verif_Prog as
     
     EXC_ID_NULL EXCEPTION;
     EXC_COMPLEXE_NULL EXCEPTION;
-    EXC_debut_NULL EXCEPTION;
-    EXC_fin_NULL EXCEPTION;
-    EXC_copy_NULL EXCEPTION;
     EXC_salle_NULL EXCEPTION;
     EXC_heure_NULL EXCEPTION;
     
@@ -60,19 +57,17 @@ BEGIN
             valid:=TRUE;
             
             Check_Hours(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).heure);
-            /*IF l_Demande(indx).idDemande IS NULL THEN RAISE EXC_ID_NULL; END IF;
+            IF l_Demande(indx).idDemande IS NULL THEN RAISE EXC_ID_NULL; END IF;
             IF l_Demande(indx).complexe IS NULL THEN RAISE EXC_COMPLEXE_NULL; END IF;
-            IF l_Demande(indx).debut IS NULL THEN RAISE EXC_debut_NULL ; END IF;
-            IF l_Demande(indx).fin IS NULL THEN RAISE EXC_fin_NULL ; END IF;
             Check_Movie(l_Demande(indx).idDemande,l_Demande(indx).movie);
             Check_Copy(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).copy);
-            ADD_FEEDBACKRAW(l_Demande(indx).idDemande,1,'Programmation valide');
-            */
+            Check_Date(l_Demande(indx).idDemande,l_Demande(indx).debut,l_Demande(indx).fin);
+            Check_Hours(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).heure);
+            
+             ADD_FEEDBACKRAW(l_Demande(indx).idDemande,1,'Programmation valide');
         EXCEPTION
-            WHEN EXC_ID_NULL THEN ADD_FEEDBACKRAW(-1,0,'Le champ id esdt vide ');
+            WHEN EXC_ID_NULL THEN ADD_FEEDBACKRAW(-1,0,'Le champ id esdt vide');
             WHEN EXC_COMPLEXE_NULL THEN ADD_FEEDBACKRAW(l_Demande(indx).idDemande,0,'Le champ complexe esdt vide ');
-            WHEN EXC_debut_NULL THEN ADD_FEEDBACKRAW(l_Demande(indx).idDemande,0,'Le champ debut esdt vide ');
-            WHEN EXC_fin_NULL THEN ADD_FEEDBACKRAW(l_Demande(indx).idDemande,0,'Le champ fin esdt vide ');
             WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AjoutProg', SQLCODE, SQLERRM);
         END;
     END LOOP;
@@ -89,8 +84,8 @@ BEGIN
     FROM films
     WHERE idFilm=p_idmovie;
 EXCEPTION
-    WHEN EXC_FILM_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ film est vide ');
-    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucun film trouvé pour le film : '|| p_idmovie);
+    WHEN EXC_FILM_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ film est vide'); RAISE;
+    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucun film trouvé pour le film : '|| p_idmovie); RAISE;
     WHEN OTHERS THEN RAISE;
 END Check_Movie;
 
@@ -106,14 +101,15 @@ BEGIN
     WHERE movie=p_idmovie
     AND id=p_copyid;
 EXCEPTION
-    WHEN EXC_copy_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ copy est vide ');
-    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune copie correspond a : '|| p_copyid);
+    WHEN EXC_copy_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ copy est vide'); RAISE;
+    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune copie correspond a : '|| p_copyid); RAISE;
     WHEN OTHERS THEN RAISE;
 END Check_Copy;
 
 PROCEDURE Check_Hours(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER, p_heure IN VARCHAR2) as
     EXC_heure_NULL EXCEPTION;
     EXC_Heure_FIN EXCEPTION;
+    EXC_heure_DEBUT EXCEPTION;
     
     DureeTemp INTERVAL DAY TO SECOND;
     HeureCal TIMESTAMP;
@@ -126,14 +122,37 @@ BEGIN
     
     --HeureCal:=TO_TIMESTAMP(TO_CHAR(DureeTemp), 'HH24:MI:SS')+TO_TIMESTAMP(p_heure, 'HH24:MI:SS');
     HeureCal:=TO_TIMESTAMP(p_heure, 'HH24:MI:SS')+DureeTemp;
-    IF(HeureCal>closing_time)
-        THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le film se terminera apres la fermeture'); END IF;
+    IF(HeureCal>closing_time)THEN RAISE EXC_Heure_FIN; END IF;
+    IF HeureCal<opening_time THEN RAISE EXC_heure_DEBUT; END IF;
     
 EXCEPTION
-    WHEN EXC_heure_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ heure est vide ');
-    WHEN EXC_Heure_FIN THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le film se terminera apres la fermeture');
+    WHEN EXC_heure_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ heure est vide'); RAISE;
+    WHEN EXC_Heure_FIN THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le film se terminera apres la fermeture'); RAISE;
+    WHEN EXC_heure_DEBUT THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le film est programmé avant l''ouverture'); RAISE;
     WHEN OTHERS THEN RAISE;
 END Check_Hours;
+
+PROCEDURE Check_Date(p_idprogrammation IN NUMBER , p_debut IN VARCHAR2 , p_fin IN VARCHAR2)AS
+    EXC_debut_NULL EXCEPTION;
+    EXC_fin_NULL EXCEPTION;
+    EXC_debut_APRES EXCEPTION;
+BEGIN
+    
+    IF p_debut IS NULL THEN RAISE EXC_debut_NULL ; END IF ;
+    IF p_fin IS NULL THEN RAISE EXC_fin_NULL; END IF;
+    IF (TO_DATE(p_debut,'dd/mm/yyyy')>TO_DATE(p_fin,'dd/mm/yyyy')) THEN RAISE EXC_debut_APRES ; END IF;
+    
+EXCEPTION
+    WHEN EXC_debut_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ debut est vide'); RAISE;
+    WHEN EXC_fin_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ fin est vide'); RAISE;
+    WHEN EXC_debut_APRES THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le debut de la programmation est apres la fin'); RAISE;
+    WHEN OTHERS THEN RAISE ;
+END Check_Date;
+
+PROCEDURE Insert_Prog(p_demande IN DemandeRec)AS
+BEGIN
+    null;
+END;
 
 PROCEDURE ADD_FEEDBACKRAW(p_idprogrammation IN NUMBER , p_isok IN NUMBER , p_info IN VARCHAR2) as
 BEGIN
@@ -143,6 +162,8 @@ BEGIN
     INTO feedback FROM DUAL;
     SELECT INSERTCHILDXML(feedback,'/feedback/programmation[@id='|| p_idprogrammation ||']','error',XMLType('<error>'||p_info||'</error>')) 
     INTO feedback FROM DUAL;
+EXCEPTION 
+    WHEN OTHERS THEN RAISE;
 END ADD_FEEDBACKRAW;
 
 PROCEDURE Write_XML(p_file IN VARCHAR2) AS

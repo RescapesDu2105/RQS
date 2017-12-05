@@ -23,8 +23,12 @@ create or replace PACKAGE PACKAGE_AJOUTPROG AS
     PROCEDURE Verif_Prog;
     PROCEDURE Check_Movie(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER);
     PROCEDURE Check_Copy(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER , p_copyid IN NUMBER);
-    PROCEDURE Write_XML(p_file IN VARCHAR2);
+    PROCEDURE Check_Date(p_idprogrammation IN NUMBER , p_debut IN VARCHAR2 , p_fin IN VARCHAR2); 
+    PROCEDURE Check_Hours(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER,p_heure IN VARCHAR2);
     
+    PROCEDURE Insert_Prog(p_demande IN DemandeRec);
+    
+    PROCEDURE Write_XML(p_file IN VARCHAR2);
     PROCEDURE ADD_FEEDBACKRAW(p_idprogrammation IN NUMBER , p_isok IN NUMBER ,p_info IN VARCHAR2);
 
 END PACKAGE_AJOUTPROG;
