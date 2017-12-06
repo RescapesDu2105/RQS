@@ -12,6 +12,7 @@ create or replace PACKAGE PACKAGE_AJOUTPROG AS
     );
     TYPE Liste_Demande IS TABLE OF DemandeRec INDEX BY BINARY_INTEGER;
     l_Demande Liste_Demande;
+    l_demande_temp Liste_Demande;
     
     feedback XMLTYPE;
     
@@ -25,6 +26,7 @@ create or replace PACKAGE PACKAGE_AJOUTPROG AS
     PROCEDURE Check_Copy(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER , p_copyid IN NUMBER);
     PROCEDURE Check_Date(p_idprogrammation IN NUMBER , p_debut IN VARCHAR2 , p_fin IN VARCHAR2); 
     PROCEDURE Check_Hours(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER,p_heure IN VARCHAR2);
+    PROCEDURE Check_Disponibility(p_demande IN DemandeRec);
     
     PROCEDURE Insert_Prog(p_demande IN DemandeRec);
     
