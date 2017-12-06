@@ -57,6 +57,7 @@ BEGIN
             Check_Copy(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).copy);
             Check_Date(l_Demande(indx).idDemande,l_Demande(indx).debut,l_Demande(indx).fin);
             Check_Hours(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).heure);
+            Check_Disponibility(l_Demande(indx));
             
             Insert_Prog(l_Demande(indx));
             
@@ -144,6 +145,65 @@ EXCEPTION
     WHEN EXC_debut_APRES THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le debut de la programmation est apres la fin'); RAISE;
     WHEN OTHERS THEN RAISE ;
 END Check_Date;
+
+/*
+Utiliser une liste avec le films pour avoir toutes ses copies 
+ainsi que les complexe/salles et checker si la copie est dispo
+Checker la salle et voir si la copie est dans une autre complexe
+Checker si la meme copie n'est pas dans deux salles du meme complexe en meme temps
+WHEN NO_DATA_FOUND inserer la ligne 
+*/
+PROCEDURE Check_Disponibility (p_demande IN DemandeRec)AS
+    l_demande_temp Liste_Demande;
+    DureeTemp INTERVAL DAY TO SECOND;
+    HeureCal TIMESTAMP;
+    TYPE Liste_copy IS TABLE OF FILMS_COPIES.id%TYPE INDEX BY BINARY_INTEGER;
+    l_copy Liste_copy;
+    
+    EXC_Programmation_Prise EXCEPTION;
+    EXC_Programmation_Heure EXCEPTION;
+    EXC_Programmation_AutrePart EXCEPTION;
+BEGIN
+
+    SELECT * bulk collect into l_demande_temp
+    FROM PROGRAMMATIONS_VIEW
+    WHERE p_demande.movie=movie;
+
+    FOR indx IN l_demande_temp.FIRST .. l_demande_temp.LAST 
+    LOOP
+        SELECT NUMTODSINTERVAL(duree,'MINUTE') INTO DureeTemp 
+        FROM FILMS
+        WHERE idFilm=l_demande_temp(indx).movie;
+        
+        HeureCal:=TO_TIMESTAMP(l_demande_temp(indx).heure, 'HH24:MI:SS')+DureeTemp;
+        
+        IF l_demande_temp(indx).complexe=p_demande.complexe THEN
+            IF l_demande_temp(indx).salle=p_demande.salle THEN
+                IF l_demande_temp(indx).heure=p_demande.heure THEN
+                    RAISE EXC_Programmation_Prise;
+                ELSIF HeureCal>p_demande.heure THEN
+                    RAISE EXC_Programmation_Heure;
+                END IF;
+            END IF;
+        ELSE
+            
+            SELECT copy BULK COLLECT INTO l_copy
+            FROM PROGRAMMATIONS_VIEW
+            WHERE complexe =l_demande_temp(indx).copy
+            AND movie = l_demande_temp(indx).movie;
+            
+            FOR i IN l_copy.FIRST .. l_copy.LAST
+            LOOP
+                IF l_demande_temp(indx).copy=l_copy(i) THEN
+                    RAISE EXC_Programmation_AutrePart;
+                END IF ;
+            END LOOP;
+        END IF;
+    END LOOP;
+        
+EXCEPTION
+    WHEN OTHERS THEN RAISE ;
+END Check_Disponibility;
 
 PROCEDURE Insert_Prog(p_demande IN DemandeRec)AS
     programmation XMLTYPE;
