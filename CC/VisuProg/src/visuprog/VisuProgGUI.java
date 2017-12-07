@@ -258,6 +258,7 @@ public class VisuProgGUI extends javax.swing.JFrame
             
 
             StreamResult result = new StreamResult(outWriter);
+            transformer.setParameter("prog", programmation_xml.getName());
             transformer.transform(source, result);
         } catch (TransformerConfigurationException ex)
         {

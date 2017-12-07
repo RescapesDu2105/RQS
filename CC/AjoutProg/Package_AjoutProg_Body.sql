@@ -65,7 +65,8 @@ BEGIN
         EXCEPTION
             WHEN EXC_ID_NULL THEN ADD_FEEDBACKRAW(-1,0,'Le champ id esdt vide');
             WHEN EXC_COMPLEXE_NULL THEN ADD_FEEDBACKRAW(l_Demande(indx).idDemande,0,'Le champ complexe esdt vide ');
-            WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AjoutProg', SQLCODE, SQLERRM);
+            WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AjoutProg', SQLCODE, SQLERRM)
+                ;
         END;
     END LOOP;
 END Verif_Prog;
@@ -83,7 +84,8 @@ BEGIN
 EXCEPTION
     WHEN EXC_FILM_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ film est vide'); RAISE;
     WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune copie correspond au film'); RAISE;
-    WHEN OTHERS THEN RAISE;
+    WHEN OTHERS THEN Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm);
+    RAISE;
 END Check_Movie;
 
 PROCEDURE Check_Copy(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER , p_copyid IN NUMBER) as
@@ -100,7 +102,7 @@ BEGIN
     
 EXCEPTION
     WHEN EXC_copy_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ copy est vide'); RAISE;
-    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune copie correspond a : '|| p_copyid); RAISE;
+    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune copie correspond a la programmation'); RAISE;
     WHEN OTHERS THEN RAISE;
 END Check_Copy;
 
@@ -222,7 +224,7 @@ EXCEPTION
         ADD_FEEDBACKRAW(p_demande.idDemande,1,'Programmation valide');
         RAISE;
     WHEN OTHERS THEN
-        Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+        Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm);
         RAISE ;
 END Check_Disponibility;
 
