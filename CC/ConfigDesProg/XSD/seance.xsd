@@ -10,6 +10,7 @@
         <xs:sequence>
             <xs:element name="idseance" type="intType" xdb:SQLName="IDSEANCE" xdb:SQLType="NUMBER"/>
             <xs:element name="idprogrammation" type="intType" xdb:SQLName="IDPROGRAMMATION" xdb:SQLType="NUMBER"/>
+            <xs:element name="idsalle" type="xs:integer" xdb:SQLName="IDSALLE" xdb:SQLType="NUMBER"/>
             <xs:element name="date" type="dateType" xdb:SQLName="DATESEANCE" xdb:SQLType="VARCHAR2"/>
             <xs:element name="nbPlacesVendues" type="xs:integer" xdb:SQLName="NBPLACEVENDUES" xdb:SQLType="NUMBER"/>
         </xs:sequence>

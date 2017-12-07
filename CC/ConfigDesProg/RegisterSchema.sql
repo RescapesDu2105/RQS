@@ -82,8 +82,3 @@ BEGIN
         
 END;
 /
-
-CREATE TABLE archives OF XMLType
-    XMLTYPE STORE AS OBJECT RELATIONAL
-    XMLSCHEMA "http://cc/archive.xsd"
-    ELEMENT "archive" ;
