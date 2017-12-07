@@ -1,24 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-			xmlns:xdb="http://xmlns.oracle.com/xdb"
-			xdb:storeVarrayAsTable="true"
-			version="1.0">
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema"  
+    xmlns:xdb="http://xmlns.oracle.com/xdb"
+    xdb:storeVarrayAsTable="true" 
+    version="1.0">        
+    	
+    <xs:element name="seance" type="seanceT" xdb:defaultTable="SEANCE"/>
+    
+    <xs:complexType name="seanceT">
+        <xs:sequence>
+            <xs:element name="idProgrammation" type="intType" xdb:SQLName="idProgrammation" xdb:SQLType="NUMBER"/>
+            <xs:element name="date" type="dateType" xdb:SQLName="DEBUT" xdb:SQLType="VARCHAR2"/>
+            <xs:element name="nbPlacesVendues" type="xs:integer" xdb:SQLName="nbPlacesVendues" xdb:SQLType="NUMBER"/>
+        </xs:sequence>
+    </xs:complexType>
 
-			
-	<xs:simpleType name="idT">
+
+    <xs:simpleType name="intType">
         <xs:restriction base="xs:integer">
             <xs:minInclusive value="0"/>
         </xs:restriction>
-    </xs:simpleType>		
-
-	<xs:complexType name="seanceT">
-		<xs:sequence>
-			<xs:element name="idprogrammation" type="idT" xdb:SQLName="idprogrammation" xdb:SQLType="NUMBER"/>
-			<xs:element name="dateseance" type="xs:date" xdb:SQLName="dateseance" xdb:SQLType="DATE"/>
-			<xs:element name="nbplacesvendues" type="xs:integer" xdb:SQLName="nbplacesvendues" xdb:SQLType="NUMBER"/>
-		</xs:sequence>
-	</xs:complexType>
-	
-	<xs:element name="seance" type="seanceT" xdb:defaultTable="seance_xml"/>
-	
+    </xs:simpleType>	
+    
+    <xs:simpleType name="dateType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\d{2}[/]\d{2}[/]\d{4}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
 </xs:schema>

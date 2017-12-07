@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"  
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema"  
     xmlns:xdb="http://xmlns.oracle.com/xdb"
     xdb:storeVarrayAsTable="true" 
     version="1.0">
     
-    <xs:element name="programmation" type="demande" xdb:SQLName="PROGRAMMATION"/>
+    <xs:element name="programmation" type="programmationType" xdb:SQLName="PROGRAMMATIONS"/>
     
-    <xs:complexType name="demande" xdb:SQLType="DEMANDE_TYPE">
+    <xs:complexType name="programmationType" xdb:SQLType="PROJECTION_TYPE">
         <xs:sequence>
-            <xs:element name="idDemande" type="xs:integer" minOccurs="1" xdb:SQLName="IDDEMANDE" xdb:SQLType="NUMBER"/>
+            <xs:element name="demande" maxOccurs="unbounded" type="demandeType" xdb:SQLName="PROGRAMMATION_TYPE" xdb:SQLCollType="PROGRAMMATIONS_VRY"/>
+        </xs:sequence>
+    </xs:complexType>    
+    
+    <xs:complexType name="demandeType" xdb:SQLType="DEMANDE_TYPE">
+        <xs:sequence>
             <xs:element name="complexe" type="xs:integer" minOccurs="1" xdb:SQLName="COMPLEXE" xdb:SQLType="VARCHAR2"/>
             <xs:element name="debut" type="dateType" minOccurs="1" xdb:SQLName="DEBUT" xdb:SQLType="VARCHAR2"/>
             <xs:element name="fin" type="dateType" xdb:SQLName="FIN" xdb:SQLType="VARCHAR2"/>            
@@ -17,6 +22,7 @@
             <xs:element name="salle" type="intType" xdb:SQLName="SALLE" xdb:SQLType="NUMBER"/>
             <xs:element name="heure" type="timeType" xdb:SQLName="HEURE" xdb:SQLType="VARCHAR2"/>
         </xs:sequence>
+        <xs:attribute name="idDemande" type="xs:string"/>
     </xs:complexType>
     
     

@@ -1,8 +1,30 @@
 package visuprog;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -16,7 +38,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class VisuProgGUI extends javax.swing.JFrame
 {
-    private File programmation_xml=null;
+    private Document programmations;
+    private Document feedback;
+    private File xslt=null,programmation_xml=null;
+    boolean prog_valide=false , feedback_valide=false ,xslt_valide=false;
     
     /**
      * Creates new form VisuProgGUI
@@ -41,6 +66,7 @@ public class VisuProgGUI extends javax.swing.JFrame
         jButtonTransformer = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextAreaResultat = new javax.swing.JTextArea();
+        jButtonXSLT = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -54,41 +80,68 @@ public class VisuProgGUI extends javax.swing.JFrame
         });
 
         jButtonFeedbackFile.setText("Feedback.xml");
+        jButtonFeedbackFile.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonFeedbackFileActionPerformed(evt);
+            }
+        });
 
         jButtonTransformer.setText("Transformer");
+        jButtonTransformer.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonTransformerActionPerformed(evt);
+            }
+        });
 
         jTextAreaResultat.setColumns(20);
         jTextAreaResultat.setRows(5);
         jScrollPane1.setViewportView(jTextAreaResultat);
 
+        jButtonXSLT.setText("XSLT");
+        jButtonXSLT.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonXSLTActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(128, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jButtonTransformer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButtonFeedbackFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButtonProgrammationFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(129, 129, 129))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1)
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 179, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButtonFeedbackFile, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonProgrammationFile, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jButtonXSLT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButtonTransformer, javax.swing.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)))
+                .addGap(156, 156, 156))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(jButtonFeedbackFile, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(jButtonProgrammationFile, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jButtonXSLT, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButtonFeedbackFile, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(24, 24, 24)
-                .addComponent(jButtonTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(11, Short.MAX_VALUE))
+                .addComponent(jButtonTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
@@ -96,6 +149,8 @@ public class VisuProgGUI extends javax.swing.JFrame
 
     private void jButtonProgrammationFileActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonProgrammationFileActionPerformed
     {//GEN-HEADEREND:event_jButtonProgrammationFileActionPerformed
+        prog_valide=false;
+        File xsd=null;
         JFileChooser jfc = new JFileChooser();
         File workingDirectory = new File(System.getProperty("user.dir"));
         jfc.setCurrentDirectory(workingDirectory);
@@ -109,11 +164,128 @@ public class VisuProgGUI extends javax.swing.JFrame
         }
         else
         {
-            programmation_xml=jfc.getSelectedFile();
-            jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML des programmations bien chargé !\n" ); 
+            try
+            {
+                programmation_xml=jfc.getSelectedFile(); 
+                programmations=loadXmlDocument(programmation_xml);
+                xsd = new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\listeprogrammation.xsd");
+                //valideDocument(programmations,xsd);
+                jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML des programmations validé !\n" );
+                feedback_valide=true;
+                
+            } catch (ParserConfigurationException ex)
+            {
+                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SAXException ex)
+            {
+                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex)
+            {
+                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }//GEN-LAST:event_jButtonProgrammationFileActionPerformed
 
+    private void jButtonFeedbackFileActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonFeedbackFileActionPerformed
+    {//GEN-HEADEREND:event_jButtonFeedbackFileActionPerformed
+        File feedback_xml=null,xsd=null;
+        JFileChooser jfc = new JFileChooser();
+        File workingDirectory = new File(System.getProperty("user.dir"));
+        jfc.setCurrentDirectory(workingDirectory);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Fichier .xml", "xml");
+        jfc.setFileFilter(filter);
+        jfc.showDialog(this, "OK");
+        if(jfc.getSelectedFile() == null)
+        {
+            jTextAreaResultat.setText(jTextAreaResultat.getText()+"Erreur lors sur chargement du fichier .xml!\n" ); 
+            return;
+        }
+        else
+        {
+            try
+            {
+                feedback_xml=jfc.getSelectedFile();
+                feedback=loadXmlDocument(feedback_xml);
+                xsd = new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\feedback.xsd");
+                valideDocument(programmations,xsd);
+                jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML des feedback(s) validé !\n" );
+                prog_valide=true;
+            } catch (SAXException ex)
+            {
+                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex)
+            {
+                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ParserConfigurationException ex)
+            {
+                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jButtonFeedbackFileActionPerformed
+
+    private void jButtonXSLTActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonXSLTActionPerformed
+    {//GEN-HEADEREND:event_jButtonXSLTActionPerformed
+        xslt_valide=false;
+        JFileChooser jfc = new JFileChooser();
+        File workingDirectory = new File(System.getProperty("user.dir"));
+        jfc.setCurrentDirectory(workingDirectory);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Fichier .xsl", "xsl");
+        jfc.setFileFilter(filter);
+        jfc.showDialog(this, "OK");
+        if(jfc.getSelectedFile() == null)
+        {
+            jTextAreaResultat.setText(jTextAreaResultat.getText()+"Erreur lors sur chargement du fichier .xslt!\n" ); 
+            return;
+        }
+        else
+        {
+            xslt=jfc.getSelectedFile();
+            jTextAreaResultat.setText(jTextAreaResultat.getText()+"Fichier xslt bien chargé\n" );
+            xslt_valide=true;
+        }
+    }//GEN-LAST:event_jButtonXSLTActionPerformed
+
+    private void jButtonTransformerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonTransformerActionPerformed
+    {//GEN-HEADEREND:event_jButtonTransformerActionPerformed
+        try
+        {
+            TransformerFactory tFactory = TransformerFactory.newInstance();
+            StreamSource stylesource = new StreamSource(xslt);
+            Transformer transformer = tFactory.newTransformer(stylesource);
+            String outWriter ="D:\\GitHub\\RQS\\CC\\VisuProg\\fichier\\test.html";
+            
+            DOMSource source = new DOMSource(feedback);
+            
+
+            StreamResult result = new StreamResult(outWriter);
+            transformer.transform(source, result);
+        } catch (TransformerConfigurationException ex)
+        {
+            Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerException ex)
+        {
+            Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButtonTransformerActionPerformed
+    
+    private Document loadXmlDocument(File file) throws ParserConfigurationException, SAXException, IOException
+    {
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = (Document) dBuilder.parse(file);
+        jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML "+file.getName()+" bien chargé !\n" );
+        return doc;
+    }
+    
+    private void valideDocument(Document doc, File xsd) throws SAXException, IOException
+    {
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Source schemaFile = new StreamSource(xsd);
+        Schema schema = factory.newSchema(schemaFile);
+        Validator validator = schema.newValidator();
+        validator.validate(new DOMSource(doc));
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -163,6 +335,7 @@ public class VisuProgGUI extends javax.swing.JFrame
     private javax.swing.JButton jButtonFeedbackFile;
     private javax.swing.JButton jButtonProgrammationFile;
     private javax.swing.JButton jButtonTransformer;
+    private javax.swing.JButton jButtonXSLT;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextAreaResultat;
     // End of variables declaration//GEN-END:variables

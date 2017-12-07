@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<programmation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="D:\GitHub\RQS\CC\CreaCC\XSD\listeprogrammation.xsd">
+  <demande idDemande="396788012">
+    <complexe>1</complexe>
+    <debut>13/09/2017</debut>
+    <fin>15/09/2017</fin>
+    <movie>11</movie>
+    <copy>161</copy>
+    <salle>4</salle>
+    <heure>22:30</heure>
+  </demande>
+  <demande idDemande="196565716">
+    <complexe>1</complexe>
+    <debut>16/09/2017</debut>
+    <fin>15/09/2017</fin>
+    <movie>1892</movie>
+    <copy>162</copy>
+    <salle>4</salle>
+    <heure>17:00</heure>
+  </demande>
+  <demande idDemande="733711478">
+    <complexe>2</complexe>
+    <debut>13/09/2017</debut>
+    <fin>15/09/2017</fin>
+    <movie>1892</movie>
+    <copy>163</copy>
+    <salle>5</salle>
+    <heure>16:30</heure>
+  </demande>
+  <demande idDemande="1479071987">
+    <complexe>3</complexe>
+    <debut>14/09/2017</debut>
+    <fin>20/09/2017</fin>
+    <movie>1893</movie>
+    <copy>164</copy>
+    <salle>6</salle>
+    <heure>14:00</heure>
+  </demande>
+  <demande idDemande="1138751652">
+    <complexe>3</complexe>
+    <debut>09/01/2018</debut>
+    <fin>15/12/2017</fin>
+    <movie>1893</movie>
+    <copy>165</copy>
+    <salle>6</salle>
+    <heure>17:00</heure>
+  </demande>
+  <demande idDemande="1761786045">
+    <complexe>3</complexe>
+    <debut>25/09/2017</debut>
+    <fin>28/09/2017</fin>
+    <movie>1893</movie>
+    <copy>166</copy>
+    <salle>2</salle>
+    <heure>20:00</heure>
+  </demande>
+  <demande idDemande="381012597">
+    <complexe>3</complexe>
+    <debut>22/09/2017</debut>
+    <fin>28/09/2017</fin>
+    <movie>1894</movie>
+    <copy>167</copy>
+    <salle>4</salle>
+    <heure>21:00</heure>
+  </demande>
+  <demande idDemande="187122358">
+    <complexe>4</complexe>
+    <debut>19/09/2017</debut>
+    <fin>29/09/2017</fin>
+    <movie>1894</movie>
+    <copy>168</copy>
+    <salle>3</salle>
+    <heure>14:00</heure>
+  </demande>
+  <demande idDemande="423632989">
+    <complexe>4</complexe>
+    <debut>25/09/2017</debut>
+    <fin>28/09/2017</fin>
+    <movie>1894</movie>
+    <copy>169</copy>
+    <salle>2</salle>
+    <heure>15:00</heure>
+  </demande>
+  <demande idDemande="1407095607">
+    <complexe>5</complexe>
+    <debut>18/09/2017</debut>
+    <fin>24/09/2017</fin>
+    <movie>1894</movie>
+    <copy>173</copy>
+    <salle>5</salle>
+    <heure>19:00</heure>
+  </demande>
+  <demande idDemande="178353132">
+    <complexe>5</complexe>
+    <debut>15/09/2017</debut>
+    <fin>28/09/2017</fin>
+    <movie>1895</movie>
+    <copy>174</copy>
+    <salle>4</salle>
+    <heure>20:00</heure>
+  </demande>
+  <demande idDemande="11630613">
+    <complexe>5</complexe>
+    <debut>10/11/2017</debut>
+    <fin>24/09/2017</fin>
+    <movie>1895</movie>
+    <copy>175</copy>
+    <salle>4</salle>
+    <heure>13:00</heure>
+  </demande>
+  <demande idDemande="1574126875">
+    <complexe>6</complexe>
+    <debut>18/09/2017</debut>
+    <fin>22/09/2017</fin>
+    <movie>1895</movie>
+    <copy>176</copy>
+    <salle>6</salle>
+    <heure>12:00</heure>
+  </demande>
+  <demande idDemande="259675003">
+    <complexe>6</complexe>
+    <debut>19/09/2017</debut>
+    <fin>21/09/2017</fin>
+    <movie>1895</movie>
+    <copy>177</copy>
+    <salle>2</salle>
+    <heure>20:00</heure>
+  </demande>
+  <demande idDemande="1284320688">
+    <complexe>6</complexe>
+    <debut>21/09/2017</debut>
+    <fin>26/09/2017</fin>
+    <movie>1895</movie>
+    <copy>178</copy>
+    <salle>3</salle>
+    <heure>17:00</heure>
+  </demande>
+</programmation>
