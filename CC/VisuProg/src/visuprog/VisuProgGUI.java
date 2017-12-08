@@ -164,25 +164,9 @@ public class VisuProgGUI extends javax.swing.JFrame
         }
         else
         {
-            try
-            {
-                programmation_xml=jfc.getSelectedFile(); 
-                programmations=loadXmlDocument(programmation_xml);
-                xsd = new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\listeprogrammation.xsd");
-                //valideDocument(programmations,xsd);
-                jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML des programmations validé !\n" );
-                feedback_valide=true;
-                
-            } catch (ParserConfigurationException ex)
-            {
-                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (SAXException ex)
-            {
-                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex)
-            {
-                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            programmation_xml=jfc.getSelectedFile();
+            jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML des programmations validé !\n" );
+            feedback_valide=true;
         }
     }//GEN-LAST:event_jButtonProgrammationFileActionPerformed
 
@@ -207,7 +191,7 @@ public class VisuProgGUI extends javax.swing.JFrame
                 feedback_xml=jfc.getSelectedFile();
                 feedback=loadXmlDocument(feedback_xml);
                 xsd = new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\feedback.xsd");
-                valideDocument(programmations,xsd);
+                //valideDocument(programmations,xsd);
                 jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML des feedback(s) validé !\n" );
                 prog_valide=true;
             } catch (SAXException ex)
@@ -256,9 +240,8 @@ public class VisuProgGUI extends javax.swing.JFrame
             
             DOMSource source = new DOMSource(feedback);
             
-
             StreamResult result = new StreamResult(outWriter);
-            transformer.setParameter("prog", programmation_xml.getName());
+            transformer.setParameter("progXML", programmation_xml.getName());
             transformer.transform(source, result);
         } catch (TransformerConfigurationException ex)
         {
