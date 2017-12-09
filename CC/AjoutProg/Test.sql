@@ -1,12 +1,13 @@
 DECLARE
-    DIR Varchar2(25):='DIRTESTPROG';
-    File Varchar2(25):='prog.xml';
+  P_DIRECTORY VARCHAR2(200);
+  P_FILE VARCHAR2(200);
 BEGIN
+  P_DIRECTORY := 'DIRTESTPROG';
+  P_FILE := 'programmations.xml';
 
-    PACKAGE_AJOUTPROG.LOAD_FILE(DIR,File);
+  PACKAGE_AJOUTPROG.AJOUTPROG(
+    P_DIRECTORY => P_DIRECTORY,
+    P_FILE => P_FILE
+  );
+rollback; 
 END;
-/
-
-select * from ERRORS_LOGS;
-delete from ERRORS_LOGS;
-commit;

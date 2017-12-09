@@ -1,10 +1,10 @@
-DROP TABLE archives;
-DROP TABLE reservation;
-DROP TABLE seances;
-DROP TABLE programmations;
-DROP TABLE salles;
-DROP TABLE complexes;
-DROP TABLE clients;
+DROP TABLE archives CASCADE CONSTRAINTS;
+DROP TABLE reservations CASCADE CONSTRAINTS;
+DROP TABLE seances CASCADE CONSTRAINTS;
+DROP TABLE programmations CASCADE CONSTRAINTS;
+DROP TABLE salles CASCADE CONSTRAINTS;
+DROP TABLE complexes CASCADE CONSTRAINTS;
+DROP TABLE clients CASCADE CONSTRAINTS;
 
 CREATE TABLE clients OF XMLType
     XMLTYPE STORE AS OBJECT RELATIONAL
@@ -32,9 +32,7 @@ CREATE TABLE programmations OF XMLType
     ELEMENT "programmation" ;
 ALTER TABLE programmations ADD CONSTRAINT programmation_pk PRIMARY KEY(XMLDATA."IDDEMANDE");
 ALTER TABLE programmations ADD CONSTRAINT programmation_film_copie_copy_fk FOREIGN KEY(XMLDATA."COPY") 
-    REFERENCES films_copies(id);
-ALTER TABLE programmations ADD CONSTRAINT programmation_film_copie_movie_fk FOREIGN KEY(XMLDATA."MOVIE") 
-    REFERENCES films_copies(movie);    
+    REFERENCES films_copies(id);  
 
 CREATE TABLE seances OF XMLType
     XMLTYPE STORE AS OBJECT RELATIONAL
