@@ -6,25 +6,25 @@ DROP TABLE salles CASCADE CONSTRAINTS;
 DROP TABLE complexes CASCADE CONSTRAINTS;
 DROP TABLE clients CASCADE CONSTRAINTS;
 
-CREATE TABLE clients OF XMLType
-    XMLTYPE STORE AS OBJECT RELATIONAL
-    XMLSCHEMA "http://cc/client.xsd"
-    ELEMENT "client" ;
-ALTER TABLE clients ADD CONSTRAINT client_pk PRIMARY KEY(XMLDATA."IDCLIENT");
+CREATE TABLE clients (
+    idClient NUMBER GENERATED ALWAYS AS IDENTITY,
+    nom VARCHAR2(35),
+    prenom VARCHAR2(35),
+    datenaiss DATE,
+    CONSTRAINT clients_pk PRIMARY KEY(idClient));
 
-CREATE TABLE complexes OF XMLType
-    XMLTYPE STORE AS OBJECT RELATIONAL
-    XMLSCHEMA "http://cc/complexe.xsd"
-    ELEMENT "complexe" ;
-ALTER TABLE complexes ADD CONSTRAINT complexe_pk PRIMARY KEY(XMLDATA."IDCOMPLEXE");
+CREATE TABLE complexes (
+    idComplexe NUMBER,
+    adresse VARCHAR2(250),
+    CONSTRAINT complexes_pk PRIMARY KEY(idComplexe));
 
-CREATE TABLE salles OF XMLType
-    XMLTYPE STORE AS OBJECT RELATIONAL
-    XMLSCHEMA "http://cc/salle.xsd"
-    ELEMENT "salle" ;
-ALTER TABLE salles ADD CONSTRAINT salle_pk PRIMARY KEY(XMLDATA."IDSALLE");
-ALTER TABLE salles ADD CONSTRAINT salle_complexe_ref FOREIGN KEY(XMLDATA."COMPLEXE") 
-    REFERENCES complexes(XMLDATA."IDCOMPLEXE");
+CREATE TABLE salles (            
+    idSalle NUMBER,
+    nbPlaces NUMBER,
+    idComplexe NUMBER,
+    CONSTRAINT salle_complexe_ref FOREIGN KEY(idComplexe) 
+        REFERENCES complexes(idComplexe),
+    CONSTRAINT salles_pk PRIMARY KEY (idSalle,idComplexe));
 
 CREATE TABLE programmations OF XMLType
     XMLTYPE STORE AS OBJECT RELATIONAL
@@ -34,26 +34,27 @@ ALTER TABLE programmations ADD CONSTRAINT programmation_pk PRIMARY KEY(XMLDATA."
 ALTER TABLE programmations ADD CONSTRAINT programmation_film_copie_copy_fk FOREIGN KEY(XMLDATA."COPY") 
     REFERENCES films_copies(id);  
 
-CREATE TABLE seances OF XMLType
-    XMLTYPE STORE AS OBJECT RELATIONAL
-    XMLSCHEMA "http://cc/seance.xsd"
-    ELEMENT "seance" ;
-ALTER TABLE seances ADD CONSTRAINT seance_pk PRIMARY KEY(XMLDATA."IDSEANCE");
-ALTER TABLE seances ADD CONSTRAINT seance_programmation_ref FOREIGN KEY(XMLDATA."IDPROGRAMMATION") 
-    REFERENCES programmations(XMLDATA."IDDEMANDE");
-ALTER TABLE seances ADD CONSTRAINT seance_reservation_ref FOREIGN KEY(XMLDATA."IDPROGRAMMATION") 
-    REFERENCES programmations(XMLDATA."IDDEMANDE");
+CREATE TABLE seances (    
+    idSeance NUMBER GENERATED ALWAYS AS IDENTITY,
+    idProgrammation NUMBER,
+    idSalle NUMBER,
+    dateSeance DATE,
+    nbPlaceVendues NUMBER,
+    CONSTRAINT seance_pk PRIMARY KEY (idSeance),
+	CONSTRAINT seance_programmation_ref FOREIGN KEY(idProgrammation) 
+        REFERENCES programmations(XMLDATA."IDDEMANDE"),
+    CONSTRAINT seance_salle_ref FOREIGN KEY(idSalle) 
+        REFERENCES SALLES(idSalle));
 
-CREATE TABLE reservations OF XMLType
-    XMLTYPE STORE AS OBJECT RELATIONAL
-    XMLSCHEMA "http://cc/reservation.xsd"
-    ELEMENT "reservation" ;
-ALTER TABLE reservations ADD CONSTRAINT reservation_pk PRIMARY KEY(XMLDATA."IDRESERVATION");
-ALTER TABLE reservations ADD CONSTRAINT reservation_seance_ref FOREIGN KEY(XMLDATA."SEANCE") 
-    REFERENCES seances(XMLDATA."IDSEANCE");
-ALTER TABLE reservations ADD CONSTRAINT reservation_client_ref FOREIGN KEY(XMLDATA."CLIENT") 
-    REFERENCES clients(XMLDATA."IDCLIENT");
-
+CREATE TABLE reservations (
+    idResevations NUMBER GENERATED ALWAYS AS IDENTITY,
+    idSeance NUMBER,
+    idClient NUMBER,
+    CONSTRAINT reservation_pk PRIMARY KEY (idResevations),
+    CONSTRAINT reservation_seance_fk FOREIGN KEY(idSeance) 
+        REFERENCES seances(idSeance),
+    CONSTRAINT reservation_client_fk FOREIGN KEY(idClient) 
+        REFERENCES Clients(idClient));
 
 DROP TABLE ARCHIVES;
 CREATE TABLE archives OF XMLType

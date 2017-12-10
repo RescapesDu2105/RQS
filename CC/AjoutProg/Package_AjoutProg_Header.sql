@@ -22,6 +22,8 @@ create or replace PACKAGE PACKAGE_AJOUTPROG AS
     PROCEDURE AjoutProg(p_directory IN VARCHAR2, p_file IN VARCHAR2);
     PROCEDURE LOAD_FILE(p_directory IN VARCHAR2, p_file IN VARCHAR2);
     PROCEDURE Verif_Prog;
+    PROCEDURE Check_Complexe(p_idprogrammation IN NUMBER, p_complexe IN NUMBER);
+    PROCEDURE Check_Salle(p_idprogrammation IN NUMBER, p_salle IN NUMBER , p_complexe NUMBER);
     PROCEDURE Check_Movie(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER);
     PROCEDURE Check_Copy(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER , p_copyid IN NUMBER);
     PROCEDURE Check_Date(p_idprogrammation IN NUMBER , p_debut IN VARCHAR2 , p_fin IN VARCHAR2); 

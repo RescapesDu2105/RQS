@@ -11,3 +11,8 @@ BEGIN
   );
 rollback; 
 END;
+/
+
+select * from PROGRAMMATIONS_VIEW;
+delete from PROGRAMMATIONS;
+commit;

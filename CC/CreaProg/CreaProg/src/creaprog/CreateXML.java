@@ -182,6 +182,7 @@ public class CreateXML
             
             //StreamResult consoleResult = new StreamResult(System.out);
             //transformer.transform(source, consoleResult);
+            System.out.println("Fichier XML créé !");   
         } 
         catch (TransformerException ex)
         {

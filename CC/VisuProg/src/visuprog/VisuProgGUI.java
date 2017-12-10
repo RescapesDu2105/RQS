@@ -89,6 +89,7 @@ public class VisuProgGUI extends javax.swing.JFrame
         });
 
         jButtonTransformer.setText("Transformer");
+        jButtonTransformer.setEnabled(false);
         jButtonTransformer.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -166,7 +167,8 @@ public class VisuProgGUI extends javax.swing.JFrame
         {
             programmation_xml=jfc.getSelectedFile();
             jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML des programmations validé !\n" );
-            feedback_valide=true;
+            prog_valide=true;
+            BoutonTransformEnbaled();
         }
     }//GEN-LAST:event_jButtonProgrammationFileActionPerformed
 
@@ -193,7 +195,8 @@ public class VisuProgGUI extends javax.swing.JFrame
                 xsd = new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\feedback.xsd");
                 //valideDocument(programmations,xsd);
                 jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML des feedback(s) validé !\n" );
-                prog_valide=true;
+                feedback_valide=true;
+                BoutonTransformEnbaled();
             } catch (SAXException ex)
             {
                 Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -226,6 +229,7 @@ public class VisuProgGUI extends javax.swing.JFrame
             xslt=jfc.getSelectedFile();
             jTextAreaResultat.setText(jTextAreaResultat.getText()+"Fichier xslt bien chargé\n" );
             xslt_valide=true;
+            BoutonTransformEnbaled();
         }
     }//GEN-LAST:event_jButtonXSLTActionPerformed
 
@@ -243,6 +247,7 @@ public class VisuProgGUI extends javax.swing.JFrame
             StreamResult result = new StreamResult(outWriter);
             transformer.setParameter("progXML", programmation_xml.getName());
             transformer.transform(source, result);
+            jTextAreaResultat.setText(jTextAreaResultat.getText()+"Fichier HTML créé\n" );
         } catch (TransformerConfigurationException ex)
         {
             Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -268,6 +273,14 @@ public class VisuProgGUI extends javax.swing.JFrame
         Schema schema = factory.newSchema(schemaFile);
         Validator validator = schema.newValidator();
         validator.validate(new DOMSource(doc));
+    }
+    
+    private void BoutonTransformEnbaled()
+    { 
+        if(prog_valide && feedback_valide && xslt_valide)
+            jButtonTransformer.setEnabled(true);
+        else
+            jButtonTransformer.setEnabled(false);
     }
     
     /**

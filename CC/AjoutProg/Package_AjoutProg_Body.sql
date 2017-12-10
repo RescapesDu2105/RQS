@@ -38,9 +38,6 @@ END AjoutProg;
 PROCEDURE Verif_Prog as
     
     EXC_ID_NULL EXCEPTION;
-    EXC_COMPLEXE_NULL EXCEPTION;
-    EXC_salle_NULL EXCEPTION;
-    EXC_heure_NULL EXCEPTION;
     
 BEGIN
     feedback := XMLTYPE('<feedback></feedback>');
@@ -52,7 +49,8 @@ BEGIN
         
             Check_Hours(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).heure);
             IF l_Demande(indx).idDemande IS NULL THEN RAISE EXC_ID_NULL; END IF;
-            IF l_Demande(indx).complexe IS NULL THEN RAISE EXC_COMPLEXE_NULL; END IF;
+            Check_Complexe(l_Demande(indx).idDemande,l_Demande(indx).complexe);
+            Check_Salle(l_Demande(indx).idDemande,l_Demande(indx).salle,l_Demande(indx).complexe);
             Check_Movie(l_Demande(indx).idDemande,l_Demande(indx).movie);
             Check_Copy(l_Demande(indx).idDemande,l_Demande(indx).movie,l_Demande(indx).copy);
             Check_Date(l_Demande(indx).idDemande,l_Demande(indx).debut,l_Demande(indx).fin);
@@ -64,12 +62,51 @@ BEGIN
              ADD_FEEDBACKRAW(l_Demande(indx).idDemande,1,'Programmation valide');
         EXCEPTION
             WHEN EXC_ID_NULL THEN ADD_FEEDBACKRAW(-1,0,'Le champ id esdt vide');
-            WHEN EXC_COMPLEXE_NULL THEN ADD_FEEDBACKRAW(l_Demande(indx).idDemande,0,'Le champ complexe esdt vide ');
-            WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AjoutProg', SQLCODE, SQLERRM)
-                ;
+            WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AjoutProg', SQLCODE, SQLERRM);
         END;
     END LOOP;
 END Verif_Prog;
+
+PROCEDURE Check_Complexe(p_idprogrammation IN NUMBER, p_complexe IN NUMBER) as
+    EXC_COMPLEXE_NULL EXCEPTION;
+    
+    ComplexeTemp NUMBER;
+BEGIN
+    IF p_complexe IS NULL THEN RAISE EXC_COMPLEXE_NULL; END IF;
+    
+    SELECT idComplexe INTO ComplexeTemp
+    FROM complexes
+    WHERE idComplexe=p_complexe;
+
+EXCEPTION
+    WHEN EXC_COMPLEXE_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ complexe est vide'); RAISE;
+    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune complexe correspond a la programmation'); RAISE;
+    WHEN OTHERS THEN ADD_FEEDBACKRAW(p_idprogrammation,0,SQLERRM);
+    RAISE;
+END Check_Complexe;
+
+
+PROCEDURE Check_Salle(p_idprogrammation IN NUMBER, p_salle IN NUMBER , p_complexe NUMBER) AS
+    EXC_COMPLEXE_NULL EXCEPTION;
+    
+    TYPE SalleRec IS RECORD(
+        idSalle NUMBER,
+        idComplexe NUMBER);
+    salle_rec SalleRec;
+BEGIN  
+    IF p_salle IS NULL THEN RAISE EXC_COMPLEXE_NULL; END IF;
+    
+    SELECT idSalle , idComplexe INTO salle_rec 
+    FROM Salles
+    WHERE idSalle=p_salle
+    AND idComplexe=p_complexe;
+
+EXCEPTION
+    WHEN EXC_COMPLEXE_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ salle est vide'); RAISE;
+    WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune salle correspond a la programmation'); RAISE;
+    WHEN OTHERS THEN ADD_FEEDBACKRAW(p_idprogrammation,0,SQLERRM);
+    RAISE;    
+END Check_Salle;
 
 PROCEDURE Check_Movie(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER) as
    EXC_FILM_NULL EXCEPTION;
@@ -84,7 +121,7 @@ BEGIN
 EXCEPTION
     WHEN EXC_FILM_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ film est vide'); RAISE;
     WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune copie correspond au film'); RAISE;
-    WHEN OTHERS THEN Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm);
+    WHEN OTHERS THEN ADD_FEEDBACKRAW(p_idprogrammation,0,SQLERRM);
     RAISE;
 END Check_Movie;
 
@@ -103,7 +140,8 @@ BEGIN
 EXCEPTION
     WHEN EXC_copy_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ copy est vide'); RAISE;
     WHEN NO_DATA_FOUND  THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Aucune copie correspond a la programmation'); RAISE;
-    WHEN OTHERS THEN RAISE;
+    WHEN OTHERS THEN ADD_FEEDBACKRAW(p_idprogrammation,0,SQLERRM);
+    RAISE;
 END Check_Copy;
 
 PROCEDURE Check_Hours(p_idprogrammation IN NUMBER, p_idmovie IN NUMBER, p_heure IN VARCHAR2) as
@@ -128,7 +166,8 @@ EXCEPTION
     WHEN EXC_heure_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ heure est vide'); RAISE;
     WHEN EXC_Heure_FIN THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le film se terminera apres la fermeture'); RAISE;
     WHEN EXC_heure_DEBUT THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le film est programmé avant l''ouverture'); RAISE;
-    WHEN OTHERS THEN RAISE;
+    WHEN OTHERS THEN ADD_FEEDBACKRAW(p_idprogrammation,0,SQLERRM);
+    RAISE;
 END Check_Hours;
 
 PROCEDURE Check_Date(p_idprogrammation IN NUMBER , p_debut IN VARCHAR2 , p_fin IN VARCHAR2)AS
@@ -145,7 +184,8 @@ EXCEPTION
     WHEN EXC_debut_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ debut est vide'); RAISE;
     WHEN EXC_fin_NULL THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le champ fin est vide'); RAISE;
     WHEN EXC_debut_APRES THEN ADD_FEEDBACKRAW(p_idprogrammation,0,'Le debut de la programmation est apres la fermeture du complexe'); RAISE;
-    WHEN OTHERS THEN RAISE ;
+    WHEN OTHERS THEN ADD_FEEDBACKRAW(p_idprogrammation,0,SQLERRM);
+    RAISE;
 END Check_Date;
 
 PROCEDURE Check_Disponibility (p_demande IN DemandeRec)AS
@@ -223,9 +263,8 @@ EXCEPTION
         Insert_Prog(p_demande);
         ADD_FEEDBACKRAW(p_demande.idDemande,1,'Programmation valide');
         RAISE;
-    WHEN OTHERS THEN
-        Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm);
-        RAISE ;
+    WHEN OTHERS THEN ADD_FEEDBACKRAW(p_demande.idDemande,0,SQLERRM);
+    RAISE;
 END Check_Disponibility;
 
 PROCEDURE Insert_Prog(p_demande IN DemandeRec)AS
