@@ -4,7 +4,7 @@
     exclude-result-prefixes="xs"
     version="1.0">
     <xsl:param name="progXML"/>
-    <xsl:variable name="programmation" select="document('file:///E:/Dropbox/B3/SGBD/RQS/CC/VisuProg/fichier/programmations.xml')"/>
+    <xsl:variable name="programmation" select="document($progXML)"/>
     
     <xsl:template match="/">    
         <html>
@@ -42,21 +42,6 @@
                 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
                 <script src="javascript.js"></script>
                 <script>
-                    /*var tr = document.getElementsByClassName("tr");
-                    var td = document.getElementsByClassName("text-center isOk");
-                    var i = 0;
-                    [].forEach.call(td, function(element) 
-                    {         
-                        console.log(element);
-                        /*if(element.innerHTML == "0") 
-                        {
-                            tr[i].style.backgroundColor = "rgba(255, 0, 0, 0.5)"; 
-                        }
-                        else 
-                        {
-                            tr[i].element.style.backgroundColor = "rgba(0, 255, 0, 0.5)"; 
-                        }   
-                    });*/
                 </script>
             </body>
         </html>
