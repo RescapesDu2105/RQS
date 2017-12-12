@@ -1,132 +1,222 @@
 create or replace PACKAGE BODY package_AlimCC
 AS
-    PROCEDURE Take_Copy AS
-        nbCopys NUMBER(2,0);
-        l_copy Liste_Copie;
-        l_copy_temp Liste_Copie;
-        l_id_film Liste_Id_Movie;
-        l_id_arecup Liste_Id_Movie;
-        i NUMBER;
-        isPresent boolean;
+    PROCEDURE AlimCC(p_idFilm IN NUMBER) AS
+        nbGeneretad NUMBER;
+        isConnu BOOLEAN;
     BEGIN
-    
-        select abs(((DBMS_RANDOM.NORMAL)*COUNT(*))/6+1) INTO nbCopys
-        FROM films_copies;
-        IF nbCopys>0 THEN
-            i:=1;
-            FOR l_copy_temp IN (select * from films_copies order by dbms_random.value)
-            LOOP
-                EXIT WHEN i > nbCopys;
-                l_copy(i) := l_copy_temp;
-                i:=i+1;
-            END LOOP;
-            
-            l_id_film(1):=l_copy(1).movie;
-            FOR indx IN l_copy.FIRST .. l_copy.LAST LOOP
-                isPresent:=false;
-                FOR jndx IN l_id_film.first .. l_id_film.LAST LOOP
-                    IF l_copy(indx).movie=l_id_film(jndx) THEN
-                        isPresent:=true;
-                    END IF;
-                END LOOP;
-                IF isPresent=false THEN
-                    l_id_film(l_id_film.LAST+1):=l_copy(indx).movie;
-                END IF;
-            END LOOP;
-            
-            /*FOR indx IN l_copy.FIRST .. l_copy.LAST LOOP
-                dbms_output.put_line('copye : '||l_copy(indx).movie);
-            END LOOP;*/
-            
-            /*FOR indx IN l_id_film.FIRST .. l_id_film.LAST LOOP
-                dbms_output.put_line('film : '||l_id_film(indx));
-            END LOOP;    */
-            
-            l_id_arecup:=Check_MovieDescription(l_id_film,1);
-            Recup_Data(l_id_arecup);
+        l_artists.delete;
+        l_jouer.delete;
+        l_film_genre.delete;
+        l_copie.delete;
+        l_genres.delete;
+        isConnu:=FALSE;
+        nbGeneretad:=Generate_Number_Copy(p_idFilm);
+        IF nbGeneretad>0 THEN 
+            Take_Copy(p_idFilm,nbGeneretad);
+            isConnu:=Info_Connue(p_idFilm,1);
+            IF isConnu=FALSE THEN
+                Recup_Data(p_idFilm);
+                Insert_Data(1);
+            END IF;
+            Send_Copy(1);
         END IF;
-             
-    END Take_Copy;
-
-    FUNCTION Check_MovieDescription(l_id_film IN Liste_Id_Movie , p_complexe IN NUMBER) RETURN Liste_Id_Movie 
-    IS
-        id_temp films.idFilm%TYPE;
-        requeteBlock varchar2(2000);
-        l_id_film_temp Liste_Id_Movie;
-        l_copy_temp Liste_Id_Movie;
-        isPresent boolean;
+    EXCEPTION
+        WHEN OTHERS THEN RAISE;
+    END AlimCC;
+    
+    
+    FUNCTION Generate_Number_Copy(p_idFilm IN NUMBER) RETURN NUMBER
+    IS 
+        nbCopy NUMBER(2,0);
     BEGIN
-        FOR indx IN l_id_film.FIRST .. l_id_film.LAST LOOP
+    --Exception no_data_found
+        select abs(((DBMS_RANDOM.NORMAL)*COUNT(*))/6+1) INTO nbCopy
+        FROM films_copies
+        WHERE movie=p_idFilm;
+        
+        RETURN nbCopy;
+    END Generate_Number_Copy;
+    
+    PROCEDURE Take_Copy(p_idFilm IN NUMBER , nbCopy IN NUMBER) AS
+        nbCopyDispo NUMBER;
+        EXC_PlusdeCopieDispo EXCEPTION;
+    BEGIN
+        SELECT COUNT(*) INTO nbCopyDispo
+        FROM films_copies
+        WHERE movie=p_idFilm;
+        
+        IF nbCopyDispo>nbCopy OR nbCopyDispo=nbCopy THEN
+            SELECT * BULK COLLECT INTO l_copie
+            FROM films_copies
+            WHERE movie=p_idFilm
+            AND ROWNUM<nbCopy+1;
+        ELSIF nbCopyDispo>0 THEN
+            SELECT * BULK COLLECT INTO l_copie
+            FROM films_copies
+            WHERE movie=p_idFilm
+            AND ROWNUM<nbCopyDispo+1;
+        ELSE
+            RAISE EXC_PlusdeCopieDispo;
+        END IF;          
+        
+    EXCEPTION
+        WHEN EXC_PlusdeCopieDispo THEN dbms_output.put_line('Plus du copie disponible pour le film : '||p_idFilm);
+            RAISE;
+        WHEN OTHERS THEN RAISE;
+    END Take_Copy; 
+    
+    FUNCTION Info_Connue(p_idFilm IN NUMBER , p_complexe IN NUMBER) RETURN boolean
+    IS
+        idTemp NUMBER:=0;
+        requeteBlock varchar2(2000);
+    BEGIN
         requeteBlock:='
             SELECT IdFilm
             FROM FILMS@orcl@cc'||p_complexe||'
-            WHERE idFilm='||l_id_film(indx);
-            EXECUTE IMMEDIATE requeteBlock BULK COLLECT INTO l_id_film_temp;
-        END LOOP;
-        
-        IF l_id_film_temp.count>0 THEN
-            FOR indx IN l_id_film.FIRST .. l_id_film.LAST LOOP
-                isPresent:=false;
-                FOR jndx IN l_id_film_temp.FIRST .. l_id_film_temp.LAST LOOP
-                    IF l_id_film(indx) = l_id_film_temp(jndx) THEN
-                        isPresent:=TRUE;
-                    END IF;
-                END LOOP;
-                IF isPresent=FALSE THEN
-                    l_copy_temp(l_copy_temp.LAST+1):=l_id_film(indx);
-                END IF;
-            END LOOP;
-            RETURN l_copy_temp;
-        ELSE
-            RETURN l_id_film;
-        END IF;
-    END Check_MovieDescription;
+            WHERE idFilm='||p_idFilm;
+            EXECUTE IMMEDIATE requeteBlock INTO idTemp;
+            IF idTemp <>0 AND idTemp=p_idFilm THEN RETURN TRUE; END IF;
+            
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN RETURN FALSE;
+        WHEN OTHERS THEN RAISE;
+    END Info_Connue;
     
-    
-    PROCEDURE Recup_Data(l_id_film IN Liste_Id_Movie) AS
+    PROCEDURE Recup_Data(p_idFilm IN NUMBER) AS
     BEGIN
-        FOR indx IN l_id_film.FIRST .. l_id_film.LAST LOOP
-            SELECT * INTO l_films(indx)
-            FROM films
-            WHERE idFilm=l_id_film(indx);
-            
-            SELECT Jouer.* INTO l_jouer(indx)
-            FROM Jouer JOIN Films
-            ON Jouer.Film=Films.idFilm
-            Where Films.idFilm=l_id_film(indx);
-            
-            SELECT Realiser.* INTO l_realiser(indx)
-            FROM Realiser JOIN Films
-            ON Realiser.Film=Films.idFilm
-            Where Films.idFilm=l_id_film(indx);
-            
-            SELECT Artists.* INTO l_artists(indx)
-            FROM Artists JOIN Jouer
-            ON Artists.idArt=Jouer.Artist
-            WHERE Jouer.Film=l_id_film(indx);
-            
-            SELECT Certifications.* INTO l_certification(indx)
-            FROM Certifications JOIN Films
-            ON Certifications.idCerti=Films.Certification
-            WHERE Films.idFilm=l_id_film(indx);
-            
-            SELECT Posters.* INTO l_posters(indx)
-            FROM Posters JOIN Films
-            ON Posters.idPoster=Films.Poster
-            WHERE Films.idFilm=l_id_film(indx);
-            
-            SELECT Film_Genre.* INTO l_film_genre(indx)
-            FROM Film_Genre JOIN Films
-            ON Film_Genre.Film=Films.idFilm
-            WHERE Films.idFilm=l_id_film(indx);
-            
-            SELECT Genres.* INTO l_genres(indx)
-            FROM Genres JOIN Film_Genre
-            ON Genres.idGenre=Film_Genre.Genre
-            WHERE Film_Genre.Film=l_id_film(indx);
-        END LOOP;
+        SELECT * INTO films_temp
+        FROM films
+        WHERE idFilm=p_idFilm;
         
+        SELECT Jouer.* BULK COLLECT INTO l_jouer
+        FROM Jouer JOIN Films
+        ON Jouer.Film=Films.idFilm
+        Where Films.idFilm=p_idFilm;
+        
+        SELECT Realiser.* INTO realiser_temp
+        FROM Realiser JOIN Films
+        ON Realiser.Film=Films.idFilm
+        Where Films.idFilm=p_idFilm; 
+        
+        select Artists.* BULK COLLECT INTO l_artists
+        from artists
+        WHERE idArt IN (
+            SELECT JOUER.Artist
+            FROM jouer JOIN films
+            ON JOUER.film=films.idFilm
+            WHERE films.idFilm=p_idFilm)
+        OR idArt IN(
+            SELECT REALISER.Artist
+            FROM REALISER JOIN films
+            ON REALISER.film=films.idFilm
+            WHERE films.idFilm=p_idFilm);
+        
+        SELECT Certifications.* INTO certifications_temp
+        FROM Certifications JOIN Films
+        ON Certifications.idCerti=Films.Certification
+        WHERE Films.idFilm=p_idFilm;
+        
+        SELECT Posters.* INTO posters_temp
+        FROM Posters JOIN Films
+        ON Posters.idPoster=Films.Poster
+        WHERE Films.idFilm=p_idFilm;
+        
+        SELECT Film_Genre.* BULK COLLECT INTO l_film_genre
+        FROM Film_Genre JOIN Films
+        ON Film_Genre.Film=Films.idFilm
+        WHERE Films.idFilm=p_idFilm;
+        
+        SELECT Genres.* BULK COLLECT INTO l_genres
+        FROM Genres JOIN Film_Genre
+        ON Genres.idGenre=Film_Genre.Genre
+        WHERE Film_Genre.Film=p_idFilm;
+    
     END Recup_Data;
     
+    PROCEDURE Insert_Data(p_complexe IN NUMBER) AS
+        requeteBlock varchar2(2000);
+    BEGIN
+
+        requeteBlock:='
+            INSERT INTO POSTERS@orcl@cc'||p_complexe||'(IdPoster,PathImage,Image) VALUES(:idPoster , :PathImage,:IMAGE)';
+            EXECUTE IMMEDIATE requeteBlock USING posters_temp.idPoster, posters_temp.PathImage,posters_temp.IMAGE; 
+            
+        BEGIN
+            requeteBlock:='
+                INSERT INTO CERTIFICATIONS@orcl@cc'||p_complexe||'(idCerti,nomCerti) VALUES(:idCerti , :nomCerti)';
+                EXECUTE IMMEDIATE requeteBlock USING certifications_temp.idCerti,certifications_temp.nomCerti;
+        EXCEPTION
+            WHEN DUP_VAL_ON_INDEX THEN NULL;
+        END ;
+        
+        requeteBlock:='
+            INSERT INTO FILMS@orcl@cc'||p_complexe||' 
+            VALUES(:idFilm ,:Titre , :Titre_Original,:status,:tagline,:Date_real, :vote_average,:vote_count,:certification,:duree,
+                :budget,:poster)';
+        EXECUTE IMMEDIATE requeteBlock USING films_temp.idFilm ,films_temp.Titre , films_temp.Titre_Original,films_temp.status,
+                films_temp.tagline,films_temp.Date_real, films_temp.vote_average,films_temp.vote_count,films_temp.certification,
+                films_temp.duree,films_temp.budget,films_temp.poster;
+                
+        FOR indx IN l_genres.FIRST .. l_genres.LAST LOOP
+            BEGIN
+                requeteBlock:='
+                    INSERT INTO genres@orcl@cc'||p_complexe||'(idGenre,nomGenre) VALUES(:idGenre , :nomGenre)';
+                    EXECUTE IMMEDIATE requeteBlock USING l_genres(indx).idGenre,l_genres(indx).nomGenre;
+            EXCEPTION
+                WHEN DUP_VAL_ON_INDEX THEN NULL;
+            END ;
+        END LOOP;
+        
+        FOR indx IN l_film_genre.FIRST .. l_film_genre.LAST LOOP
+            BEGIN
+                requeteBlock:='
+                    INSERT INTO film_genre@orcl@cc'||p_complexe||'(genre,film) VALUES(:genre , :film)';
+                    EXECUTE IMMEDIATE requeteBlock USING l_film_genre(indx).genre,l_film_genre(indx).film;
+            EXCEPTION
+                WHEN DUP_VAL_ON_INDEX THEN NULL;
+            END ;
+        END LOOP;
+        
+        FOR indx IN l_artists.FIRST .. l_artists.LAST LOOP
+            BEGIN
+                requeteBlock:='
+                    INSERT INTO artists@orcl@cc'||p_complexe||'(idArt,nomArt) VALUES(:idArt , :nomArt)';
+                    EXECUTE IMMEDIATE requeteBlock USING l_artists(indx).idArt,l_artists(indx).nomArt;
+            EXCEPTION
+                WHEN DUP_VAL_ON_INDEX THEN NULL;
+            END ;            
+        END LOOP;
+        
+        requeteBlock:='
+            INSERT INTO realiser@orcl@cc'||p_complexe||'(Film,artist) VALUES(:Film , :artist)';
+        EXECUTE IMMEDIATE requeteBlock USING realiser_temp.Film,realiser_temp.artist;
+        
+        FOR indx IN l_jouer.FIRST .. l_jouer.LAST LOOP
+            BEGIN
+                requeteBlock:='
+                    INSERT INTO jouer@orcl@cc'||p_complexe||'(film,artist,role) VALUES(:film , :artist ,:role)';
+                    EXECUTE IMMEDIATE requeteBlock USING l_jouer(indx).film,l_jouer(indx).artist,l_jouer(indx).role;
+            EXCEPTION
+                WHEN DUP_VAL_ON_INDEX THEN NULL;
+            END ;            
+        END LOOP;
+        
+    EXCEPTION
+        WHEN OTHERS THEN 
+        dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+    END Insert_Data;
+
+    PROCEDURE Send_Copy(p_complexe IN NUMBER) AS
+        requeteBlock varchar2(2000); 
+    BEGIN
+        FOR indx IN l_copie.FIRST .. l_copie.LAST LOOP
+            requeteBlock:='
+                INSERT INTO films_copies@orcl@cc'||p_complexe||'(id,movie) VALUES(:id,:movie)';
+                EXECUTE IMMEDIATE requeteBlock USING l_copie(indx).id,l_copie(indx).movie;
+            DELETE FROM films_copies where id=l_copie(indx).id;
+        END LOOP;
+    END Send_Copy;
+
 END package_AlimCC;
+--dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
 --dbms_output.put_line(Liste(indx));
