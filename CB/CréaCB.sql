@@ -1,12 +1,12 @@
-drop table REALISER;
-drop table Film_Genre;
-drop table JOUER;
-drop table Films_Copies;
-drop table Films;
-drop table posters;
-drop table genres;
-drop table Certifications;
-drop table Artists;
+drop table REALISER CASCADE CONSTRAINTS;
+drop table Film_Genre CASCADE CONSTRAINTS;
+drop table JOUER CASCADE CONSTRAINTS;
+drop table Artists CASCADE CONSTRAINTS;
+drop table genres CASCADE CONSTRAINTS;
+drop table Films_Copies CASCADE CONSTRAINTS;
+drop table Films CASCADE CONSTRAINTS;
+drop table posters CASCADE CONSTRAINTS;
+drop table Certifications CASCADE CONSTRAINTS;
 
 CREATE TABLE Artists (
     IdArt     NUMBER(7),
@@ -54,6 +54,7 @@ CREATE TABLE Films (
     Duree       	NUMBER(6),
     Budget        	NUMBER(12,2) NOT NULL,
     poster        	NUMBER not null,
+    nbcopyMax       NUMBER,
     CONSTRAINT films_pk 					PRIMARY KEY (IdFilm),
 	CONSTRAINT films_vote_count_minVal_ck 	CHECK (vote_count IS NULL OR vote_count >= 0),
 	CONSTRAINT films_certification_fk 		FOREIGN KEY (certification) REFERENCES certifications(IdCerti),

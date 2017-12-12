@@ -1,35 +1,50 @@
 create or replace PACKAGE BODY package_AlimCC
 AS
-    PROCEDURE AlimCC(p_idFilm IN NUMBER) AS
+    PROCEDURE AlimCC(p_idFilm IN NUMBER,p_complexe IN NUMBER) AS
         nbGeneretad NUMBER;
         isConnu BOOLEAN;
+        EXC_PlusdeCopieDispo EXCEPTION;
     BEGIN
+        dbms_output.put_line(p_complexe);
         l_artists.delete;
         l_jouer.delete;
         l_film_genre.delete;
         l_copie.delete;
         l_genres.delete;
+        l_programmation.delete;
         isConnu:=FALSE;
         nbGeneretad:=Generate_Number_Copy(p_idFilm);
         IF nbGeneretad>0 THEN 
             Take_Copy(p_idFilm,nbGeneretad);
-            isConnu:=Info_Connue(p_idFilm,1);
+            isConnu:=Info_Connue(p_idFilm,p_complexe);
             IF isConnu=FALSE THEN
-                Recup_Data(p_idFilm);
-                Insert_Data(1);
+                Recup_Data(p_idFilm,p_complexe);
+                Insert_Data(p_complexe);
             END IF;
-            Send_Copy(1);
+            Send_Copy(p_complexe);
         END IF;
     EXCEPTION
+        WHEN EXC_PlusdeCopieDispo THEN dbms_output.put_line('Plus du copie disponible pour le film : '||p_idFilm);
         WHEN OTHERS THEN RAISE;
     END AlimCC;
     
+    PROCEDURE AlimCC AS
+        l_id_Film Liste_id_Film;
+    BEGIN
+        SELECT idFilm BULK COLLECT INTO l_id_Film
+        FROM FILMS;
+        
+        FOR p_complexe IN 1..6 LOOP
+            FOR indx IN l_id_Film.FIRST .. l_id_Film.LAST LOOP
+                AlimCC(l_id_Film(indx),p_complexe);
+            END LOOP;
+        END LOOP;
+    END AlimCC;
     
     FUNCTION Generate_Number_Copy(p_idFilm IN NUMBER) RETURN NUMBER
     IS 
         nbCopy NUMBER(2,0);
     BEGIN
-    --Exception no_data_found
         select abs(((DBMS_RANDOM.NORMAL)*COUNT(*))/6+1) INTO nbCopy
         FROM films_copies
         WHERE movie=p_idFilm;
@@ -60,8 +75,7 @@ AS
         END IF;          
         
     EXCEPTION
-        WHEN EXC_PlusdeCopieDispo THEN dbms_output.put_line('Plus du copie disponible pour le film : '||p_idFilm);
-            RAISE;
+        WHEN EXC_PlusdeCopieDispo THEN RAISE;
         WHEN OTHERS THEN RAISE;
     END Take_Copy; 
     
@@ -82,7 +96,7 @@ AS
         WHEN OTHERS THEN RAISE;
     END Info_Connue;
     
-    PROCEDURE Recup_Data(p_idFilm IN NUMBER) AS
+    PROCEDURE Recup_Data(p_idFilm IN NUMBER , p_complexe IN NUMBER) AS
     BEGIN
         SELECT * INTO films_temp
         FROM films
@@ -130,7 +144,18 @@ AS
         FROM Genres JOIN Film_Genre
         ON Genres.idGenre=Film_Genre.Genre
         WHERE Film_Genre.Film=p_idFilm;
-    
+        
+        BEGIN
+            FOR indx IN l_copie.FIRST .. l_copie.LAST LOOP
+                SELECT * INTO l_programmation(indx)
+                FROM PROGRAMMATIONS_VIEW
+                WHERE copy=l_copie(indx).id
+                AND complexe=p_complexe;
+            END LOOP;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN NULL;
+        END;
+          
     END Recup_Data;
     
     PROCEDURE Insert_Data(p_complexe IN NUMBER) AS
@@ -201,6 +226,17 @@ AS
             END ;            
         END LOOP;
         
+        IF l_programmation.count>0 THEN
+            FOR indx IN l_programmation.FIRST .. l_programmation.LAST LOOP
+                requeteBlock:='
+                    INSERT INTO programmations@orcl@cc'||p_complexe||'(IdDemande,complexe,debut,fin,movie,copy,
+                        salle,heure) VALUES(:IdDemande,:complexe,:debut,:fin,:movie,:copy,:salle,:heure)';
+                 EXECUTE IMMEDIATE requeteBlock USING l_programmation(indx).IdDemande,l_programmation(indx).complexe,
+                 l_programmation(indx).debut,l_programmation(indx).fin,l_programmation(indx).movie,l_programmation(indx).copy,
+                 l_programmation(indx).salle,l_programmation(indx).heure;
+            END LOOP;
+        END IF;
+        
     EXCEPTION
         WHEN OTHERS THEN 
         dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
@@ -213,7 +249,7 @@ AS
             requeteBlock:='
                 INSERT INTO films_copies@orcl@cc'||p_complexe||'(id,movie) VALUES(:id,:movie)';
                 EXECUTE IMMEDIATE requeteBlock USING l_copie(indx).id,l_copie(indx).movie;
-            DELETE FROM films_copies where id=l_copie(indx).id;
+                --delete
         END LOOP;
     END Send_Copy;
 

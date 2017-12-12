@@ -13,26 +13,26 @@ USING 'orcl';
 Alter system set global_names = true scope=both;
 
 CREATE DATABASE LINK orcl@cc2
-CONNECT TO cc1 IDENTIFIED BY oracle
+CONNECT TO cc2 IDENTIFIED BY oracle
 USING 'orcl';
 Alter system set global_names = true scope=both;
 
 CREATE DATABASE LINK orcl@cc3
-CONNECT TO cc1 IDENTIFIED BY oracle
+CONNECT TO cc3 IDENTIFIED BY oracle
 USING 'orcl';
 Alter system set global_names = true scope=both;
 
 CREATE DATABASE LINK orcl@cc4
-CONNECT TO cc1 IDENTIFIED BY oracle
+CONNECT TO cc4 IDENTIFIED BY oracle
 USING 'orcl';
 Alter system set global_names = true scope=both;
 
 CREATE DATABASE LINK orcl@cc5
-CONNECT TO cc1 IDENTIFIED BY oracle
+CONNECT TO cc5 IDENTIFIED BY oracle
 USING 'orcl';
 Alter system set global_names = true scope=both;
 
 CREATE DATABASE LINK orcl@cc6
-CONNECT TO cc1 IDENTIFIED BY oracle
+CONNECT TO cc6 IDENTIFIED BY oracle
 USING 'orcl';
 Alter system set global_names = true scope=both;
