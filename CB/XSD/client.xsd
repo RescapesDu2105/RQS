@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema"  
+    xmlns:xdb="http://xmlns.oracle.com/xdb"
+    xdb:storeVarrayAsTable="true" 
+    version="1.0">   
+    
+    <xs:simpleType name="intType">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="dateType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\d{2}[/]\d{2}[/]\d{4}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:element name="client" type="clientType" xdb:defaultTable="CLIENTS"/>
+    
+    <xs:complexType name="clientType" xdb:SQLType="CLIENT_TYPE">
+        <xs:sequence>
+            <xs:element name="idclient" type="intType" xdb:SQLName="IDCLIENT" xdb:SQLType="NUMBER"/>
+            <xs:element name="nom" type="xs:string" xdb:SQLName="NOMCLIENT" xdb:SQLType="VARCHAR2"/>
+            <xs:element name="prenom" type="xs:string" xdb:SQLName="PRENOMCLIENT" xdb:SQLType="VARCHAR2"/>
+            <xs:element name="datenaiss" type="dateType" xdb:SQLName="DATENAISS" xdb:SQLType="VARCHAR2"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+</xs:schema>

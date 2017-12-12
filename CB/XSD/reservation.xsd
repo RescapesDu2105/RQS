@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema"  
+    xmlns:xdb="http://xmlns.oracle.com/xdb"
+    xdb:storeVarrayAsTable="false" 
+    version="1.0">
+
+    <xs:element name="reservation" type="reservationType" xdb:defaultTable="RESERVATIONS"/>
+    
+    <xs:complexType name="reservationType" xdb:SQLType="RESERVATION_TYPE">
+        <xs:sequence>
+            <xs:element name="idreservation" type="xs:integer" minOccurs="1" xdb:SQLName="IDRESERVATION" xdb:SQLType="NUMBER"/>
+            <xs:element name="seance" type="xs:integer" minOccurs="1" xdb:SQLName="SEANCE" xdb:SQLType="NUMBER"/>
+            <xs:element name="client" type="xs:integer" minOccurs="1" xdb:SQLName="CLIENT" xdb:SQLType="NUMBER"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

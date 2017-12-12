@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema"  
+    xmlns:xdb="http://xmlns.oracle.com/xdb"
+    xdb:storeVarrayAsTable="false" 
+    version="1.0">
+    
+    <xs:element name="archive" type="archiveType" xdb:defaultTable="ARCHIVES"/>
+    
+    <xs:complexType name="archiveType" xdb:SQLType="ARCHIVE_TYPE">
+        <xs:sequence>         
+            <xs:element name="idarchive" type="xs:integer" xdb:SQLName="IDARCHIVE" xdb:SQLType="NUMBER"/>
+            <xs:element name="idcopie" type="xs:integer" xdb:SQLName="IDCOPIE" xdb:SQLType="NUMBER"/>
+            <xs:element name="complexes" type="ComplexeVarray" xdb:SQLName="COMPLEXES"/>
+            <xs:element name="pereniteglobale" type="xs:integer" xdb:SQLName="PERENITEGLOBALE" xdb:SQLType="NUMBER"/>
+            <xs:element name="populariteglobale" type="xs:integer" xdb:SQLName="POPULARITEGLOBALE" xdb:SQLType="NUMBER"/>
+            <xs:element name="copiesglobale" type="xs:integer" xdb:SQLName="COPIESGLOBAL" xdb:SQLType="NUMBER"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="ComplexeVarray" xdb:SQLType="COMPLEXEVARRAY_TYPE">
+        <xs:sequence>
+            <xs:element name="complexeperinitevarraytuple" type="complexeCalType" maxOccurs="6" xdb:SQLName="COMPLEXEVARRAY_TYPE" xdb:SQLCollType="COMPLEXEVARRAY_VRY"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="complexeCalType" xdb:SQLType="COMPLEXECAL_TYPE" >
+        <xs:sequence>
+            <xs:element name="idcomplexes" type="idcomplexe" xdb:SQLName="IDCOMPLEXE" xdb:SQLType="NUMBER"/>
+            <xs:element name="complexeperenite" type="xs:integer" xdb:SQLName="COMPLEXEPERENITE" xdb:SQLType="NUMBER"/>
+            <xs:element name="complexepopularite" type="xs:integer" xdb:SQLName="COMPLEXEPOPULARITE" xdb:SQLType="NUMBER"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:simpleType name="idcomplexe">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>
+
+
