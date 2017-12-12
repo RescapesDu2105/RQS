@@ -17,7 +17,7 @@ CREATE TABLE Artists (
 );
 
 CREATE TABLE Certifications (
-    IdCerti      	NUMBER GENERATED ALWAYS AS IDENTITY,
+    IdCerti      	NUMBER,
     NomCerti    	VARCHAR2(5), --95 QUantile = 5
     CONSTRAINT certi_pk 			PRIMARY KEY (IdCerti),
 	CONSTRAINT cert_NomCerti_ck 	CHECK (NomCerti IN (null,'G', 'PG', 'PG-13', 'R', 'NC-17')),
@@ -34,7 +34,7 @@ CREATE TABLE genres (
 );
 
 CREATE TABLE posters (
-	IdPoster 	NUMBER 	GENERATED ALWAYS AS IDENTITY,
+	IdPoster 	NUMBER,
 	--film		NUMBER ,
 	PathImage 	VARCHAR2(32),
 	Image 		BLOB DEFAULT EMPTY_BLOB(),
@@ -102,3 +102,4 @@ CREATE TABLE programmations(
 	CONSTRAINT programmation_film_copie_copy_fk FOREIGN KEY(copy)
 		REFERENCES films_copies(id) 
 );
+--ORA-02067: l'annulation de la transaction ou du point de sauvegarde est requise
