@@ -3,7 +3,6 @@ AS
     PROCEDURE AlimCC(p_idFilm IN NUMBER,p_complexe IN NUMBER) AS
         nbGeneretad NUMBER;
         isConnu BOOLEAN;
-        EXC_PlusdeCopieDispo EXCEPTION;
     BEGIN
         dbms_output.put_line(p_complexe);
         l_artists.delete;
@@ -16,15 +15,18 @@ AS
         nbGeneretad:=Generate_Number_Copy(p_idFilm);
         IF nbGeneretad>0 THEN 
             Take_Copy(p_idFilm,nbGeneretad);
-            isConnu:=Info_Connue(p_idFilm,p_complexe);
-            IF isConnu=FALSE THEN
-                Recup_Data(p_idFilm,p_complexe);
-                Insert_Data(p_complexe);
+            IF l_copie.count>0 THEN
+                isConnu:=Info_Connue(p_idFilm,p_complexe);
+                IF isConnu=FALSE THEN
+                    Recup_Data(p_idFilm,p_complexe);
+                    Insert_Data(p_complexe);
+                END IF;
+                Send_Copy(p_complexe);
+            ELSE 
+                dbms_output.put_line('plus de copie disponible');
             END IF;
-            Send_Copy(p_complexe);
         END IF;
     EXCEPTION
-        WHEN EXC_PlusdeCopieDispo THEN dbms_output.put_line('Plus du copie disponible pour le film : '||p_idFilm);
         WHEN OTHERS THEN RAISE;
     END AlimCC;
     
@@ -54,7 +56,6 @@ AS
     
     PROCEDURE Take_Copy(p_idFilm IN NUMBER , nbCopy IN NUMBER) AS
         nbCopyDispo NUMBER;
-        EXC_PlusdeCopieDispo EXCEPTION;
     BEGIN
         SELECT COUNT(*) INTO nbCopyDispo
         FROM films_copies
@@ -71,11 +72,10 @@ AS
             WHERE movie=p_idFilm
             AND ROWNUM<nbCopyDispo+1;
         ELSE
-            RAISE EXC_PlusdeCopieDispo;
+            NULL;
         END IF;          
         
     EXCEPTION
-        WHEN EXC_PlusdeCopieDispo THEN RAISE;
         WHEN OTHERS THEN RAISE;
     END Take_Copy; 
     
@@ -249,7 +249,7 @@ AS
             requeteBlock:='
                 INSERT INTO films_copies@orcl@cc'||p_complexe||'(id,movie) VALUES(:id,:movie)';
                 EXECUTE IMMEDIATE requeteBlock USING l_copie(indx).id,l_copie(indx).movie;
-                --delete
+                DELETE FROM films_copies WHERE id=l_copie(indx).id;
         END LOOP;
     END Send_Copy;
 
