@@ -138,6 +138,7 @@ AS
                 TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
                 TraiterCopies(l_movies(indx).id);    
 
+                Package_VerifActeur.VerifActeur(l_movies(indx).id);
                 BEGIN
                     FOR p_complexe IN 1..6 LOOP
                         package_AlimCC.AlimCC(l_movies(indx).id,p_complexe);
