@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function() {
-    document.querySelector('select[name="populariteSelect"]').onchange=FctPopularite; }, false);
+    document.querySelector('select[name="popularite"]').onchange=FctPopularite; }, false);
 
 document.addEventListener("DOMContentLoaded", function() { 
-    document.querySelector('select[name="perenniteSelect"]').onchange=FctPerennite; }, false);
+    document.querySelector('select[name="perennite"]').onchange=FctPerennite; }, false);
 
 function FctPopularite(event)
 {
