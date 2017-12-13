@@ -9,11 +9,10 @@
             <file>file:/E:/Dropbox/B3/SGBD/RQS/CC/RechPlaces/web/FicheFilm.jsp</file>
         </group>
         <group name="SGBD">
-            <file>file:/E:/Dropbox/B3/SGBD/RQS/CC/RechPlaces/web/AfficheSeancesFilm.jsp</file>
-            <file>file:/E:/Dropbox/B3/SGBD/RQS/CC/RechPlaces/src/java/Classes/DBAccess.java</file>
-            <file>file:/E:/Dropbox/B3/SGBD/RQS/CC/RechPlaces/src/java/Servlet/Servlet.java</file>
-            <file>file:/E:/Dropbox/B3/SGBD/RQS/CC/RechPlaces/web/RechPlaces.jsp</file>
-            <file>file:/E:/Dropbox/B3/SGBD/RQS/CC/RechPlaces/web/FicheFilm.jsp</file>
+            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/web/RechPlaces.jsp</file>
+            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/web/js/RechPlaces.js</file>
+            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/src/java/Classes/DBAccess.java</file>
+            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/src/java/Servlet/Servlet.java</file>
         </group>
     </open-files>
 </project-private>

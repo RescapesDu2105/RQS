@@ -138,7 +138,7 @@ public class Servlet extends HttpServlet {
                     e.printStackTrace();
                 }
                                         
-                //response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/RechPlaces.jsp");
+                response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/RechPlaces.jsp");
                 break;            
             case "FicheFilm":
                 RecupererFilm(Integer.parseInt(request.getParameter("IdFilm")), session);
