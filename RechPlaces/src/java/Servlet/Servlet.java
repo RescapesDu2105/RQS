@@ -100,19 +100,45 @@ public class Servlet extends HttpServlet {
                         session.setAttribute("Error", true);
                     }                            
                 }
-                /*
+                
 
                 try 
                 {
-                    DBAccess.SendPOSTRequest("http://127.0.0.1:9080/cc1/rqs/cc1.test_pkg.test", "");
+                    String urlParameters;
+                    
+                    urlParameters = "complexe=";
+                    urlParameters += request.getParameter("complexe");
+                    urlParameters += "&acteursInput=";
+                    urlParameters += request.getParameter("acteursInput");
+                    urlParameters += "&realisateursInput=";
+                    urlParameters += request.getParameter("realisateursInput");
+                    urlParameters += "&genresInput=";
+                    urlParameters += request.getParameter("genresInput");
+                    urlParameters += "&titreInput=";
+                    urlParameters += request.getParameter("titreInput");
+                    
+                    if(!request.getParameter("popularite").equals("Default"))
+                    {
+                        urlParameters += "&popInput=";
+                        urlParameters += request.getParameter("popInput");
+                    }
+                    
+                    if(!request.getParameter("perennite").equals("Default"))
+                    {
+                        urlParameters += "&perInput=";
+                        urlParameters += request.getParameter("perInput");
+                    }
+                    
+                    System.out.println("urlParameters = " + urlParameters);
+                    DBAccess.SendPOSTRequest("http://127.0.0.1:9080/cc1/rqs/cc1.package_RechPlaces.RecupererFilms", urlParameters);
                     System.out.println("Reponse = " + DBAccess.ReceiveResponse());
                 } 
                 catch (Exception e) 
                 {
                     e.printStackTrace();
-                }*/
+                }
                                         
-                response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/RechPlaces.jsp");
+                //response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/RechPlaces.jsp");
                 break;            
             case "FicheFilm":
                 RecupererFilm(Integer.parseInt(request.getParameter("IdFilm")), session);

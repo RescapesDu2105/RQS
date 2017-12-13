@@ -22,14 +22,16 @@ function FctPopularite(event)
                 col.setAttribute("id", "divPopularite");
 
                 var label = document.createElement("label");
-                label.setAttribute("for", "PopInput");
+                label.setAttribute("for", "popInput");
                 label.innerText = "Valeur";
 
                 var input = document.createElement("input");
-                input.setAttribute("type", "text");
-                input.setAttribute("name", "PopInput");
-                input.setAttribute("id", "PopInput");
+                input.setAttribute("type", "number");
+                input.setAttribute("name", "popInput");
+                input.setAttribute("id", "popInput");
                 input.setAttribute("class", "form-control");
+                input.setAttribute("value", 0);
+                input.setAttribute("min", 0);
                 input.style.width = "75px";
                 
                 col.appendChild(label);
@@ -58,14 +60,16 @@ function FctPerennite(event)
                 col.setAttribute("id", "divPerennite");
 
                 var label = document.createElement("label");
-                label.setAttribute("for", "PerInput");
+                label.setAttribute("for", "perInput");
                 label.innerText = "Valeur";
 
                 var input = document.createElement("input");
-                input.setAttribute("type", "text");
-                input.setAttribute("name", "PerInput");
-                input.setAttribute("id", "PerInput");
+                input.setAttribute("type", "number");
+                input.setAttribute("name", "perInput");
+                input.setAttribute("id", "perInput");
                 input.setAttribute("class", "form-control");
+                input.setAttribute("value", 0);
+                input.setAttribute("min", 0);
                 input.style.width = "75px";
                 
                 col.appendChild(label);
