@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<archive>
+    <idarchive>1</idarchive>
+    <idfilm>11</idfilm>
+    <complexes>
+        <complexeperinitevarraytuple>
+            <idcomplexes>1</idcomplexes>
+            <complexeperenite>5</complexeperenite>
+            <complexepopularite>9</complexepopularite>
+        </complexeperinitevarraytuple>
+        <complexeperinitevarraytuple>
+            <idcomplexes>2</idcomplexes>
+            <complexeperenite>6</complexeperenite>
+            <complexepopularite>8</complexepopularite>
+        </complexeperinitevarraytuple>
+        <complexeperinitevarraytuple>
+            <idcomplexes>3</idcomplexes>
+            <complexeperenite>6</complexeperenite>
+            <complexepopularite>8</complexepopularite>
+        </complexeperinitevarraytuple>
+        <complexeperinitevarraytuple>
+            <idcomplexes>4</idcomplexes>
+            <complexeperenite>3</complexeperenite>
+            <complexepopularite>2</complexepopularite>
+        </complexeperinitevarraytuple>
+        <complexeperinitevarraytuple>
+            <idcomplexes>5</idcomplexes>
+            <complexeperenite>4</complexeperenite>
+            <complexepopularite>7</complexepopularite>
+        </complexeperinitevarraytuple>
+        <complexeperinitevarraytuple>
+            <idcomplexes>6</idcomplexes>
+            <complexeperenite>1</complexeperenite>
+            <complexepopularite>4</complexepopularite>
+        </complexeperinitevarraytuple>
+    </complexes>
+    <pereniteglobale>6</pereniteglobale>
+    <populariteglobale>7</populariteglobale>
+    <copiesglobale>8</copiesglobale>
+</archive>
