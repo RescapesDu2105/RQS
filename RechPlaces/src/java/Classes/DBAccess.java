@@ -68,13 +68,17 @@ public class DBAccess
         int responseCode = connection.getResponseCode();
         
         StringBuilder response = null;
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) 
+        
+        if (responseCode == HttpURLConnection.HTTP_OK)
         {
-            String inputLine;
-            response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null)
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) 
             {
-                response.append(inputLine);
+                String inputLine;
+                response = new StringBuilder();
+                while ((inputLine = in.readLine()) != null)
+                {
+                    response.append(inputLine);
+                }
             }
         }
         
