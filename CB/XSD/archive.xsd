@@ -9,7 +9,7 @@
     <xs:complexType name="archiveType" xdb:SQLType="ARCHIVE_TYPE">
         <xs:sequence>         
             <xs:element name="idarchive" type="xs:integer" xdb:SQLName="IDARCHIVE" xdb:SQLType="NUMBER"/>
-            <xs:element name="idcopie" type="xs:integer" xdb:SQLName="IDCOPIE" xdb:SQLType="NUMBER"/>
+            <xs:element name="idfilm" type="xs:integer" xdb:SQLName="IDFILM" xdb:SQLType="NUMBER"/>
             <xs:element name="complexes" type="ComplexeVarray" xdb:SQLName="COMPLEXES"/>
             <xs:element name="pereniteglobale" type="xs:integer" xdb:SQLName="PERENITEGLOBALE" xdb:SQLType="NUMBER"/>
             <xs:element name="populariteglobale" type="xs:integer" xdb:SQLName="POPULARITEGLOBALE" xdb:SQLType="NUMBER"/>

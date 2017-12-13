@@ -65,5 +65,5 @@ CREATE TABLE archives OF XMLType
         STORE AS TABLE arcvhives_table
         ((PRIMARY KEY (NESTED_TABLE_ID, SYS_NC_ARRAY_INDEX$)));
 ALTER TABLE archives ADD CONSTRAINT archives_pk PRIMARY KEY(XMLDATA."IDARCHIVE");
-ALTER TABLE archives ADD CONSTRAINT archives_copy_fk FOREIGN KEY(XMLDATA."IDCOPIE") 
-    REFERENCES films_copies(id);
+ALTER TABLE archives ADD CONSTRAINT archives_film_fk FOREIGN KEY(XMLDATA."IDFILM") 
+    REFERENCES films(idFilm);

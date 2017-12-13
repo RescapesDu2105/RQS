@@ -1,4 +1,5 @@
-    req VARCHAR2(20000);
+DECLARE
+     req VARCHAR2(20000);
 BEGIN
     FOR i IN 1 .. 6 LOOP
     req:='
