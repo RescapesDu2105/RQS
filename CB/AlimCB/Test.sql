@@ -11,6 +11,8 @@ END ;
 DECLARE 
     Liste packageAlimCB.Liste_Movie_Id;
 BEGIN
+    delete from ERRORS_LOGS;
+
     delete from FILMS_COPIES;
     DELETE FROM JOUER;
     DELETE FROM realiser;
