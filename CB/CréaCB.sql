@@ -70,8 +70,6 @@ CREATE TABLE Films (
 	CONSTRAINT films_poster_fk  			FOREIGN KEY (poster) REFERENCES posters(IdPoster)
 );
 
-
-
 CREATE TABLE REALISER (
     Film    NUMBER(6) CONSTRAINT REALISER_Film_fk REFERENCES Films (IdFilm),
     Artist  NUMBER(7) CONSTRAINT REALISER_Artist_fk REFERENCES Artists (IdArt),
@@ -83,6 +81,7 @@ CREATE TABLE Film_Genre (
     Film 	NUMBER(6) CONSTRAINT Film_Genre_Film_fk REFERENCES Films (IdFilm),
     CONSTRAINT Films_Genre_pk 	PRIMARY KEY (genre, Film)
 );
+
 CREATE TABLE JOUER (
     Film  		NUMBER(6) CONSTRAINT JOUER_movie_fk REFERENCES Films (IdFilm),
     Artist 		NUMBER(7) CONSTRAINT JOUER_artist_fk REFERENCES Artists (IdArt),
@@ -109,12 +108,13 @@ CREATE TABLE complexes (
     CONSTRAINT complexes_pk PRIMARY KEY(idComplexe));
 
 CREATE TABLE salles (            
-    idSalle NUMBER,
+    idSalle NUMBER GENERATED ALWAYS AS IDENTITY,
+    numSalle NUMBER,
     nbPlaces NUMBER,
     idComplexe NUMBER,
+    CONSTRAINT salles_pk PRIMARY KEY (idSalle),
     CONSTRAINT salle_complexe_ref FOREIGN KEY(idComplexe) 
-        REFERENCES complexes(idComplexe),
-    CONSTRAINT salles_pk PRIMARY KEY (idSalle,idComplexe));
+        REFERENCES complexes(idComplexe));
 
 CREATE TABLE programmations OF XMLType
     XMLTYPE STORE AS OBJECT RELATIONAL
@@ -123,9 +123,9 @@ CREATE TABLE programmations OF XMLType
 ALTER TABLE programmations ADD CONSTRAINT programmation_pk PRIMARY KEY(XMLDATA."IDDEMANDE");
 ALTER TABLE programmations ADD CONSTRAINT programmation_film_copie_copy_fk FOREIGN KEY(XMLDATA."COPY") 
     REFERENCES films_copies(id);  
-
+    
 CREATE TABLE seances (    
-    idSeance NUMBER GENERATED ALWAYS AS IDENTITY,
+    idSeance NUMBER ,
     idProgrammation NUMBER,
     idSalle NUMBER,
     dateSeance DATE,
@@ -134,7 +134,7 @@ CREATE TABLE seances (
 	CONSTRAINT seance_programmation_ref FOREIGN KEY(idProgrammation) 
         REFERENCES programmations(XMLDATA."IDDEMANDE"),
     CONSTRAINT seance_salle_ref FOREIGN KEY(idSalle) 
-        REFERENCES SALLES(idSalle));
+        REFERENCES salles(idSalle));
 
 CREATE TABLE reservations (
     idResevations NUMBER GENERATED ALWAYS AS IDENTITY,

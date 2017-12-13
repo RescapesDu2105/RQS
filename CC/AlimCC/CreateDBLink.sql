@@ -1,5 +1,4 @@
 --SYS:
-ALTER SYSTEM SET OPEN_LINKS=6 SCOPE=SPFILE;
 GRANT create session TO cb;
 GRANT create database link TO cb WITH ADMIN OPTION;
 GRANT create any procedure TO cb;
@@ -7,6 +6,7 @@ GRANT drop any procedure TO cb;
 GRANT execute any procedure TO cb;
 
 --CB :
+ALTER SYSTEM SET OPEN_LINKS=6 SCOPE=SPFILE;
 CREATE DATABASE LINK orcl@cc1
 CONNECT TO cc1 IDENTIFIED BY oracle
 USING 'orcl';
