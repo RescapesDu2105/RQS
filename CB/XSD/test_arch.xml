@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<archive>
+    <idarchive>1</idarchive>
+    <idfilm>2</idfilm>
+    <complexes>
+        <complexeperinitevarraytuple>
+            <idcomplexes>3</idcomplexes>
+            <complexeperenite>4</complexeperenite>
+            <complexepopularite>5</complexepopularite>
+        </complexeperinitevarraytuple>
+        <complexeperinitevarraytuple>
+            <idcomplexes>10</idcomplexes>
+            <complexeperenite>11</complexeperenite>
+            <complexepopularite>12</complexepopularite>
+        </complexeperinitevarraytuple>
+    </complexes>
+    <pereniteglobale>6</pereniteglobale>
+    <populariteglobale>7</populariteglobale>
+    <copiesglobale>8</copiesglobale>
+</archive>
