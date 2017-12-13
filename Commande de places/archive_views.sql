@@ -6,11 +6,11 @@ CREATE OR REPLACE VIEW archive_views AS
             PASSING a.OBJECT_VALUE
             COLUMNS
                 idarchive NUMBER PATH 'idarchive',
-                idfilm NUMBER(2) PATH 'idfilm',
+                idfilm NUMBER PATH 'idfilm',
                 complexes XMLTYPE path 'complexes/complexeperinitevarraytuple',
-                pereniteglobale varchar2(10) PATH 'pereniteglobale',
-                populariteglobale varchar2(10) PATH 'populariteglobale',
-                copiesglobale varchar2(10) PATH 'copiesglobale'
+                pereniteglobale NUMBER PATH 'pereniteglobale',
+                populariteglobale NUMBER PATH 'populariteglobale',
+                copiesglobale NUMBER PATH 'copiesglobale'
                 ) arch_simple,
         XMLTABLE('complexeperinitevarraytuple' 
             PASSING arch_simple.complexes
@@ -18,4 +18,3 @@ CREATE OR REPLACE VIEW archive_views AS
                 idcomplexes NUMBER PATH 'idcomplexes',
                 complexeperenite NUMBER PATH 'complexeperenite',
                 complexepopularite NUMBER PATH 'complexepopularite')arch_complexe;
-    
