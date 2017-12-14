@@ -109,13 +109,13 @@ public class Servlet extends HttpServlet {
                     urlParameters = "complexe=";
                     urlParameters += request.getParameter("complexe");
                     urlParameters += "&acteursInput=";
-                    urlParameters += request.getParameter("acteursInput");
+                    urlParameters += request.getParameter("acteursInput").replaceAll(" ", "%20");
                     urlParameters += "&realisateursInput=";
-                    urlParameters += request.getParameter("realisateursInput");
+                    urlParameters += request.getParameter("realisateursInput").replaceAll(" ", "%20");;
                     urlParameters += "&genresInput=";
-                    urlParameters += request.getParameter("genresInput");
+                    urlParameters += request.getParameter("genresInput").replaceAll(" ", "%20");
                     urlParameters += "&titreInput=";
-                    urlParameters += request.getParameter("titreInput");
+                    urlParameters += request.getParameter("titreInput").replaceAll(" ", "%20");
                     
                     if(!request.getParameter("popularite").equals("Default"))
                     {
