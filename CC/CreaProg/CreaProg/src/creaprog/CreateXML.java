@@ -133,7 +133,7 @@ public class CreateXML
         try 
         {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            File xsd = new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\listeprogrammation.xsd");
+            File xsd = new File("D:\\GitHub\\RQS\\CB\\XSD\\listeprogrammation.xsd");
             if(!xsd.exists())
             {
                 System.out.println("Fichier XSD non trouvé !");
@@ -177,7 +177,7 @@ public class CreateXML
             transformer.setOutputProperty(OutputKeys.INDENT,"yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","4");
             DOMSource source = new DOMSource(doc);        
-            StreamResult result = new StreamResult(new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\programmations.xml"));
+            StreamResult result = new StreamResult(new File("D:\\GitHub\\RQS\\CC\\CreaProg\\programmations.xml"));
             transformer.transform(source, result);
             
             //StreamResult consoleResult = new StreamResult(System.out);

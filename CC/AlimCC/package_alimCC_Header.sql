@@ -43,4 +43,6 @@ IS
         RETURN boolean;
     FUNCTION Generate_Number_Copy(p_idFilm IN NUMBER)
         RETURN NUMBER;
+        
+    PROCEDURE RetourCopie (p_idfilm NUMBER,p_complexe IN NUMBER);
 END package_AlimCC;

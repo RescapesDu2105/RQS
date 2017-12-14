@@ -1,13 +1,13 @@
-drop table programmations;
-drop table REALISER;
-drop table Film_Genre;
-drop table JOUER;
-drop table Films_Copies;
-drop table Films;
-drop table posters;
-drop table genres;
-drop table Certifications;
-drop table Artists;
+drop table programmations CASCADE CONSTRAINTS;;
+drop table REALISER CASCADE CONSTRAINTS;;
+drop table Film_Genre CASCADE CONSTRAINTS;;
+drop table JOUER CASCADE CONSTRAINTS;;
+drop table Films_Copies CASCADE CONSTRAINTS;;
+drop table Films CASCADE CONSTRAINTS;;
+drop table posters CASCADE CONSTRAINTS;;
+drop table genres CASCADE CONSTRAINTS;;
+drop table Certifications CASCADE CONSTRAINTS;;
+drop table Artists CASCADE CONSTRAINTS;;
 
 CREATE TABLE Artists (
     IdArt     NUMBER(7),
@@ -92,8 +92,8 @@ CREATE TABLE Films_Copies (
 CREATE TABLE programmations(
 	idDemande NUMBER ,
 	complexe NUMBER,
-	debut VARCHAR2(10),
-	fin VARCHAR2(10),
+	debut date,
+	fin date,
 	movie NUMBER,
 	copy NUMBER,
 	salle NUMBER,
@@ -102,4 +102,3 @@ CREATE TABLE programmations(
 	CONSTRAINT programmation_film_copie_copy_fk FOREIGN KEY(copy)
 		REFERENCES films_copies(id) 
 );
---ORA-02067: l'annulation de la transaction ou du point de sauvegarde est requise

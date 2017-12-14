@@ -1,336 +1,322 @@
-create or replace PACKAGE BODY packageAlimCB
+create or replace PACKAGE BODY package_AlimCC
 AS
-    FUNCTION Delete_Spaces(chaine IN varchar2)RETURN varchar2 IS 
-    BEGIN 
-        RETURN REGEXP_REPLACE(chaine, '[[:cntrl:]]|[[:space:]]{2,}', ' ' );
-	EXCEPTION
-		WHEN OTHERS THEN 
-        dbms_output.put_line('ici');
-        RAISE;
-    END Delete_Spaces;
-
-    FUNCTION TRUNC_Chaine(chaine in varchar2 , quantile IN number)RETURN varchar2 
-    IS
-        resultat varchar2(1024 CHAR);
+    PROCEDURE AlimCC(p_idFilm IN NUMBER,p_complexe IN NUMBER) AS
+        nbGeneretad NUMBER;
+        isConnu BOOLEAN;
     BEGIN
-        IF LENGTH(chaine)>quantile THEN
-            Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', '-20001', chaine || 'dépasse : '|| quantile);
-            resultat:=substr(chaine,1,quantile-5) || '(...)';
-        return resultat;
-        ELSE
-            return chaine;
-        END IF ;
-	EXCEPTION
-		WHEN OTHERS THEN 
-        RAISE;
-    END TRUNC_Chaine;
-
-    FUNCTION Analyse_Certi(Certification IN varchar2) RETURN varchar2
-    IS
-        NewCerti varchar2(5);
-    BEGIN
-        IF CERTIFICATION IS NOT NULL THEN
-            IF Certification NOT IN ('G', 'PG', 'PG-13', 'R', 'NC-17') THEN
-                CASE 
-                    WHEN Certification = 'Y' THEN NewCerti := 'G';
-                    WHEN Certification = 'Young' THEN NewCerti := 'G';
-                    WHEN Certification = 'TV-G' THEN NewCerti := 'G';
-                    WHEN Certification = 'TV-PG' THEN NewCerti := 'PG';
-                    WHEN Certification = 'NR' THEN NewCerti := 'PG';
-                    WHEN Certification = 'TV-14' THEN NewCerti := 'PG-13';
-                    WHEN Certification = 'TVMA' THEN NewCerti := 'PG-13';
-                    WHEN Certification = 'TV-MA' THEN NewCerti := 'PG-13';
-                    WHEN Certification = 'TV-14 V' THEN NewCerti := 'PG-13';
-                    WHEN Certification = '15' THEN NewCerti := 'PG-13';
-                    WHEN Certification = '12' THEN NewCerti := 'PG-13';
-                    WHEN Certification = ' USA:R' THEN NewCerti := 'R';
-                    WHEN Certification = '16' THEN NewCerti := 'R';
-                    WHEN Certification = '18' THEN NewCerti := 'NC-17';
-                    WHEN Certification = 'R18' THEN NewCerti := 'NC-17';
-                    WHEN Certification = 'x' THEN NewCerti := 'NC-17';
-                    WHEN Certification = 'X' THEN NewCerti := 'NC-17';
-                    WHEN Certification = 'XXX' THEN NewCerti := 'NC-17';
-                    WHEN Certification = 'adult' THEN NewCerti := 'NC-17';
-                    ELSE NewCerti := null;
-                END CASE;
-            ELSE
-                NewCerti:=CERTIFICATION;
+        dbms_output.put_line(p_complexe);
+        l_artists.delete;
+        l_jouer.delete;
+        l_film_genre.delete;
+        l_copie.delete;
+        l_genres.delete;
+        l_programmation.delete;
+        isConnu:=FALSE;
+        nbGeneretad:=Generate_Number_Copy(p_idFilm);
+        IF nbGeneretad>0 THEN 
+            Take_Copy(p_idFilm,nbGeneretad);
+            IF l_copie.count>0 THEN
+                isConnu:=Info_Connue(p_idFilm,p_complexe);
+                IF isConnu=FALSE THEN
+                    Recup_Data(p_idFilm,p_complexe);
+                    Insert_Data(p_complexe);
+                END IF;
+                Send_Copy(p_complexe);
+            ELSE 
+                dbms_output.put_line('plus de copie disponible');
             END IF;
         END IF;
-        RETURN NewCerti;
-	EXCEPTION
-		WHEN OTHERS THEN 
-        dbms_output.put_line('ici');
-        RAISE;
-    END Analyse_Certi;
-
-    PROCEDURE alimCB(l_movie_id IN Liste_Movie_Id)
-    AS
-    l_movies Liste_Movies;
+    EXCEPTION
+        WHEN OTHERS THEN RAISE;
+    END AlimCC;
+    
+    PROCEDURE AlimCC AS
+        l_id_Film Liste_id_Film;
     BEGIN
-        FOR indx IN l_movie_id.FIRST..l_movie_id.LAST LOOP
-            SELECT * INTO l_movies(indx)
-            FROM movies_ext
-            WHERE movies_ext.id=l_movie_id(indx);
-        END LOOP;
-        TraiterFilm(l_movies);
-	EXCEPTION
-		WHEN OTHERS THEN 
-        dbms_output.put_line('ici');
-        RAISE;
-    END alimCB;
-
-    PROCEDURE alimCB(NbAjout IN NUMBER)
-    AS
-		l_movie_id Liste_Movie_Id;
-		Film movies_ext%ROWTYPE;
-		i NUMBER := 1;
-	BEGIN
-		IF (NbAjout <= 0) THEN
-			Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', '-25', 'Le nombre d''ajout dans AlimCB ne peut pas etre inferieur a 0'); 
-		ELSE
-			FOR Film IN (select * from movies_ext order by dbms_random.value)
-			LOOP
-				EXIT WHEN i > NbAjout;
-				l_movie_id(i) := Film.id;
-				i := i + 1;
-			END LOOP;
-			alimCB(l_movie_id);
-		END IF;
-	EXCEPTION
-		WHEN OTHERS THEN 
-        dbms_output.put_line('ici');
-        RAISE;
-    END alimCB;
-
-    PROCEDURE TraiterFilm(l_movies IN Liste_Movies)
-    AS
-        NewID movies_ext.id%TYPE;
-        NewTitle movies_ext.title%TYPE;
-        NewOriginalTitle movies_ext.Original_Title%TYPE;
-        NewStatus movies_ext.Status %TYPE;
-        NewVoteAverage movies_ext.Vote_Average%TYPE;
-        NewVoteCount movies_ext.Vote_Count%TYPE;
-        NewRuntime movies_ext.Runtime%TYPE;
-        NewCertification movies_ext.Certification %TYPE;
-        NewPoster movies_ext.Poster_Path%TYPE;
-        NewBudget movies_ext.Budget%TYPE;
-        NewTagline movies_ext.Tagline%TYPE;
+        SELECT idFilm BULK COLLECT INTO l_id_Film
+        FROM FILMS;
         
-        EXC_NEWCOPY EXCEPTION;
-    BEGIN
-        FOR indx IN l_movies.FIRST..l_movies.LAST LOOP
-
-            --dbms_output.put_line(indx);
-            --controle des champs
-            BEGIN
-                NewID:=Delete_Spaces(l_movies(indx).id);
-                NewTitle:=Delete_Spaces(l_movies(indx).Title);
-                NewOriginalTitle:=Delete_Spaces(l_movies(indx).Original_Title);
-                NewStatus:=Delete_Spaces(l_movies(indx).Status);
-                NewTagline:=Delete_Spaces(l_movies(indx).Tagline);
-                NewCertification:=Delete_Spaces(l_movies(indx).Certification);
-
-                InsertData(NewID,NewTitle,NewOriginalTitle,NewStatus,l_movies(indx).release_date,l_movies(indx).Vote_Average,
-                l_movies(indx).Vote_Count,l_movies(indx).Runtime,NewCertification,l_movies(indx).Poster_PATH,l_movies(indx).Budget,NewTagline);
-                TraiterGenre(l_movies(indx).id,l_movies(indx).genres);
-                TraiterRealisateur(l_movies(indx).id, l_movies(indx).directors);
-                TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
-                TraiterCopies(l_movies(indx).id);    
-
-                --Package_VerifActeur.VerifActeur(l_movies(indx).id);
+        BEGIN
+            FOR p_complexe IN 1..6 LOOP
                 BEGIN
-                    FOR p_complexe IN 1..6 LOOP
-                        package_AlimCC.AlimCC(l_movies(indx).id,p_complexe);
+                    FOR indx IN l_id_Film.FIRST .. l_id_Film.LAST LOOP
+                        AlimCC(l_id_Film(indx),p_complexe);
                     END LOOP;
                 EXCEPTION
-                    WHEN OTHERS THEN RAISE;   
+                    WHEN OTHERS THEN ROLLBACK;
                 END;
-
-                commit;
-            EXCEPTION
-                WHEN DUP_VAL_ON_INDEX THEN 
-                    Dbms_Output.Put_Line('Creation de nouvelle copie');
-                WHEN OTHERS THEN 
-                    Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-                ROLLBACK;
-            END ;
-
-        END LOOP;
-	EXCEPTION
-		WHEN OTHERS THEN RAISE;
-    END TraiterFilm;
-
-    PROCEDURE TraiterGenre(Movie_Id IN movies_ext.id%TYPE, genre IN movies_ext.genres%TYPE)
-    AS  
-        ChaineGen varchar2(25);
-        idGen NUMBER;
-        NomGenre varchar2(25);
-        IdTemp NUMBER;
-        i number:=1;
+            END LOOP;
+        EXCEPTION
+            WHEN OTHERS THEN ROLLBACK;
+        END ;
+        commit;
+    EXCEPTION
+        WHEN OTHERS THEN ROLLBACK;
+    END AlimCC;
+    
+    FUNCTION Generate_Number_Copy(p_idFilm IN NUMBER) RETURN NUMBER
+    IS 
+        nbCopy NUMBER(2,0);
     BEGIN
-        LOOP
-            ChaineGen := REGEXP_SUBSTR(genre,'[^‖]+',1,i);
-            EXIT WHEN ChaineGen IS NULL;
-            idGen := cast(REGEXP_SUBSTR(ChaineGen,'[^․]+',1,1) as number);
-            NomGenre:=SUBSTR(REGEXP_SUBSTR(ChaineGen,'[^‖]+',1,1),cast((regexp_instr(ChaineGen,'․',1,1)+1)as number));    
-
-            BEGIN
-                INSERT INTO Genres VALUES(idGen,NomGenre);
-                INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
-            EXCEPTION
-                WHEN DUP_VAL_ON_INDEX THEN
-                    INSERT INTO Film_Genre VALUES(idGen,Movie_Id);
-                    Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-                When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
-                RAISE;
-            END;
-
-            i:=i+1;
-        END LOOP;
-	EXCEPTION
-		WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-    END TraiterGenre;
-
-    PROCEDURE TraiterRealisateur(Movie_Id IN movies_ext.id%TYPE, direct IN movies_ext.directors%TYPE)
-    as
-        ChainReal varchar2(4000);
-        idReal NUMBER;
-        NomReal varchar2(4000);
-        IdTemp NUMBER;
-        i number:=1;
-    BEGIN    
-        LOOP
-            ChainReal := REGEXP_SUBSTR(direct,'[^‖]+',1,i);
-            EXIT WHEN ChainReal IS NULL;
-            idReal := cast(REGEXP_SUBSTR(ChainReal,'[^․]+',1,1) as number);
-            NomReal:=SUBSTR(REGEXP_SUBSTR(ChainReal,'[^‖]+',1,1),cast((regexp_instr(ChainReal,'․',1,1)+1)as number));    
-
-            BEGIN
-                NomReal:=TRUNC_Chaine(NomReal,24);
-                INSERT INTO ARTISTS VALUES(idReal,NomReal);
-                INSERT INTO REALISER VALUES(Movie_Id,idReal);
-            EXCEPTION
-                WHEN DUP_VAL_ON_INDEX THEN
-                    INSERT INTO REALISER VALUES(Movie_Id,idReal);
-                    Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-                WHEN OTHERS THEN RAISE;
-            END;
-
-            i:=i+1;
-        END loop;
-    END TraiterRealisateur;
-
-    PROCEDURE TraiterCopies (Movie_Id IN movies_ext.id%TYPE)
-    AS
-        NbCopies NUMBER;
-    BEGIN
-        NbCopies :=ABS(DBMS_RANDOM.NORMAL *3 +6);
-        FOR indx IN 1..NbCopies LOOP
-            INSERT INTO Films_Copies(movie) VALUES(Movie_Id);
-        END LOOP;
+        select abs(((DBMS_RANDOM.NORMAL)*COUNT(*))/6+1) INTO nbCopy
+        FROM films_copies
+        WHERE movie=p_idFilm;
         
-        UPDATE FILMS 
-        set nbcopyMax=NbCopies
-        WHERE idFilm=Movie_Id;
+        RETURN nbCopy;
+    END Generate_Number_Copy;
+    
+    PROCEDURE Take_Copy(p_idFilm IN NUMBER , nbCopy IN NUMBER) AS
+        nbCopyDispo NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO nbCopyDispo
+        FROM films_copies
+        WHERE movie=p_idFilm;
+        
+        IF nbCopyDispo>nbCopy OR nbCopyDispo=nbCopy THEN
+            SELECT * BULK COLLECT INTO l_copie
+            FROM films_copies
+            WHERE movie=p_idFilm
+            AND ROWNUM<nbCopy+1;
+        ELSIF nbCopyDispo>0 THEN
+            SELECT * BULK COLLECT INTO l_copie
+            FROM films_copies
+            WHERE movie=p_idFilm
+            AND ROWNUM<nbCopyDispo+1;
+        ELSE
+            NULL;
+        END IF;          
         
     EXCEPTION
         WHEN OTHERS THEN RAISE;
-    END TraiterCopies;
-
-    PROCEDURE TraiterActeur(Movie_Id IN movies_ext.id%TYPE, act IN movies_ext.actors%TYPE)
-    as
-        ChainAct varchar2(4000);
-        idAct NUMBER;
-        NomAct varchar2(4000);
-        RoleAct varchar2(4000);
-        IdTemp NUMBER;
-        i number:=1;
+    END Take_Copy; 
+    
+    FUNCTION Info_Connue(p_idFilm IN NUMBER , p_complexe IN NUMBER) RETURN boolean
+    IS
+        idTemp NUMBER:=0;
+        requeteBlock varchar2(2000);
     BEGIN
-        LOOP
-            ChainAct := REGEXP_SUBSTR(act,'[^‖]+',1,i);
-            EXIT WHEN ChainAct IS NULL;
-            idAct := cast(REGEXP_SUBSTR(ChainAct,'[^․]+',1,1) as number);
-            NomAct:=REGEXP_SUBSTR(ChainAct,'[^․]+',1,2);    
-            RoleAct:=SUBSTR(REGEXP_SUBSTR(ChainAct,'[^‖]+',1,1),cast((regexp_instr(ChainAct,'․',1,2)+1)as number));
-            RoleAct:=TRUNC_Chaine(RoleAct,24);
+        requeteBlock:='
+            SELECT IdFilm
+            FROM FILMS@orcl@cc'||p_complexe||'
+            WHERE idFilm='||p_idFilm;
+            EXECUTE IMMEDIATE requeteBlock INTO idTemp;
+            IF idTemp <>0 AND idTemp=p_idFilm THEN RETURN TRUE; END IF;
+            
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN RETURN FALSE;
+        WHEN OTHERS THEN RAISE;
+    END Info_Connue;
+    
+    PROCEDURE Recup_Data(p_idFilm IN NUMBER , p_complexe IN NUMBER) AS
+    BEGIN
+        SELECT * INTO films_temp
+        FROM films
+        WHERE idFilm=p_idFilm;
+        
+        SELECT Jouer.* BULK COLLECT INTO l_jouer
+        FROM Jouer JOIN Films
+        ON Jouer.Film=Films.idFilm
+        Where Films.idFilm=p_idFilm;
+        
+        SELECT Realiser.* INTO realiser_temp
+        FROM Realiser JOIN Films
+        ON Realiser.Film=Films.idFilm
+        Where Films.idFilm=p_idFilm; 
+        
+        select Artists.* BULK COLLECT INTO l_artists
+        from artists
+        WHERE idArt IN (
+            SELECT JOUER.Artist
+            FROM jouer JOIN films
+            ON JOUER.film=films.idFilm
+            WHERE films.idFilm=p_idFilm)
+        OR idArt IN(
+            SELECT REALISER.Artist
+            FROM REALISER JOIN films
+            ON REALISER.film=films.idFilm
+            WHERE films.idFilm=p_idFilm);
+        
+        SELECT Certifications.* INTO certifications_temp
+        FROM Certifications JOIN Films
+        ON Certifications.idCerti=Films.Certification
+        WHERE Films.idFilm=p_idFilm;
+        
+        SELECT Posters.* INTO posters_temp
+        FROM Posters JOIN Films
+        ON Posters.idPoster=Films.Poster
+        WHERE Films.idFilm=p_idFilm;
+        
+        SELECT Film_Genre.* BULK COLLECT INTO l_film_genre
+        FROM Film_Genre JOIN Films
+        ON Film_Genre.Film=Films.idFilm
+        WHERE Films.idFilm=p_idFilm;
+        
+        SELECT Genres.* BULK COLLECT INTO l_genres
+        FROM Genres JOIN Film_Genre
+        ON Genres.idGenre=Film_Genre.Genre
+        WHERE Film_Genre.Film=p_idFilm;
+        
+        BEGIN
+            FOR indx IN l_copie.FIRST .. l_copie.LAST LOOP
+                SELECT * INTO l_programmation(indx)
+                FROM PROGRAMMATIONS_VIEW
+                WHERE copy=l_copie(indx).id
+                AND complexe=p_complexe;
+            END LOOP;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN NULL;
+        END;
+          
+    END Recup_Data;
+    
+    PROCEDURE Insert_Data(p_complexe IN NUMBER) AS
+        requeteBlock varchar2(2000);
+    BEGIN
 
+        requeteBlock:='
+            INSERT INTO POSTERS@orcl@cc'||p_complexe||'(IdPoster,PathImage,Image) VALUES(:idPoster , :PathImage,:IMAGE)';
+            EXECUTE IMMEDIATE requeteBlock USING posters_temp.idPoster, posters_temp.PathImage,posters_temp.IMAGE; 
+            
+        BEGIN
+            requeteBlock:='
+                INSERT INTO CERTIFICATIONS@orcl@cc'||p_complexe||'(idCerti,nomCerti) VALUES(:idCerti , :nomCerti)';
+                EXECUTE IMMEDIATE requeteBlock USING certifications_temp.idCerti,certifications_temp.nomCerti;
+        EXCEPTION
+            WHEN DUP_VAL_ON_INDEX THEN NULL;
+        END ;
+        
+        requeteBlock:='
+            INSERT INTO FILMS@orcl@cc'||p_complexe||' 
+            VALUES(:idFilm ,:Titre , :Titre_Original,:status,:tagline,:Date_real, :vote_average,:vote_count,:certification,:duree,
+                :budget,:poster)';
+        EXECUTE IMMEDIATE requeteBlock USING films_temp.idFilm ,films_temp.Titre , films_temp.Titre_Original,films_temp.status,
+                films_temp.tagline,films_temp.Date_real, films_temp.vote_average,films_temp.vote_count,films_temp.certification,
+                films_temp.duree,films_temp.budget,films_temp.poster;
+                
+        FOR indx IN l_genres.FIRST .. l_genres.LAST LOOP
             BEGIN
-                NomAct:=TRUNC_Chaine(NomAct,24);
-                INSERT INTO ARTISTS VALUES(idAct,NomAct);
-                INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
+                requeteBlock:='
+                    INSERT INTO genres@orcl@cc'||p_complexe||'(idGenre,nomGenre) VALUES(:idGenre , :nomGenre)';
+                    EXECUTE IMMEDIATE requeteBlock USING l_genres(indx).idGenre,l_genres(indx).nomGenre;
             EXCEPTION
-                WHEN DUP_VAL_ON_INDEX THEN
-                    INSERT INTO Jouer VALUES(Movie_Id,idAct,RoleAct);
-                    Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-                WHEN OTHERS THEN RAISE;
-            END;
-
-            i:=i+1;
-        END loop;
-    END TraiterActeur;
-
-    PROCEDURE InsertData(Movie_Id IN movies_ext.id%TYPE , Movie_Title IN movies_ext.Title%TYPE , Movie_OriginalTitle IN
-    movies_ext.Original_Title%TYPE , Movie_statut IN movies_ext.Status%TYPE,Movie_date IN movies_ext.Release_Date%TYPE 
-    ,Movie_vote_avg IN movies_ext.Vote_Average%TYPE ,  Movie_vote_ct IN movies_ext.Vote_Count%TYPE , Movie_runtime IN 
-    movies_ext.Runtime%TYPE , Movie_certification IN movies_ext.Certification%TYPE , movie_poster IN movies_ext.Poster_PATH%TYPE,
-    movie_budget IN movies_ext.Budget%TYPE , Movie_Tagline IN movies_ext.Tagline%TYPE)
-    AS
-        EXC_NEWCOPY EXCEPTION;
+                WHEN DUP_VAL_ON_INDEX THEN NULL;
+            END ;
+        END LOOP;
         
-        Liens_Image varchar2(150);
-        CertiTemp Certifications.NomCerti%TYPE;
-        CertiIdTemp Certifications.IdCerti%TYPE;
-        PosterIdTemp Posters.IdPoster%TYPE;
-
-        newCerti varchar2(5);
-        newMovieTitle varchar2(43 char);
-        newOriginalTitle varchar2(43 char);
-        newTagLine varchar(107 char);
-    BEGIN      
-        BEGIN
-            --Le path peut-etre null :
-            IF movie_poster IS NOT NULL THEN
-                Liens_Image:='http://image.tmdb.org/t/p/w185'||movie_poster;
-                INSERT INTO POSTERS(PathImage,Image)VALUES(movie_poster,httpuritype(Liens_Image).getblob()) Returning IdPoster into PosterIdTemp;
-            ELSE
-                INSERT INTO POSTERS(PathImage,Image)VALUES(null,null);
-            END IF ;
-        EXCEPTION
-            When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
-            RAISE;
-        END;
-
-        newCerti:=Analyse_Certi(Movie_certification);
-        BEGIN
-            IF newCerti IS NOT NULL THEN
-                SELECT IdCerti INTO CertiIdTemp
-                FROM Certifications
-                WHERE Nomcerti=newCerti;
-            ELSIF newCerti IS NULL THEN
-                SELECT IdCerti INTO CertiIdTemp
-                FROM Certifications
-                WHERE Nomcerti IS NULL;
-            END IF ;
-        EXCEPTION
-            WHEN NO_DATA_FOUND THEN INSERT INTO certifications(Nomcerti) VALUES(newCerti) returning IdCerti into CertiIdTemp;
-            WHEN OTHERS 
-                THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
-                    Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
-                    RAISE;
-        END;
-
-        newMovieTitle:=TRUNC_Chaine(Movie_Title,43);
-        newOriginalTitle:=TRUNC_Chaine(Movie_OriginalTitle,43);
-        newTagLine:=TRUNC_Chaine(Movie_Tagline,107);
+        FOR indx IN l_film_genre.FIRST .. l_film_genre.LAST LOOP
+            BEGIN
+                requeteBlock:='
+                    INSERT INTO film_genre@orcl@cc'||p_complexe||'(genre,film) VALUES(:genre , :film)';
+                    EXECUTE IMMEDIATE requeteBlock USING l_film_genre(indx).genre,l_film_genre(indx).film;
+            EXCEPTION
+                WHEN DUP_VAL_ON_INDEX THEN NULL;
+            END ;
+        END LOOP;
         
-        INSERT INTO Films VALUES(Movie_Id,newMovieTitle,newOriginalTitle,Movie_statut,newTagLine,Movie_date,
-        Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp,0);
-	EXCEPTION
-		WHEN DUP_VAL_ON_INDEX THEN
-            TraiterCopies(Movie_Id);
-        When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+        FOR indx IN l_artists.FIRST .. l_artists.LAST LOOP
+            BEGIN
+                requeteBlock:='
+                    INSERT INTO artists@orcl@cc'||p_complexe||'(idArt,nomArt) VALUES(:idArt , :nomArt)';
+                    EXECUTE IMMEDIATE requeteBlock USING l_artists(indx).idArt,l_artists(indx).nomArt;
+            EXCEPTION
+                WHEN DUP_VAL_ON_INDEX THEN NULL;
+            END ;            
+        END LOOP;
+        
+        requeteBlock:='
+            INSERT INTO realiser@orcl@cc'||p_complexe||'(Film,artist) VALUES(:Film , :artist)';
+        EXECUTE IMMEDIATE requeteBlock USING realiser_temp.Film,realiser_temp.artist;
+        
+        FOR indx IN l_jouer.FIRST .. l_jouer.LAST LOOP
+            BEGIN
+                requeteBlock:='
+                    INSERT INTO jouer@orcl@cc'||p_complexe||'(film,artist,role) VALUES(:film , :artist ,:role)';
+                    EXECUTE IMMEDIATE requeteBlock USING l_jouer(indx).film,l_jouer(indx).artist,l_jouer(indx).role;
+            EXCEPTION
+                WHEN DUP_VAL_ON_INDEX THEN NULL;
+            END ;            
+        END LOOP;
+        
+        BEGIN
+            IF l_programmation.count>0 THEN
+                FOR indx IN l_programmation.FIRST .. l_programmation.LAST LOOP
+                    requeteBlock:='
+                        INSERT INTO programmations@orcl@cc'||p_complexe||'(IdDemande,complexe,debut,fin,movie,copy,
+                            salle,heure) VALUES(:IdDemande,:complexe,:debut,:fin,:movie,:copy,:salle,:heure)';
+                     EXECUTE IMMEDIATE requeteBlock USING l_programmation(indx).IdDemande,l_programmation(indx).complexe,
+                     l_programmation(indx).debut,l_programmation(indx).fin,l_programmation(indx).movie,l_programmation(indx).copy,
+                     l_programmation(indx).salle,l_programmation(indx).heure;
+                END LOOP;
+            END IF;
+            EXCEPTION
+            WHEN DUP_VAL_ON_INDEX THEN NULL;
+        END; 
+        
+    EXCEPTION
+        WHEN OTHERS THEN 
+            dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
             RAISE;
-    END InsertData;
+    END Insert_Data;
+
+    PROCEDURE Send_Copy(p_complexe IN NUMBER) AS
+        requeteBlock varchar2(2000); 
+    BEGIN
+        FOR indx IN l_copie.FIRST .. l_copie.LAST LOOP
+            requeteBlock:='
+                INSERT INTO films_copies@orcl@cc'||p_complexe||'(id,movie) VALUES(:id,:movie)';
+                EXECUTE IMMEDIATE requeteBlock USING l_copie(indx).id,l_copie(indx).movie;
+                DELETE FROM films_copies WHERE id=l_copie(indx).id;
+        END LOOP;
+    END Send_Copy;
+
+PROCEDURE RetourCopie (p_idfilm NUMBER,p_complexe IN NUMBER) AS
+    l_programmationretour Liste_Programmation;
+    l_copieretour Liste_Copie;
+    requeteBlock varchar2(2000);
+    currYear NUMBER;
+    currMonth NUMBER;
+BEGIN
+    
+    select EXTRACT(YEAR FROM current_date),EXTRACT(MONTH FROM current_date) INTO currYear,currMonth
+    FROM DUAL;
+    
+    requeteBlock:='
+        SELECT *
+        FROM programmations@orcl@cc'||p_complexe||'
+        WHERE movie='||p_idfilm||'
+        AND EXTRACT(YEAR FROM fin)='||currYear||'
+        AND EXTRACT(MONTH FROM fin)<'||currMonth||'
+        OR EXTRACT(YEAR FROM fin)<'||currYear;
+    EXECUTE IMMEDIATE requeteBlock BULK COLLECT INTO l_programmationretour;
+    
+    IF l_programmationretour.count>0 THEN
+        FOR indx IN l_programmationretour.FIRST .. l_programmationretour.LAST LOOP
+            requeteBlock:='
+                SELECT *
+                FROM films_copies@orcl@cc'||p_complexe||'
+                WHERE id='||l_programmationretour(indx).copy;
+            EXECUTE IMMEDIATE requeteBlock BULK COLLECT INTO l_copieretour;
+        END LOOP;
+    END IF;
+    
+    IF l_copieretour.count>0 THEN
+        FOR indx IN l_copieretour.FIRST .. l_copieretour.LAST LOOP
+            INSERT INTO FILMS_COPIES(movie) VALUES(l_copieretour(indx).movie);
+            
+            requeteBlock:='
+                DELETE FROM programmations@orcl@cc'||p_complexe||'
+                WHERE copy='||l_copieretour(indx).id;
+              EXECUTE IMMEDIATE requeteBlock ;  
+                
+             requeteBlock:='   
+                DELETE FROM films_copies@orcl@cc'||p_complexe||'
+                WHERE id='||l_copieretour(indx).id;
+            EXECUTE IMMEDIATE requeteBlock ;
+        END LOOP;
+    END IF;
+    
+END RetourCopie;
+
+END package_AlimCC;
+--dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
 --dbms_output.put_line(Liste(indx));
-END packageAlimCB;
