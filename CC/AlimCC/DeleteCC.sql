@@ -3,6 +3,10 @@ DECLARE
 BEGIN
     FOR i IN 1 .. 6 LOOP
     req:='
+        delete from programmations@orcl@cc'||i;
+        EXECUTE IMMEDIATE req;
+    
+    req:='
         delete from FILMS_COPIES@orcl@cc'||i;
         EXECUTE IMMEDIATE req;
     req:='
