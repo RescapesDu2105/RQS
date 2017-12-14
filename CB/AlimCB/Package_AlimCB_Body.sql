@@ -14,7 +14,7 @@ AS
         resultat varchar2(1024 CHAR);
     BEGIN
         IF LENGTH(chaine)>quantile THEN
-            --Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', '-20001', chaine || 'dépasse : '|| quantile);
+            Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', '-20001', chaine || 'dépasse : '|| quantile);
             resultat:=substr(chaine,1,quantile-5) || '(...)';
         return resultat;
         ELSE
@@ -22,7 +22,6 @@ AS
         END IF ;
 	EXCEPTION
 		WHEN OTHERS THEN 
-        dbms_output.put_line('ici');
         RAISE;
     END TRUNC_Chaine;
 
@@ -117,7 +116,8 @@ AS
         NewPoster movies_ext.Poster_Path%TYPE;
         NewBudget movies_ext.Budget%TYPE;
         NewTagline movies_ext.Tagline%TYPE;
-
+        
+        EXC_NEWCOPY EXCEPTION;
     BEGIN
         FOR indx IN l_movies.FIRST..l_movies.LAST LOOP
 
@@ -138,18 +138,17 @@ AS
                 TraiterActeur(l_movies(indx).id, l_movies(indx).actors);
                 TraiterCopies(l_movies(indx).id);    
 
-                Package_VerifActeur.VerifActeur(l_movies(indx).id);
-                BEGIN
-                    FOR p_complexe IN 1..6 LOOP
-                        package_AlimCC.AlimCC(l_movies(indx).id,p_complexe);
-                    END LOOP;
-                EXCEPTION
-                    WHEN OTHERS THEN RAISE;   
-                END;
-
+                --Package_VerifActeur.VerifActeur(l_movies(indx).id);
+                
+                AlimCC(l_movies(indx).id);
                 commit;
             EXCEPTION
-                WHEN OTHERS THEN Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
+                WHEN DUP_VAL_ON_INDEX THEN 
+                    Dbms_Output.Put_Line('Creation de nouvelle copie');
+                    AlimCC(l_movies(indx).id);
+                    commit;
+                WHEN OTHERS THEN 
+                    Ajout_Log_Error(CURRENT_TIMESTAMP, 'AlimCB', SQLCODE, SQLERRM);
                 ROLLBACK;
             END ;
 
@@ -159,7 +158,7 @@ AS
     END TraiterFilm;
 
     PROCEDURE TraiterGenre(Movie_Id IN movies_ext.id%TYPE, genre IN movies_ext.genres%TYPE)
-    AS
+    AS  
         ChaineGen varchar2(25);
         idGen NUMBER;
         NomGenre varchar2(25);
@@ -273,6 +272,8 @@ AS
     movies_ext.Runtime%TYPE , Movie_certification IN movies_ext.Certification%TYPE , movie_poster IN movies_ext.Poster_PATH%TYPE,
     movie_budget IN movies_ext.Budget%TYPE , Movie_Tagline IN movies_ext.Tagline%TYPE)
     AS
+        EXC_NEWCOPY EXCEPTION;
+        
         Liens_Image varchar2(150);
         CertiTemp Certifications.NomCerti%TYPE;
         CertiIdTemp Certifications.IdCerti%TYPE;
@@ -322,8 +323,21 @@ AS
         INSERT INTO Films VALUES(Movie_Id,newMovieTitle,newOriginalTitle,Movie_statut,newTagLine,Movie_date,
         Movie_vote_avg,Movie_vote_ct,CertiIdTemp,Movie_runtime,movie_budget,PosterIdTemp,0);
 	EXCEPTION
-		When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
-        RAISE;
+		WHEN DUP_VAL_ON_INDEX THEN
+            TraiterCopies(Movie_Id);
+        When Others Then Dbms_Output.Put_Line('INTERCEPTE : CODE ERREUR : '|| Sqlcode || ' MESSAGE : ' || Sqlerrm) ;
+            RAISE;
     END InsertData;
 --dbms_output.put_line(Liste(indx));
+
+    PROCEDURE AlimCC(Movie_Id IN movies_ext.id%TYPE) AS
+    BEGIN
+        FOR p_complexe IN 1..6 LOOP
+            package_AlimCC.AlimCC(Movie_Id,p_complexe);
+            package_AlimCC.RetourCopie(Movie_Id,p_complexe);
+        END LOOP;
+    EXCEPTION
+        WHEN OTHERS THEN RAISE;   
+END AlimCC;
+
 END packageAlimCB;
