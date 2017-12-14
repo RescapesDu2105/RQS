@@ -397,3 +397,4 @@ Insert into FILMS_COPIES (ID,MOVIE) values ('862','1892');
 Insert into FILMS_COPIES (ID,MOVIE) values ('855','1892');
 Insert into FILMS_COPIES (ID,MOVIE) values ('871','1893');
 Insert into FILMS_COPIES (ID,MOVIE) values ('872','1893');
+commit;
