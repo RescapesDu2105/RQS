@@ -130,7 +130,7 @@ public class Servlet extends HttpServlet {
                     }
                     
                     System.out.println("urlParameters = " + urlParameters);
-                    DBAccess.SendPOSTRequest("http://127.0.0.1:9080/cc1/rqs/cc1.package_RechPlaces.RecupererFilms", urlParameters);
+                    DBAccess.SendPOSTRequest("http://127.0.0.1:9080/ords/rqs/cb.package_RechPlaces.RecupererFilms", urlParameters);
                     System.out.println("Reponse = " + DBAccess.ReceiveResponse());
                 } 
                 catch (Exception e) 
@@ -138,7 +138,7 @@ public class Servlet extends HttpServlet {
                     e.printStackTrace();
                 }
                                         
-                response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/RechPlaces.jsp");
+                //response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/RechPlaces.jsp");
                 break;            
             case "FicheFilm":
                 RecupererFilm(Integer.parseInt(request.getParameter("IdFilm")), session);
