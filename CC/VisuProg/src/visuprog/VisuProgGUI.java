@@ -39,7 +39,7 @@ import org.xml.sax.SAXException;
 public class VisuProgGUI extends javax.swing.JFrame
 {
     private Document programmations;
-    private Document feedback;
+    private Document feedback , programmation;
     private File xslt=null,programmation_xml=null;
     boolean prog_valide=false , feedback_valide=false ,xslt_valide=false;
     
@@ -165,10 +165,25 @@ public class VisuProgGUI extends javax.swing.JFrame
         }
         else
         {
-            programmation_xml=jfc.getSelectedFile();
-            jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML des programmations validé !\n" );
-            prog_valide=true;
-            BoutonTransformEnbaled();
+            try
+            {
+                programmation_xml=jfc.getSelectedFile();
+                programmation=loadXmlDocument(programmation_xml);
+                xsd = new File("D:\\GitHub\\RQS\\CB\\XSD\\listeprogrammation.xsd");
+                //valideDocument(programmation,xsd);  
+                jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML des programmation(s) validé !\n" );
+                prog_valide=true;
+                BoutonTransformEnbaled();
+            } catch (ParserConfigurationException ex)
+            {
+                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SAXException ex)
+            {
+                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex)
+            {
+                Logger.getLogger(VisuProgGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }//GEN-LAST:event_jButtonProgrammationFileActionPerformed
 
@@ -192,8 +207,8 @@ public class VisuProgGUI extends javax.swing.JFrame
             {
                 feedback_xml=jfc.getSelectedFile();
                 feedback=loadXmlDocument(feedback_xml);
-                xsd = new File("D:\\GitHub\\RQS\\CC\\CreaCC\\XSD\\feedback.xsd");
-                //valideDocument(programmations,xsd);
+                xsd = new File("D:\\GitHub\\RQS\\CB\\XSD\\feedback.xsd");
+                valideDocument(feedback,xsd);
                 jTextAreaResultat.setText(jTextAreaResultat.getText()+"XML des feedback(s) validé !\n" );
                 feedback_valide=true;
                 BoutonTransformEnbaled();
