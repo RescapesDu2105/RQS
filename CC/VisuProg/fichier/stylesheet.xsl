@@ -25,6 +25,7 @@
                                 <th scope="col" class="text-center">isOk</th>
                                 <th scope="col" class="text-center">idDemande</th>
                                 <th scope="col" class="text-center">Complexe</th>
+                                <th scope="col" class="text-center">Debut</th>
                                 <th scope="col" class="text-center">Fin</th>
                                 <th scope="col" class="text-center">Movie</th>
                                 <th scope="col" class="text-center">Copy</th>
@@ -57,6 +58,7 @@
             <xsl:variable name="demID" select="@id"/>
             <td class="text-center"><xsl:value-of select="$demID"/></td>
             <td class="text-center"><xsl:value-of select="$programmation/programmation/demande[@idDemande=$demID]/complexe"/></td>
+            <td class="text-center"><xsl:value-of select="$programmation/programmation/demande[@idDemande=$demID]/debut"/></td>
             <td class="text-center"><xsl:value-of select="$programmation/programmation/demande[@idDemande=$demID]/fin"/></td>
             <td class="text-center"><xsl:value-of select="$programmation/programmation/demande[@idDemande=$demID]/movie"/></td>
             <td class="text-center"><xsl:value-of select="$programmation/programmation/demande[@idDemande=$demID]/copy"/></td>
