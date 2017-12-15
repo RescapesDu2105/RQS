@@ -6,7 +6,7 @@ DECLARE
     apex apex_t_varchar2;
     split apex_t_varchar2;
 BEGIN
-    acteurs := 'ford';
+    acteurs := 'Harr';
     realisateurs := ''; --'IRVIN KERSHNER';
     genres := '';--'SCIENCE FICTION';
     titre := '';--'STAR';    
@@ -54,7 +54,7 @@ SELECT f.*, av.ComplexePopularite, av.ComplexePerenite,
         AND av.IdComplexes = CAST(SUBSTR('cc1', 3, 1) AS NUMBER)
         ORDER BY f.IdFilm;
 
-SELECT SUBSTR('cc1', 3, 1) FROM DUAL;
+SELECT NomArt FROM Artists@orcl@cc1 WHERE regexp_like(UPPER(ARTISTS.NomArt), '^FORD*|^HARRISON*');
 
 DECLARE
   l_cursor SYS_REFCURSOR;
