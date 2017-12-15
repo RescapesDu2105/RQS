@@ -13,6 +13,7 @@ import Beans.Realisateur;
 import Classes.DBAccess;
 import Classes.Genre;
 import Classes.JouerFilm;
+import Classes.Tailles_Posters;
 import com.mongodb.client.FindIterable;
 import java.io.IOException;
 import java.io.StringReader;
@@ -226,8 +227,7 @@ public class Servlet extends HttpServlet {
         System.out.println("doc = " + doc);
         
         if (doc != null)
-        {
-            String[] CompleteName = doc.getString("name").split(" ");
+        {            
             acteur.setDateNaissance(doc.getString("birthday"));
             acteur.setLieuNaissance(doc.getString("place_of_birth"));
             acteur.setDateDeces(doc.getString("deathday") != null ? doc.getString("deathday") : null);
@@ -239,10 +239,14 @@ public class Servlet extends HttpServlet {
             
         }
 
-        FindIterable<Document> docs = BeanDB.FilmographieActeur(acteur.getId());        
-        for(Document document : docs)
+        System.out.println("id = " + acteur.getId());
+        ArrayList<Document> films = (ArrayList<Document>) doc.get("films");
+        System.out.println("films = " + films);       
+        for(Document document : films)
         {
-            JouerFilm film = new JouerFilm(document.get("title").toString(), document.get("original_title").toString(), document.get("poster_path").toString(), /*document.getString("release_date"),*/ document.get("actors", ArrayList.class).get(0).toString().split("character=")[1].split(",", 0)[0]);
+            JouerFilm film = new JouerFilm(document.get("titre").toString(), document.containsKey("original_title") ? document.get("original_title").toString() : null, document.containsKey("poster_path") ? document.get("poster_path").toString() : null, /*document.getString("release_date"),*/ document.containsKey("character") ? document.get("character").toString() : null);
+            System.out.println("o = " + film.getOriginalTitle());
+            System.out.println("c = " + film.getCharacter());
             acteur.getFilmographie().add(film);
         }
 

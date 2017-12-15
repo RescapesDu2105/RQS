@@ -27,13 +27,34 @@
         <link rel="icon" href="../../favicon.ico">
         <title>RQS - Fiche acteur</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> 
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">     
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/RechPlaces.css">
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <a class="navbar-brand" href="#"><i class="fa fa-cinema"></i><strong> Rennequinepolis</strong></a>
-            </div>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between">
+            <a class="navbar-brand" href="#"><i class="fa fa-cinema"></i><strong> Rennequinepolis</strong></a>
+            <form class="form-inline">
+                <button type="button" class="btn btn-info mr-1">
+                    <a id="redirection" href="RechPlaces.jsp">
+                        <i class="fa fa-chevron-left" aria-hidden="true"></i> 
+                        Retourner sur la page principale
+                    </a>
+                </button>       
+                
+                <%  if(session.getAttribute("isConnected") != null) { %>
+                    <button type="button" class ="btn btn-success ml-1"> 
+                        <a id="redirection" href="Servlet?action=AfficherPanier">0
+                            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                            Panier
+                        </a>
+                    </button>
+                <% } else { %>
+                    <button type="button" class ="btn btn-success ml-1" data-toggle="modal" data-target="#ModalConnexion"> 
+                        <i class="fa fa-power-off" aria-hidden="true"></i>
+                        Se connecter pour voir le panier
+                    </button>
+                <% } %>
+            </form>
         </nav>
         <div class="container-fluid" id="main"> 
                        
@@ -55,14 +76,16 @@
                             <h2 class="text-center">Lieu de naissance :</h2>
                             <p class="lead text-center"><%= Acteur.getLieuNaissance() %></p>
                           
-                            <h2 class="text-center">Date de décès :</h2>
-                            <p class="lead text-center">14 novembre 2017</p>
                         <%  if(Acteur.getDateDeces() != null)
                             {
                         %>
                                 <h2 class="text-center">Date de décès :</h2>
                                 <p class="lead"><% formatter.format(formatter.parse(Acteur.getDateDeces())); %></p>                          
-                        <%  }   %>
+                        <%  }  
+                            else
+                            { %>
+                                <br>
+                        <%  } %>
                         <br>
                         </div>
                     </div>
@@ -91,9 +114,9 @@
                                         %>
                                         <img class="card-img-top" src="<%= jouerFilm.getPosterPath(Tailles_Posters.POSTER_SIZE_W185) != null ? jouerFilm.getPosterPath(Tailles_Posters.POSTER_SIZE_W185) : "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/No_free_image_man_%28en%29.svg/256px-No_free_image_man_%28en%29.svg.png" %>" alt="Image du film <%= jouerFilm.getTitle() %>">
                                         <div class="card-body">
-                                            <h4 class="card-title"><%= jouerFilm.getTitle() + "(" + (!jouerFilm.getReleaseDate().equals("") ? jouerFilm.getReleaseDate().substring(0, 4) : "?") + ")" %></h4>
-                                        <p class="card-text"><small class="text-muted"><%= "Titre original : " + jouerFilm.getOriginalTitle() %></small></p>
-                                        <p class="card-text"><%= jouerFilm.getCharacter().equals("") ? "Rôle : " + jouerFilm.getCharacter() : "Rôle : ?" %></p>
+                                            <h4 class="card-title"><%= jouerFilm.getTitle() + "(" + (jouerFilm.getReleaseDate() != null ? jouerFilm.getReleaseDate().substring(0, 4) : "?") + ")" %></h4>
+                                        <% if(jouerFilm.getOriginalTitle() != null) { %> <p class="card-text"><small class="text-muted"><%= "Titre original : " + jouerFilm.getOriginalTitle() %></small></p> <% } %>
+                                        <p class="card-text"><%= jouerFilm.getCharacter() != null ? "Rôle : " + jouerFilm.getCharacter() : "Rôle : ?" %></p>
                                         </div>
                                         <% } %>
                                     </div>                                    
