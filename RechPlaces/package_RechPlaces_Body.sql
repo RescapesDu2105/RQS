@@ -202,10 +202,10 @@ AS
                 FROM Programmations@orcl@' || complexe || ' prog
                 WHERE prog.Movie = f.IdFilm ';     
             
-        IF(titreInput IS NULL AND realisateursInput IS NULL AND genresInput IS NULL AND acteursInput IS NULL) THEN
+        /*IF(titreInput IS NULL AND realisateursInput IS NULL AND genresInput IS NULL AND acteursInput IS NULL) THEN
             requete := requete || '
                 AND TO_DATE(CURRENT_DATE, ''DD/MM/YYYY'') BETWEEN TO_DATE(DEBUT, ''DD/MM/YYYY'') AND TO_DATE(FIN, ''DD/MM/YYYY'')';
-        END IF;
+        END IF;*/
         
         requete := requete || ')
             AND av.IdFilm = f.IdFilm
