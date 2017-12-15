@@ -4,11 +4,15 @@ DECLARE
     genres VARCHAR2(100);
     titre VARCHAR2(100);
     apex apex_t_varchar2;
+    split apex_t_varchar2;
 BEGIN
-    acteurs := 'HARRISON FORD CARRIE FISHER';
-    realisateurs := 'IRVIN KERSHNER';
-    genres := 'SCIENCE FICTION';
-    titre := 'STAR';    
+    acteurs := 'ford';
+    realisateurs := ''; --'IRVIN KERSHNER';
+    genres := '';--'SCIENCE FICTION';
+    titre := '';--'STAR';    
+    
+    split := apex_string.split(acteurs, '\s*[ ]\s*');
+    --DBMS_OUTPUT.PUT_LINE(split(1));
     
     PACKAGE_RECHPLACES.RecupererFilms('cc1', acteurs, realisateurs, genres, titre);
     
@@ -24,8 +28,8 @@ SELECT f.*, av.ComplexePopularite, av.ComplexePerenite,
             SELECT * 
             FROM ARTISTS INNER JOIN JOUER ON ARTISTS.IdArt = JOUER.Artist 
             WHERE JOUER.Film = f.IdFilm 
-            AND regexp_like(UPPER(ARTISTS.NomArt), '^HARRISON*|^FORD*|^CARRIE*|^FISHER*')) 
-        AND EXISTS (
+            AND regexp_like(UPPER(ARTISTS.NomArt), '^HAsdfRR*')) 
+        /*AND EXISTS (
             SELECT * 
             FROM GENRES INNER JOIN FILM_GENRE ON GENRES.IdGenre = FILM_GENRE.Genre 
             WHERE FILM_GENRE.Film = f.IdFilm 
@@ -40,7 +44,7 @@ SELECT f.*, av.ComplexePopularite, av.ComplexePerenite,
             FROM ARTISTS INNER JOIN REALISER ON ARTISTS.IdArt = REALISER.Artist 
             WHERE REALISER.Film = f.IdFilm 
             AND regexp_like(UPPER(ARTISTS.NomArt), '^IRVIN*|^KERSHNER*')) 
-        AND regexp_like(UPPER(f.Titre), '^STAR*')
+        AND regexp_like(UPPER(f.Titre), '^STAR*')*/
         AND EXISTS (
             SELECT * 
             FROM Programmations@orcl@cc1 
@@ -57,7 +61,7 @@ DECLARE
   requete VARCHAR2(2048);
 BEGIN
    requete := 
-        'SELECT f.*, av.ComplexePopularite, av.ComplexePerenite, c.NomCerti,  
+        'SELECT f.*, p. av.ComplexePopularite, av.ComplexePerenite, c.NomCerti,  
             CURSOR (SELECT j.ARTIST As IdArt, a.NomArt AS NomArt
                     FROM Jouer@orcl@cc1 j INNER JOIN Artists@orcl@cc1 a ON j.Artist = a.IdArt
                     WHERE f.IdFilm = j.Film) AS Artists

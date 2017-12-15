@@ -17,7 +17,7 @@ AS
         requete := 
             'SELECT f.*, av.ComplexePopularite, av.ComplexePerenite, c.NomCerti, p.PathImage,
                 CURSOR (
-                    SELECT j.ARTIST As IdArt, a.NomArt
+                    SELECT j.ARTIST As IdArt, a.NomArt, j.Role
                     FROM Jouer@orcl@' || complexe || ' j INNER JOIN Artists@orcl@' || complexe || ' a ON j.Artist = a.IdArt WHERE f.IdFilm = j.Film) AS Artists,
                 CURSOR (
                     SELECT g.NomGenre
@@ -26,72 +26,71 @@ AS
                     SELECT r.NomArt
                     FROM Realiser@orcl@' || complexe || ' fr INNER JOIN Artists@orcl@' || complexe || ' r ON fr.Artist = r.IdArt WHERE f.IdFilm = fr.Film) AS Realisateurs
             FROM Films@orcl@' || complexe || ' f, Archive_Views av, Certifications c, Posters p 
-            WHERE EXISTS (
-                SELECT * 
-                FROM ARTISTS INNER JOIN JOUER ON ARTISTS.IdArt = JOUER.Artist 
-                WHERE JOUER.Film = f.IdFilm AND regexp_like(UPPER(ARTISTS.NomArt), ''';        
+            WHERE ';
+            
+        IF (LENGTH(acteursInput) > 0) THEN
+            requete := requete || 
+                'EXISTS (
+                    SELECT * 
+                    FROM ARTISTS INNER JOIN JOUER ON ARTISTS.IdArt = JOUER.Artist 
+                    WHERE JOUER.Film = f.IdFilm AND regexp_like(UPPER(ARTISTS.NomArt), ''';
+            split := apex_string.split(acteursInput, '\s*[ ]\s*');
+            FOR i in split.first..split.last LOOP
+                requete := requete || '^' || UPPER(split(i)) || '*|';
+            END LOOP;        
+            requete := SUBSTR(requete, 0, LENGTH(requete) - 1) || ''')) AND ';
+        END IF;
+        
+        IF (LENGTH(genresInput) > 0) THEN
+            requete := requete || 
+                'EXISTS (
+                    SELECT * 
+                    FROM GENRES INNER JOIN FILM_GENRE ON GENRES.IdGenre = FILM_GENRE.Genre
+                    WHERE FILM_GENRE.Film = f.IdFilm 
+                    AND regexp_like(UPPER(GENRES.NomGenre), ''';
+            split := apex_string.split(genresInput, '\s*[ ]\s*');
+            FOR i in split.first..split.last LOOP
+                requete := requete || '^' || UPPER(split(i)) || '*|';
+            END LOOP;
+            requete := SUBSTR(requete, 0, LENGTH(requete) - 1) || ''')) AND ';
+        END IF;
+    
+        IF (LENGTH(realisateursInput) > 0) THEN
+            requete := requete ||
+                'EXISTS (
+                    SELECT * 
+                    FROM ARTISTS INNER JOIN REALISER ON ARTISTS.IdArt = REALISER.Artist 
+                    WHERE REALISER.Film = f.IdFilm 
+                    AND regexp_like(UPPER(ARTISTS.NomArt), ''';
+            split := apex_string.split(realisateursInput, '\s*[ ]\s*');
+            FOR i in split.first..split.last LOOP
+                requete := requete || '^' || UPPER(split(i)) || '*|';
+            END LOOP;
+            requete := SUBSTR(requete, 0, LENGTH(requete) - 1) || ''')) AND ';
+        END IF;
 
-        split := apex_string.split(acteursInput, '\s*[ ]\s*');
-        FOR i in split.first..split.last LOOP
-            requete := requete || '^' || split(i) || '*|';
-        END LOOP;        
-        requete := SUBSTR(requete, 0, LENGTH(requete) - 1);
-        requete := requete || ''')) 
-            AND EXISTS (
-                SELECT * 
-                FROM GENRES INNER JOIN FILM_GENRE ON GENRES.IdGenre = FILM_GENRE.Genre
-                WHERE FILM_GENRE.Film = f.IdFilm 
-                AND regexp_like(UPPER(GENRES.NomGenre), ''';      
-
-        split := apex_string.split(genresInput, '\s*[ ]\s*');
-        FOR i in split.first..split.last LOOP
-            requete := requete || '^' || split(i) || '*|';
-        END LOOP;
-        requete := SUBSTR(requete, 0, LENGTH(requete) - 1);
-        requete := requete || ''')) 
-            AND EXISTS (
-                SELECT * 
-                FROM ARTISTS INNER JOIN REALISER ON ARTISTS.IdArt = REALISER.Artist 
-                WHERE REALISER.Film = f.IdFilm 
-                AND regexp_like(UPPER(ARTISTS.NomArt), ''';
-
-
-        split := apex_string.split(realisateursInput, '\s*[ ]\s*');
-        FOR i in split.first..split.last LOOP
-            requete := requete || '^' || split(i) || '*|';
-        END LOOP;
-        requete := SUBSTR(requete, 0, LENGTH(requete) - 1);
-        requete := requete || ''')) 
-            AND EXISTS (
-            SELECT * 
-            FROM ARTISTS INNER JOIN REALISER ON ARTISTS.IdArt = REALISER.Artist 
-            WHERE REALISER.Film = f.IdFilm 
-            AND regexp_like(UPPER(ARTISTS.NomArt), ''';
-
-        split := apex_string.split(realisateursInput, '\s*[ ]\s*');
-        FOR i in split.first..split.last LOOP
-            requete := requete || '^' || split(i) || '*|';
-        END LOOP;
-        requete := SUBSTR(requete, 0, LENGTH(requete) - 1);
-        requete := requete || ''')) 
-            AND regexp_like(UPPER(f.Titre), ''';
-
-        split := apex_string.split(titreInput, '\s*[ ]\s*');
-        FOR i in split.first..split.last LOOP
-            requete := requete || '^' || split(i) || '*|';
-        END LOOP;
-        requete := SUBSTR(requete, 0, LENGTH(requete) - 1);
-        requete := requete || ''') 
-            AND EXISTS (
+        IF(LENGTH(titreInput)> 0) THEN
+            requete := requete || 'regexp_like(UPPER(f.Titre), ''';    
+            split := apex_string.split(titreInput, '\s*[ ]\s*');
+            FOR i in split.first..split.last LOOP
+                requete := requete || '^' || UPPER(split(i)) || '*|';
+            END LOOP;
+            requete := SUBSTR(requete, 0, LENGTH(requete) - 1) || ''')) AND ';
+        END IF;
+        
+        requete := requete ||
+            'EXISTS (
                 SELECT * 
                 FROM Programmations@orcl@' || complexe || ' 
-                WHERE Movie = f.IdFilm 
-                AND TO_DATE(Fin, ''DD/MM/YYYY'') < TO_DATE(CURRENT_DATE, ''DD/MM/YYYY''))        
+                WHERE Movie = f.IdFilm )        
             AND av.IdFilm = f.IdFilm
             AND av.IdComplexes = SUBSTR(''' || complexe || ''', 3, 1)
             AND c.IdCerti = f.Certification
             AND p.IdPoster = f.Poster
             ORDER BY f.IdFilm';
+            
+            
+                --AND TO_DATE(Fin, ''DD/MM/YYYY'') < TO_DATE(CURRENT_DATE, ''DD/MM/YYYY'')
 
         DBMS_OUTPUT.PUT_LINE(requete);
         OPEN l_cursor FOR requete;

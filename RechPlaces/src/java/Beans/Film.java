@@ -33,10 +33,17 @@ public class Film implements Tailles_Posters, Serializable
     private String dateReal;
     //private ArrayList<Seance> Seances;
 
+    public Film()
+    {
+        this.acteurs = new ArrayList<>();
+        this.realisateurs = new ArrayList<>();
+        this.genres = new ArrayList<>();
+    }
+    
     public Film(int idFilm, String posterPath, String title, String originalTitle, int popularite, int perennite, String certification, float voteAverage, int voteCount, int duree, int budget, String dateReal)
     {
         this.idFilm = idFilm;
-        this.posterPath = "http://image.tmdb.org/t/p/w185" + posterPath;
+        this.posterPath = posterPath;
         this.title = title;
         this.originalTitle = originalTitle;
         this.popularite = popularite;
@@ -52,14 +59,22 @@ public class Film implements Tailles_Posters, Serializable
         this.realisateurs = new ArrayList<>();
         this.genres = new ArrayList<>();
     }
-   
-    
-    public void setTaillePoster(String Taille)
+        
+    public Acteur getActeur(int idActeur)
     {
-        if(getPosterPath() != null)
-            setPosterPath(getPosterPath().replaceFirst("w\\d{3}", Taille));
+        Acteur Acteur = null; 
+        boolean Trouve = false;
+        
+        for(int i = 0 ; i < getActeurs().size() && !Trouve ; i++)
+        {
+            Acteur = getActeurs().get(i);
+            if(Acteur.getId()== idActeur)
+                Trouve = true;
+        }
+        
+        return Acteur;
     }
-
+    
     public ArrayList<Genre> getGenres() {
         return genres;
     }
@@ -72,22 +87,27 @@ public class Film implements Tailles_Posters, Serializable
         this.certification = certification;
     }
     
-    public ArrayList<Realisateur> getRealisateurs() {
+    public ArrayList<Realisateur> getRealisateurs() 
+    {
         return realisateurs;
     }
-    public ArrayList<Acteur> getActeurs() {
+    
+    public ArrayList<Acteur> getActeurs() 
+    {
         return acteurs;
     }
+    
     public int getIdFilm() {
         return idFilm;
     }
 
-    public void setIdFilm(int idFilm) {
+    public void setIdFilm(int idFilm) 
+    {
         this.idFilm = idFilm;
     }
     
-    public String getPosterPath() {
-        return posterPath;
+    public String getPosterPath(String taille) {
+        return "http://image.tmdb.org/t/p/" + taille + posterPath;
     }
 
     public void setPosterPath(String posterPath) {
@@ -167,4 +187,16 @@ public class Film implements Tailles_Posters, Serializable
     {
         this.originalTitle = originalTitle;
     }    
+
+    public String getDateReal()
+    {
+        return dateReal;
+    }
+
+    public void setDateReal(String dateReal)
+    {
+        this.dateReal = dateReal;
+    }
+    
+    
 }
