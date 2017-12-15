@@ -146,7 +146,7 @@
                 else { %>
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title text-center">Résultats de la recherche</h5>
+                        <h5 class="card-title text-center">Résultats de la dernière recherche</h5>
                         <%
                             if (!Films.getFilms().isEmpty())
                             { %>

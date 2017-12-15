@@ -32,7 +32,7 @@
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between">
-            <a class="navbar-brand" href="#"><i class="fa fa-cinema"></i><strong> Rennequinepolis</strong></a>
+            <a class="navbar-brand" href="RechPlaces.jsp"><i class="fa fa-cinema"></i><strong> Rennequinepolis</strong></a>
             <form class="form-inline">
                 <button type="button" class="btn btn-info mr-1">
                     <a id="redirection" href="RechPlaces.jsp">

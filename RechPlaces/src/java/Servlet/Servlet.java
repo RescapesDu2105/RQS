@@ -86,38 +86,7 @@ public class Servlet extends HttpServlet {
                     }                            
                 }
 
-                /*String Acteurs = request.getParameter("acteursInput");
-                System.out.println("Acteurs = " + Acteurs);
-                if(Acteurs != null)
-                {
-                    if (isDigit(Acteurs))
-                    {
-                        session.setAttribute("ErrorAct", "Le champ des acteurs contient une ou des valeur(s) numérique(s)");
-                        session.setAttribute("Error", true);
-                    }                            
-                }
-
-                String Realisateurs = request.getParameter("realisateursInput");
-                if(Realisateurs != null)
-                {
-                    if (isDigit(Realisateurs))
-                    {
-                        session.setAttribute("ErrorRea", "Le champ des réalisateurs contient une ou des valeur(s) numérique(s)");
-                        session.setAttribute("Error", true);
-                    }                            
-                }
-
-                String Genres = request.getParameter("genresInput");
-                if(Genres != null)
-                {
-                    if (!isAlpha(Genres))
-                    {
-                        session.setAttribute("ErrorGen", "Le champ des genres contient une ou des valeur(s) numérique(s)");
-                        session.setAttribute("Error", true);
-                    }                            
-                }*/
                 
-
                 try 
                 {
                     String urlParameters;
@@ -135,20 +104,25 @@ public class Servlet extends HttpServlet {
                     
                     if(!request.getParameter("popularite").equals("Default"))
                     {
+                        urlParameters += "&popularite=";
+                        urlParameters += request.getParameter("popularite");
+                        
                         urlParameters += "&popInput=";
                         urlParameters += request.getParameter("popInput");
                     }
                     
                     if(!request.getParameter("perennite").equals("Default"))
                     {
+                        urlParameters += "&perennite=";
+                        urlParameters += request.getParameter("perennite");
+                        
                         urlParameters += "&perInput=";
                         urlParameters += request.getParameter("perInput");
                     }
                     
                     System.out.println("urlParameters = " + urlParameters);
                     DBAccess.SendPOSTRequest("http://127.0.0.1:9080/ords/rqs/cb.package_RechPlaces.RecupererFilms", urlParameters);
-                    String json = DBAccess.ReceiveResponse();
-                    System.out.println("json = " + json);
+                    String json = DBAccess.ReceiveResponse();                    
                     StringReader stringParser = new StringReader(json);
                     JsonReader reader = Json.createReader(stringParser);// Création d'un reader
                     JsonObject JsonObject = reader.readObject();// Création d'un objet
@@ -224,14 +198,14 @@ public class Servlet extends HttpServlet {
         Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();
         Acteur acteur = ((Film) session.getAttribute("Film")).getActeur(IdActeur);
         Document doc = BeanDB.getActeur(acteur.getId());
-        System.out.println("doc = " + doc);
+        //System.out.println("doc = " + doc);
         
         if (doc != null)
         {            
             acteur.setDateNaissance(doc.getString("birthday"));
             acteur.setLieuNaissance(doc.getString("place_of_birth"));
             acteur.setDateDeces(doc.getString("deathday") != null ? doc.getString("deathday") : null);
-            acteur.setImageProfil(doc.getString("posterpath"));
+            acteur.setImageProfil(doc.getString("poster_path"));
         }
         else
         {                
@@ -239,14 +213,14 @@ public class Servlet extends HttpServlet {
             
         }
 
-        System.out.println("id = " + acteur.getId());
+        //System.out.println("id = " + acteur.getId());
         ArrayList<Document> films = (ArrayList<Document>) doc.get("films");
-        System.out.println("films = " + films);       
+        //System.out.println("films = " + films);       
         for(Document document : films)
         {
             JouerFilm film = new JouerFilm(document.get("titre").toString(), document.containsKey("original_title") ? document.get("original_title").toString() : null, document.containsKey("poster_path") ? document.get("poster_path").toString() : null, /*document.getString("release_date"),*/ document.containsKey("character") ? document.get("character").toString() : null);
-            System.out.println("o = " + film.getOriginalTitle());
-            System.out.println("c = " + film.getCharacter());
+            //System.out.println("o = " + film.getOriginalTitle());
+            //System.out.println("c = " + film.getCharacter());
             acteur.getFilmographie().add(film);
         }
 
