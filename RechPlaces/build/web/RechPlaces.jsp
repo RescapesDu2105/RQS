@@ -187,7 +187,7 @@
                          <%     } %>                            
                             </tbody>
                         </table>                            
-                          <%  }
+                        <%  }
                             else 
                             {  %> 
                                 <div class="alert alert-danger text-center" role="alert">Aucun résultat</div>

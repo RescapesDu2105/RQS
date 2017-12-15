@@ -1,13 +1,13 @@
-drop table programmations CASCADE CONSTRAINTS;;
-drop table REALISER CASCADE CONSTRAINTS;;
-drop table Film_Genre CASCADE CONSTRAINTS;;
-drop table JOUER CASCADE CONSTRAINTS;;
-drop table Films_Copies CASCADE CONSTRAINTS;;
-drop table Films CASCADE CONSTRAINTS;;
-drop table posters CASCADE CONSTRAINTS;;
-drop table genres CASCADE CONSTRAINTS;;
-drop table Certifications CASCADE CONSTRAINTS;;
-drop table Artists CASCADE CONSTRAINTS;;
+drop table programmations CASCADE CONSTRAINTS;
+drop table REALISER CASCADE CONSTRAINTS;
+drop table Film_Genre CASCADE CONSTRAINTS;
+drop table JOUER CASCADE CONSTRAINTS;
+drop table Films_Copies CASCADE CONSTRAINTS;
+drop table Films CASCADE CONSTRAINTS;
+drop table posters CASCADE CONSTRAINTS;
+drop table genres CASCADE CONSTRAINTS;
+drop table Certifications CASCADE CONSTRAINTS;
+drop table Artists CASCADE CONSTRAINTS;
 
 CREATE TABLE Artists (
     IdArt     NUMBER(7),
