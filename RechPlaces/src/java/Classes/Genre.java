@@ -9,19 +9,23 @@ package Classes;
  *
  * @author Philippe
  */
-public class Genre implements iGenre
+public class Genre //implements iGenre
 {
     private String Nom;
 
-    public Genre(String Nom) {
+    public Genre(String Nom) 
+    {
         this.Nom = Nom;
     }
     
-    public String getNom() {
+    
+    public String getNom() 
+    {
         return Nom;
     }
 
-    public void setNom(String Nom) {
+    public void setNom(String Nom) 
+    {
         this.Nom = Nom;
     }
 }

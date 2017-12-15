@@ -19,33 +19,41 @@ public class Film implements Tailles_Posters, Serializable
     private int idFilm;
     private String posterPath;
     private String title;
+    private String originalTitle;
     private int popularite;
     private int perennite;
-    private ArrayList<Acteur> acteurs;
-    private ArrayList<Realisateur> realisateurs;
-    private String resume;
-    private ArrayList<Genre> genres;
-    private String publicCible;
+    private final ArrayList<Acteur> acteurs;
+    private final ArrayList<Realisateur> realisateurs;
+    private final ArrayList<Genre> genres;
+    private String certification;
+    private float voteAverage;
+    private int voteCount;
+    private int duree;
+    private int budget;
+    private String dateReal;
     //private ArrayList<Seance> Seances;
 
-    public Film() 
-    {
-    }
-
-    public Film(int idFilm, String posterPath, String title, int popularite, int perennite, ArrayList<Acteur> acteurs, ArrayList<Realisateur> realisateurs, String resume, ArrayList<Genre> genres, String publicCible) 
+    public Film(int idFilm, String posterPath, String title, String originalTitle, int popularite, int perennite, String certification, float voteAverage, int voteCount, int duree, int budget, String dateReal)
     {
         this.idFilm = idFilm;
         this.posterPath = "http://image.tmdb.org/t/p/w185" + posterPath;
         this.title = title;
+        this.originalTitle = originalTitle;
         this.popularite = popularite;
         this.perennite = perennite;
-        this.acteurs = acteurs;
-        this.realisateurs = realisateurs;
-        this.resume = resume;
-        this.genres = genres;
-        this.publicCible = publicCible;
+        this.certification = certification;
+        this.voteAverage = voteAverage;
+        this.voteCount = voteCount;
+        this.duree = duree;
+        this.budget = budget;
+        this.dateReal = dateReal;
+        
+        this.acteurs = new ArrayList<>();
+        this.realisateurs = new ArrayList<>();
+        this.genres = new ArrayList<>();
     }
-
+   
+    
     public void setTaillePoster(String Taille)
     {
         if(getPosterPath() != null)
@@ -56,43 +64,20 @@ public class Film implements Tailles_Posters, Serializable
         return genres;
     }
 
-    public void setGenres(ArrayList<Genre> genres) {
-        this.genres = genres;
+    public String getCertification() {
+        return certification;
     }
 
-    public String getPublicCible() {
-        return publicCible;
+    public void setCertification(String certification) {
+        this.certification = certification;
     }
-
-    public void setPublicCible(String publicCible) {
-        this.publicCible = publicCible;
-    }
-
     
     public ArrayList<Realisateur> getRealisateurs() {
         return realisateurs;
     }
-
-    public void setRealisateurs(ArrayList<Realisateur> realisateurs) {
-        this.realisateurs = realisateurs;
-    }
-
-    public String getResume() {
-        return resume;
-    }
-
-    public void setResume(String resume) {
-        this.resume = resume;
-    }
-
     public ArrayList<Acteur> getActeurs() {
         return acteurs;
     }
-
-    public void setActeurs(ArrayList<Acteur> acteurs) {
-        this.acteurs = acteurs;
-    }    
-
     public int getIdFilm() {
         return idFilm;
     }
@@ -132,4 +117,54 @@ public class Film implements Tailles_Posters, Serializable
     public void setPerennite(int perennite) {
         this.perennite = perennite;
     }
+
+    public float getVoteAverage()
+    {
+        return voteAverage;
+    }
+
+    public void setVoteAverage(float voteAverage)
+    {
+        this.voteAverage = voteAverage;
+    }
+
+    public int getVoteCount()
+    {
+        return voteCount;
+    }
+
+    public void setVoteCount(int voteCount)
+    {
+        this.voteCount = voteCount;
+    }
+
+    public int getDuree()
+    {
+        return duree;
+    }
+
+    public void setDuree(int duree)
+    {
+        this.duree = duree;
+    }
+
+    public int getBudget()
+    {
+        return budget;
+    }
+
+    public void setBudget(int budget)
+    {
+        this.budget = budget;
+    }
+
+    public String getOriginalTitle()
+    {
+        return originalTitle;
+    }
+
+    public void setOriginalTitle(String originalTitle)
+    {
+        this.originalTitle = originalTitle;
+    }    
 }

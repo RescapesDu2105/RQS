@@ -6,7 +6,6 @@
 package Beans;
 
 import Classes.Personne;
-import Classes.Personne;
 
 /**
  *
@@ -14,8 +13,8 @@ import Classes.Personne;
  */
 public class Realisateur extends Personne
 {
-    public Realisateur(String Nom, String Prenom, String DateNaissance, String LieuNaissance, String DateDeces, String ImageProfil) 
+    public Realisateur(String Nom) 
     {
-        super(Nom, Prenom, DateNaissance, LieuNaissance, DateDeces, ImageProfil);
+        super(Nom, null, null, null, null);
     }
 }

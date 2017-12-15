@@ -13,8 +13,25 @@ import Classes.Personne;
  */
 public class Acteur extends Personne
 {
-    public Acteur(String Nom, String Prenom, String DateNaissance, String LieuNaissance, String DateDeces, String ImageProfil) 
+    private int Id;
+    
+    public Acteur(int Id, String Nom) 
     {
-        super(Nom, Prenom, DateNaissance, LieuNaissance, DateDeces, ImageProfil);
+        super(Nom, null, null, null, null);
+    }
+    
+    public Acteur(int Id, String Nom, String DateNaissance, String LieuNaissance, String DateDeces, String ImageProfil) 
+    {
+        super(Nom, DateNaissance, LieuNaissance, DateDeces, ImageProfil);
+    }
+
+    public int getId()
+    {
+        return Id;
+    }
+
+    public void setId(int Id)
+    {
+        this.Id = Id;
     }
 }

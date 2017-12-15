@@ -5,9 +5,17 @@
  */
 package Servlet;
 
+import Beans.Acteur;
+import Beans.Film;
 import Beans.Films;
 import Classes.DBAccess;
+import Classes.Genre;
 import java.io.IOException;
+import java.io.StringReader;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -131,7 +139,42 @@ public class Servlet extends HttpServlet {
                     
                     System.out.println("urlParameters = " + urlParameters);
                     DBAccess.SendPOSTRequest("http://127.0.0.1:9080/ords/rqs/cb.package_RechPlaces.RecupererFilms", urlParameters);
-                    System.out.println("Reponse = " + DBAccess.ReceiveResponse());
+                    String json = DBAccess.ReceiveResponse();
+                    StringReader stringParser = new StringReader(json);
+                    JsonReader reader = Json.createReader(stringParser);// Création d'un reader
+                    JsonObject JsonObject = reader.readObject();// Création d'un objet
+                    JsonObject ObjectFilm;
+                    int length = JsonObject.getJsonArray("films").size();
+                    for(int i = 0 ; i < length ; i++)
+                    {
+                        ObjectFilm = JsonObject.getJsonArray("films").getJsonObject(i);
+                        //System.out.println("VoteAverage = " + Float.valueOf(ObjectFilm.getString("VOTE_AVERAGE").replaceAll(",", ".")));
+                        Film film = new Film(ObjectFilm.getInt("IDFILM"), ObjectFilm.getString("PATHIMAGE"), ObjectFilm.getString("TITRE"), ObjectFilm.getString("TITRE_ORIGINAL"), 
+                                ObjectFilm.getInt("COMPLEXEPOPULARITE"), ObjectFilm.getInt("COMPLEXEPERENITE"), ObjectFilm.getString("NOMCERTI"), 
+                                Float.valueOf(ObjectFilm.getString("VOTE_AVERAGE").replaceAll(",", ".")), ObjectFilm.getInt("VOTE_COUNT"), ObjectFilm.getInt("DUREE"), ObjectFilm.getInt("BUDGET"), 
+                                ObjectFilm.getString("DATE_REAL"));
+                        JsonArray acteurs = ObjectFilm.getJsonArray("ARTISTS");
+                        JsonArray genres = ObjectFilm.getJsonArray("GENRES");
+                        JsonArray realisateurs = ObjectFilm.getJsonArray("REALISATEURS");
+                        
+                        for(int j = 0 ; j < acteurs.size() ; j++)
+                        {
+                            film.getActeurs().add(new Acteur(acteurs.getJsonObject(j).getInt("IDART"), acteurs.getJsonObject(j).getString("NOMART")));
+                        }
+                        
+                        for(int j = 0 ; j < acteurs.size() ; j++)
+                        {
+                            film.getGenres().add(new Genre(genres.getJsonObject(j).getString("NOMGENRE")));
+                        }
+                        
+                        for(int j = 0 ; j < acteurs.size() ; j++)
+                        {
+                            film.getRealisateurs().add(new Realisateur(realisateurs.getJsonObject(j).getString("NOMART")));
+                        }
+                        
+                        System.out.println("film = " + film.getVoteAverage());
+                    }
+                    
                 } 
                 catch (Exception e) 
                 {

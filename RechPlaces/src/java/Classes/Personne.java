@@ -16,17 +16,15 @@ import java.util.Locale;
  */
 public class Personne implements Serializable {
     
-   private String Nom;
-    private String Prenom;
+    private String Nom;
     private String DateNaissance;
     private String LieuNaissance;
     private String DateDeces;
     private String ImageProfil;
 
-    public Personne(String Nom, String Prenom, String DateNaissance, String LieuNaissance, String DateDeces, String ImageProfil) 
+    public Personne(String Nom, String DateNaissance, String LieuNaissance, String DateDeces, String ImageProfil) 
     {
         this.Nom = Nom;
-        this.Prenom = Prenom;
         this.DateNaissance = DateNaissance;
         this.LieuNaissance = LieuNaissance;
         this.DateDeces = DateDeces;
@@ -54,14 +52,6 @@ public class Personne implements Serializable {
 
     public void setNom(String Nom) {
         this.Nom = Nom;
-    }
-
-    public String getPrenom() {
-        return Prenom;
-    }
-
-    public void setPrenom(String Prenom) {
-        this.Prenom = Prenom;
     }
 
     public String getDateNaissance() {
