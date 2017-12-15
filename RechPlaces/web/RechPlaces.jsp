@@ -4,6 +4,8 @@
     Author     : Philippe
 --%>
 
+<%@page import="Classes.Tailles_Posters"%>
+<%@page import="Beans.Film"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <jsp:useBean id="Panier" scope="session" class="Beans.Panier"/>
 <jsp:useBean id="Films" scope="session" class="Beans.Films"/>
@@ -145,6 +147,9 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title text-center">Résultats de la recherche</h5>
+                        <%
+                            if (!Films.getFilms().isEmpty())
+                            { %>
                         <table class ="table table-hover">
                             <thead class="thead-dark">
                                 <tr>
@@ -155,27 +160,38 @@
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody>                                
+                            <%
+                                for(int i = 0 ; i < Films.getFilms().size() ; i++)
+                                { 
+                                    Film film = Films.getFilms().get(i);
+                                %>
                                 <tr>
                                     <th id="poster" scope="row">
-                                        <img class="rounded float-left" alt="No free image man (en)" src="https://image.tmdb.org/t/p/w45/kqjL17yufvn9OVLyXYpvtyrFfak.jpg"/>
+                                        <img class="rounded float-left" alt="No free image man (en)" src="<%= film.getPosterPath(Tailles_Posters.POSTER_SIZE_W92) %>"/>
                                     </th>
                                     <td class="align-middle text-center">
-                                        <a href="Servlet?action=FicheFilm&IdFilm=1">Mad Max Fury Road</a>
+                                        <a href="Servlet?action=FicheFilm&IdFilm=<%= film.getIdFilm() %>"><%= film.getTitle() %></a>
                                     </td>
-                                    <td class="align-middle text-center">145</td>
-                                    <td class="align-middle text-center">14</td>
+                                    <td class="align-middle text-center"><%= film.getPopularite() %></td>
+                                    <td class="align-middle text-center"><%= film.getPerennite() %></td>
                                     <td class="align-middle text-center">
                                         <button type="button" class="btn btn-danger ml-1">
-                                            <a id="redirection" href="Servlet?action=AfficherSeancesFilm&IdFilm=1001">
+                                            <a id="redirection" href="Servlet?action=AfficherSeancesFilm&IdFilm="<%= film.getIdFilm() %>>
                                                 <i class="fa fa-ticket" aria-hidden="true"></i>
                                                 Afficher les séances pour ce film 
                                             </a>
                                         </button>
                                     </td>
                                 </tr>
+                         <%     } %>                            
                             </tbody>
-                        </table>
+                        </table>                            
+                          <%  }
+                            else 
+                            {  %> 
+                                <div class="alert alert-danger text-center" role="alert">Aucun résultat</div>
+                        <%  } %>
                     </div>
                 </div>
                 <% } %>

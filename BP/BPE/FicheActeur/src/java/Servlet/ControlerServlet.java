@@ -117,7 +117,6 @@ public class ControlerServlet extends HttpServlet {
                 Filmographie.add(Film);
             }
             
-            session.removeAttribute("Filmographie");
             session.setAttribute("Filmographie", Filmographie);
         }        
     }

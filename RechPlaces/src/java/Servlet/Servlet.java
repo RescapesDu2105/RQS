@@ -5,14 +5,29 @@
  */
 package Servlet;
 
+import Bean.Bean_DB_MongoDB;
+import Beans.Acteur;
+import Beans.Film;
 import Beans.Films;
+import Beans.Realisateur;
 import Classes.DBAccess;
+import Classes.Genre;
+import Classes.JouerFilm;
+import Classes.Tailles_Posters;
+import com.mongodb.client.FindIterable;
 import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.bson.Document;
 
 /**
  *
@@ -71,10 +86,11 @@ public class Servlet extends HttpServlet {
                     }                            
                 }
 
-                String Acteurs = request.getParameter("acteursInput");
+                /*String Acteurs = request.getParameter("acteursInput");
+                System.out.println("Acteurs = " + Acteurs);
                 if(Acteurs != null)
                 {
-                    if (!isAlpha(Acteurs))
+                    if (isDigit(Acteurs))
                     {
                         session.setAttribute("ErrorAct", "Le champ des acteurs contient une ou des valeur(s) numérique(s)");
                         session.setAttribute("Error", true);
@@ -84,7 +100,7 @@ public class Servlet extends HttpServlet {
                 String Realisateurs = request.getParameter("realisateursInput");
                 if(Realisateurs != null)
                 {
-                    if (!isAlpha(Realisateurs))
+                    if (isDigit(Realisateurs))
                     {
                         session.setAttribute("ErrorRea", "Le champ des réalisateurs contient une ou des valeur(s) numérique(s)");
                         session.setAttribute("Error", true);
@@ -99,7 +115,7 @@ public class Servlet extends HttpServlet {
                         session.setAttribute("ErrorGen", "Le champ des genres contient une ou des valeur(s) numérique(s)");
                         session.setAttribute("Error", true);
                     }                            
-                }
+                }*/
                 
 
                 try 
@@ -109,13 +125,13 @@ public class Servlet extends HttpServlet {
                     urlParameters = "complexe=";
                     urlParameters += request.getParameter("complexe");
                     urlParameters += "&acteursInput=";
-                    urlParameters += request.getParameter("acteursInput");
+                    urlParameters += request.getParameter("acteursInput").replaceAll(" ", "%20");
                     urlParameters += "&realisateursInput=";
-                    urlParameters += request.getParameter("realisateursInput");
+                    urlParameters += request.getParameter("realisateursInput").replaceAll(" ", "%20");;
                     urlParameters += "&genresInput=";
-                    urlParameters += request.getParameter("genresInput");
+                    urlParameters += request.getParameter("genresInput").replaceAll(" ", "%20");
                     urlParameters += "&titreInput=";
-                    urlParameters += request.getParameter("titreInput");
+                    urlParameters += request.getParameter("titreInput").replaceAll(" ", "%20");
                     
                     if(!request.getParameter("popularite").equals("Default"))
                     {
@@ -131,21 +147,60 @@ public class Servlet extends HttpServlet {
                     
                     System.out.println("urlParameters = " + urlParameters);
                     DBAccess.SendPOSTRequest("http://127.0.0.1:9080/ords/rqs/cb.package_RechPlaces.RecupererFilms", urlParameters);
-                    System.out.println("Reponse = " + DBAccess.ReceiveResponse());
+                    String json = DBAccess.ReceiveResponse();
+                    System.out.println("json = " + json);
+                    StringReader stringParser = new StringReader(json);
+                    JsonReader reader = Json.createReader(stringParser);// Création d'un reader
+                    JsonObject JsonObject = reader.readObject();// Création d'un objet
+                    JsonObject ObjectFilm;
+                    int length = JsonObject.getJsonArray("films").size();
+                    
+                    Films films = new Films();
+                    for(int i = 0 ; i < length ; i++)
+                    {
+                        ObjectFilm = JsonObject.getJsonArray("films").getJsonObject(i);
+                        //System.out.println("VoteAverage = " + Float.valueOf(ObjectFilm.getString("VOTE_AVERAGE").replaceAll(",", ".")));
+                        Film film = new Film(ObjectFilm.getInt("IDFILM"), ObjectFilm.getString("PATHIMAGE"), ObjectFilm.getString("TITRE"), ObjectFilm.getString("TITRE_ORIGINAL"), 
+                                ObjectFilm.getInt("COMPLEXEPOPULARITE"), ObjectFilm.getInt("COMPLEXEPERENITE"), ObjectFilm.getString("NOMCERTI"), 
+                                Float.valueOf(ObjectFilm.getString("VOTE_AVERAGE").replaceAll(",", ".")), ObjectFilm.getInt("VOTE_COUNT"), ObjectFilm.getInt("DUREE"), ObjectFilm.getInt("BUDGET"), 
+                                ObjectFilm.getString("DATE_REAL"));
+                        JsonArray acteurs = ObjectFilm.getJsonArray("ARTISTS");
+                        JsonArray genres = ObjectFilm.getJsonArray("GENRES");
+                        JsonArray realisateurs = ObjectFilm.getJsonArray("REALISATEURS");
+                        
+                        for(int j = 0 ; j < acteurs.size() ; j++)
+                        {
+                            film.getActeurs().add(new Acteur(acteurs.getJsonObject(j).getInt("IDART"), acteurs.getJsonObject(j).getString("NOMART"), acteurs.getJsonObject(j).getString("ROLE")));
+                        }
+                        
+                        for(int j = 0 ; j < genres.size() ; j++)
+                        {
+                            film.getGenres().add(new Genre(genres.getJsonObject(j).getString("NOMGENRE")));
+                        }
+                        
+                        for(int j = 0 ; j < realisateurs.size() ; j++)
+                        {
+                            film.getRealisateurs().add(new Realisateur(realisateurs.getJsonObject(j).getString("NOMART")));
+                        }
+                        
+                        films.getFilms().add(film);
+                    }
+                    
+                    session.setAttribute("Films", films);                    
                 } 
                 catch (Exception e) 
                 {
                     e.printStackTrace();
                 }
                                         
-                //response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/RechPlaces.jsp");
+                response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/RechPlaces.jsp");
                 break;            
             case "FicheFilm":
                 RecupererFilm(Integer.parseInt(request.getParameter("IdFilm")), session);
                 response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/FicheFilm.jsp");
                 break;            
             case "FicheActeur":
-                RecupererActeur(Integer.parseInt(request.getParameter("IdActeur")));
+                RecupererActeur(Integer.parseInt(request.getParameter("IdActeur")), session);
                 response.sendRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/RechPlaces/FicheActeur.jsp");
                 break;
             case "AfficherSeancesFilm":
@@ -159,14 +214,43 @@ public class Servlet extends HttpServlet {
     
     public void RecupererFilm(int idFilm, HttpSession session) 
     {
-        Films Films = (Films) getServletContext().getAttribute("Films");
-        //Film Film = Films.getFilm(idFilm);
-        //session.setAttribute("Film", Film);
+        Films films = (Films) session.getAttribute("Films");
+        Film film = films.getFilm(idFilm);
+        session.setAttribute("Film", film);
     }
 
-    public void RecupererActeur(int IdActeur)
+    public void RecupererActeur(int IdActeur, HttpSession session) 
     {
+        Bean_DB_MongoDB BeanDB = new Bean_DB_MongoDB();
+        Acteur acteur = ((Film) session.getAttribute("Film")).getActeur(IdActeur);
+        Document doc = BeanDB.getActeur(acteur.getId());
+        System.out.println("doc = " + doc);
         
+        if (doc != null)
+        {            
+            acteur.setDateNaissance(doc.getString("birthday"));
+            acteur.setLieuNaissance(doc.getString("place_of_birth"));
+            acteur.setDateDeces(doc.getString("deathday") != null ? doc.getString("deathday") : null);
+            acteur.setImageProfil(doc.getString("posterpath"));
+        }
+        else
+        {                
+            session.setAttribute("Error", "L'acteur n'a pas été trouvé !");           
+            
+        }
+
+        System.out.println("id = " + acteur.getId());
+        ArrayList<Document> films = (ArrayList<Document>) doc.get("films");
+        System.out.println("films = " + films);       
+        for(Document document : films)
+        {
+            JouerFilm film = new JouerFilm(document.get("titre").toString(), document.containsKey("original_title") ? document.get("original_title").toString() : null, document.containsKey("poster_path") ? document.get("poster_path").toString() : null, /*document.getString("release_date"),*/ document.containsKey("character") ? document.get("character").toString() : null);
+            System.out.println("o = " + film.getOriginalTitle());
+            System.out.println("c = " + film.getCharacter());
+            acteur.getFilmographie().add(film);
+        }
+
+        session.setAttribute("Acteur", acteur);
     }
     
     public void RecupererSeancesFilm(int IdFilm)

@@ -4,8 +4,12 @@
     Author     : Philippe
 --%>
 
+<%@page import="Beans.Acteur"%>
+<%@page import="Classes.Genre"%>
+<%@page import="Classes.Tailles_Posters"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <jsp:useBean id="Panier" scope="session" class="Beans.Panier"/>
+<jsp:useBean id="Film" scope="session" class="Beans.Film"/>
 <!DOCTYPE html>
 <html>
     <head>
@@ -57,7 +61,7 @@
             
             <div class="row">
                 <div class="col">
-                    <h1 class="display-4 text-left font-weight-bold">Mad Max Fury Road</h1>
+                    <h1 class="display-4 text-left font-weight-bold"><%= Film.getTitle() %></h1>
                     <hr>
                 </div>
             </div>
@@ -65,23 +69,45 @@
             <div class="row mt-2">
                 <div class="col">
                     <figure class="figure">
-                        <img class="rounded float-left" alt="No free image man (en)" src="https://image.tmdb.org/t/p/w185/kqjL17yufvn9OVLyXYpvtyrFfak.jpg"/>
-                        <figcaption class="figure-caption text-center">Date de sortie : 14 mai 2015</figcaption>
+                        <img class="rounded float-left" alt="Image <%= Film.getTitle() %>" src="<%= Film.getPosterPath(Tailles_Posters.POSTER_SIZE_W185) %>"/>
+                        <!-- <figcaption class="figure-caption text-center">Date de sortie : 14 mai 2015</figcaption> -->
                     </figure>
                 </div>
                 <div class="col-10">
-                    <h3>Résumé :</h3>
-                    <p class="lead">Ancien policier de la route, Max Rockatansky (Tom Hardy) erre désormais seul au volant de son bolide (une Ford Falcon XB 351) dans un monde dévasté où les clans de cannibales, les sectes et les gangs de motards s'affrontent dans des déserts sans fin pour l'essence et l'eau. L'un de ces clans est aux ordres de « Immortan Joe » (Hugh Keays-Byrne), un ancien militaire devenu leader tyrannique2. L'une de ses plus fidèles partisanes, l'« imperator » Furiosa (Charlize Theron), le trahit et s'enfuit avec un bien d'une importance capitale pour le chef de guerre : ses « épouses », un groupe de jeunes femmes lui servant d'esclaves et de « pondeuses ».</p>
+                    <p><b>Réalisateur : </b> 
+                        <% 
+                            String realisateurs = "";
+                            for(int i = 0 ; i < Film.getRealisateurs().size() ; i++) 
+                            { 
+                                realisateurs += (Film.getRealisateurs().get(i).getNom() + ", "); 
+                            } 
+                            realisateurs = realisateurs.substring(0, realisateurs.length() - 2);
+                            out.println(realisateurs);
+                        %>
+                    </p>   
+                    <p><b>Genre :</b> 
+                        <% 
+                            String genres = "";
+                            for(int i = 0 ; i < Film.getGenres().size() ; i++) 
+                            { 
+                                genres += (Film.getGenres().get(i).getNom() + ", "); 
+                            } 
+                            genres = genres.substring(0, genres.length() - 2);
+                            out.println(genres);
+                        %>
+                    </p>
+                    <p><b>Popularité : </b><%= Film.getPopularite() %> places vendues environ</p>                    
+                    <p><b>Nombre de semaines au Box-office : </b><%= Film.getPerennite() %></p>                    
+                    <p><b>Public cible : </b><%= Film.getCertification() %></p>
+                    <p><b>Date de réalisation : </b><%= Film.getDateReal() %></p>
+                    <p><b>Durée : </b><%= Film.getDuree() %> minutes</p>
+                    <p><b>Budget : </b><%= Film.getBudget() %> $</p>
+                    <p><b>Moyenne des votes : </b><%= Film.getVoteAverage() %> avec <%= Film.getVoteCount() %> votes</p>
                 </div>
             </div>
             
             <div class="row">    
-                <div class="col">
-                    <p><b>Popularité :</b> 120.000 places vendues environ</p>                    
-                    <p><b>Nombre de semaines au Box-office :</b> 10</p>
-                    <p><b>Genre :</b> science-fiction dystopique, road movie</p>
-                    <p><b>Public cible :</b> Les adolescents rebelles</p>
-                    <p><b>Réalisateur :</b> Georges Miller</p>                    
+                <div class="col">                                     
                     <p><b>Acteurs :</b></p>
                     <table class="table table-sm table-hover table-bordered">
                         <thead class="thead-dark">
@@ -91,26 +117,16 @@
                           </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="text-center"><a href="Servlet?action=FicheActeur&IdActeur=1001">Tom Hardy</a></td>
-                                <td class="text-center">Max Rockatansky</td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">Charlize Theron</td>
-                                <td class="text-center">Imperator Furiosa</td>
-                            </tr>
-                          <tr>
-                            <td class="text-center">Nicholas Hoult</td>
-                            <td class="text-center">Nux</td>
-                          </tr>
-                          <tr>
-                            <td class="text-center">Nicholas Hoult</td>
-                            <td class="text-center">Nux</td>
-                          </tr>
-                          <tr>
-                            <td class="text-center">Nicholas Hoult</td>
-                            <td class="text-center">Nux</td>
-                          </tr>
+                            <%
+                                for(int i = 0 ; i < Film.getActeurs().size() ; i++)
+                                { 
+                                    Acteur acteur = Film.getActeurs().get(i);
+                                %>
+                                <tr>
+                                    <td class="text-center"><a href="Servlet?action=FicheActeur&IdActeur=<%= acteur.getId() %>"><%= acteur.getNom() %></a></td>
+                                    <td class="text-center"><%= acteur.getRole() %></td>
+                                </tr>
+                            <%  } %>
                         </tbody>
                     </table>
                 </div>

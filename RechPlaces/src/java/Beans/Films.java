@@ -29,7 +29,8 @@ public class Films implements Serializable
         
         for(int i = 0 ; i < getFilms().size() && !Trouve ; i++)
         {
-            if(Films.get(i).getIdFilm() == idFilm)
+            Film = Films.get(i);
+            if(Film.getIdFilm() == idFilm)
                 Trouve = true;
         }
         

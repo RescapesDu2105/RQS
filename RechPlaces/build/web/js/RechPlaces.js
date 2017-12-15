@@ -65,6 +65,7 @@ function FctPerennite(event)
 
                 var input = document.createElement("input");
                 input.setAttribute("type", "number");
+                input.setAttribute("step", "0.1");
                 input.setAttribute("name", "perInput");
                 input.setAttribute("id", "perInput");
                 input.setAttribute("class", "form-control");
