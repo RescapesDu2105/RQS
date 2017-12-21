@@ -13,8 +13,6 @@ import Beans.Realisateur;
 import Classes.DBAccess;
 import Classes.Genre;
 import Classes.JouerFilm;
-import Classes.Tailles_Posters;
-import com.mongodb.client.FindIterable;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;

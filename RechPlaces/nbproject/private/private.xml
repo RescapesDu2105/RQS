@@ -9,15 +9,11 @@
             <file>file:/E:/Dropbox/B3/SGBD/RQS/CC/RechPlaces/web/FicheFilm.jsp</file>
         </group>
         <group name="SGBD">
-            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/web/RechPlaces.jsp</file>
-            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/src/java/Beans/Films.java</file>
-            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/src/java/Classes/JouerFilm.java</file>
-            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/src/java/Beans/Acteur.java</file>
             <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/web/FicheActeur.jsp</file>
-            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/web/FicheFilm.jsp</file>
             <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/src/java/Servlet/Servlet.java</file>
             <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/src/java/Beans/Film.java</file>
-            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/src/java/Classes/Personne.java</file>
+            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/web/FicheFilm.jsp</file>
+            <file>file:/E:/Dropbox/B3/SGBD/RQS/RechPlaces/web/RechPlaces.jsp</file>
         </group>
     </open-files>
 </project-private>
