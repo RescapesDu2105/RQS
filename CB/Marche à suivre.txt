@@ -1,4 +1,0 @@
-1.Il faut crée les tables de logs ainsi ques les procedures qui les utilisent , pour cela executer le fichier CreaLogs.sql
-2.Maintenant vous pouvez analyser les données grace a AnalyseCI.sql , le resultat sera mit dans un fichier "AnalyseCI.txt" dans le dossier du sgbd 
-
---Nous avons mis le MCD et MRD du schéma a votre disposition dans le dossier Schémas .
